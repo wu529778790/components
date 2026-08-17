@@ -60,7 +60,7 @@ const DEFAULT_BLOCKS: Record<'wechat' | 'donate', Required<FloatingQRBlock>> = {
     desc: ''
   },
   donate: {
-    src: 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260815-100157-net7.png',
+    src: 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260817-165134-105w.png',
     title: '赞赏码',
     desc: ''
   }

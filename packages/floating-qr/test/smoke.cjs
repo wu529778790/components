@@ -69,7 +69,7 @@ assert(localStorage.getItem('floating-qr:closed') === null, 'no persistence by d
 const wZero = new FQ()
 assert(wZero.isMounted(), 'zero-config mounts')
 assert(lastAppended.innerHTML.includes('1782738963299-5wrchz.jpg'), 'default wechat QR used')
-assert(lastAppended.innerHTML.includes('imgx-20260815-100157-net7.png'), 'default donate QR used')
+assert(lastAppended.innerHTML.includes('imgx-20260817-165134-105w.png'), 'default donate QR used')
 
 // 5. custom src overrides defaults
 const wCustom = new FQ({ wechat: { src: 'custom-wx.png' }, donate: { src: 'custom-dz.png' } })
