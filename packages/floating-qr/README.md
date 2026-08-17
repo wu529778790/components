@@ -71,26 +71,26 @@ new FloatingQR({
 
 ### `new FloatingQR(options)`
 
-`options` 整体可选，不传时使用内置的公众号 + 赞赏码默认二维码。
+**所有参数均可选**，不传即用默认值，`new FloatingQR()` 即可。
 
-| 字段 | 类型 | 必填 | 默认值 | 说明 |
-| --- | --- | --- | --- | --- |
-| `wechat` | `FloatingQRBlock` | - | 内置公众号二维码 | 公众号区块 |
-| `wechat.src` | `string` | - | 内置公众号二维码图 | 公众号二维码图片 URL |
-| `wechat.title` | `string` | - | `'公众号'` | 公众号区块标题 |
-| `wechat.desc` | `string` | - | `''` | 副文案，不传不显示 |
-| `donate` | `FloatingQRBlock` | - | 内置赞赏码 | 赞赏码区块 |
-| `donate.src` | `string` | - | 内置赞赏码图 | 赞赏码图片 URL |
-| `donate.title` | `string` | - | `'赞赏码'` | 赞赏码区块标题 |
-| `donate.desc` | `string` | - | `''` | 副文案，不传不显示 |
-| `position` | `Position` | - | `'right-bottom'` | `right-bottom` / `right-top` / `left-bottom` / `left-top` |
-| `closePersistence` | `boolean` | - | `false` | `true` 时关闭写入 localStorage，刷新不再出现 |
-| `hideOnMobile` | `boolean` | - | `true` | `<768px` 时不渲染 |
-| `zIndex` | `number` | - | `9999` | 浮窗层级 |
-| `theme.bg` | `string` | - | 半透明白 | 背景色 |
-| `theme.accent` | `string` | - | `#333` | 标题文字强调色 |
-| `theme.radius` | `string` | - | `12px` | 圆角 |
-| `theme.border` | `string` | - | `rgba(0,0,0,.1)` | 边框色 |
+| 字段 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `wechat` | `FloatingQRBlock` | 内置公众号二维码 | 公众号区块 |
+| `wechat.src` | `string` | 内置公众号二维码图 | 公众号二维码图片 URL |
+| `wechat.title` | `string` | `'公众号'` | 公众号区块标题 |
+| `wechat.desc` | `string` | `''` | 副文案，不传不显示 |
+| `donate` | `FloatingQRBlock` | 内置赞赏码 | 赞赏码区块 |
+| `donate.src` | `string` | 内置赞赏码图 | 赞赏码图片 URL |
+| `donate.title` | `string` | `'赞赏码'` | 赞赏码区块标题 |
+| `donate.desc` | `string` | `''` | 副文案，不传不显示 |
+| `position` | `Position` | `'right-bottom'` | `right-bottom` / `right-top` / `right-center` / `left-bottom` / `left-top` / `left-center` |
+| `closePersistence` | `boolean` | `false` | `true` 时关闭写入 localStorage，刷新不再出现 |
+| `hideOnMobile` | `boolean` | `true` | `<768px` 时不渲染 |
+| `zIndex` | `number` | `9999` | 浮窗层级 |
+| `theme.bg` | `string` | 半透明白 | 背景色 |
+| `theme.accent` | `string` | `#333` | 标题文字强调色 |
+| `theme.radius` | `string` | `12px` | 圆角 |
+| `theme.border` | `string` | `rgba(0,0,0,.1)` | 边框色 |
 
 ### 实例方法
 
