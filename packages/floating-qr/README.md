@@ -116,6 +116,12 @@ new FloatingQR({
 }
 ```
 
+## 在线演示
+
+**https://wu529778790.github.io/components/packages/floating-qr/demo/**
+
+（自定义域名：**https://blog.shenzjd.com/components/packages/floating-qr/demo/**）
+
 ## 本地演示
 
 ```bash
