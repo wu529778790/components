@@ -27,6 +27,14 @@
     "dianzan"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wu529778790/components.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "sideEffects": [
     "*.css"
   ],

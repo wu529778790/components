@@ -37,10 +37,17 @@ pnpm typecheck        # 类型检查全部包
 
 ## 发布新包
 
-1. 在 `packages/` 下新建目录，按 `floating-qr` 的结构编写 `src/` + `package.json`
-2. 跑通 `pnpm build` 与 `pnpm typecheck`
-3. 添加 changeset：`pnpm changeset`
-4. 发版：`pnpm version && pnpm release`
+**发布已全自动**（`.github/workflows/release.yml`）：PR 合入 main 后 changesets 自动创建版本 PR，合入后自动 `pnpm release` 发布到 npm，全程无需手动执行命令。
+
+- **认证方式**：npm Trusted Publishing（OIDC），**无需配置 token**（npm 已于 2025-12-09 作废 classic token）。
+- **首次发布**：新包第一次发布必须手动执行一次 `npm login && npm publish --access public`（trusted publisher 只能配置在已存在的包上）。
+- **npm 端配置**：每个包在 npmjs.com 的 `package/<包名>/settings` → Trusted Publisher 添加：
+  - Provider：`GitHub Actions`
+  - Organization/User：`wu529778790`
+  - Repository：`components`
+  - Workflow filename：`release.yml`
+
+开发期手动发版：`pnpm changeset` → `pnpm version && pnpm release`。
 
 ## 技术约定（每个包必须遵守）
 

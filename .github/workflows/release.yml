@@ -1,0 +1,65 @@
+# 自动发布到 npm（OIDC Trusted Publishing，免 token）
+#
+# 触发方式：
+#   1. PR 合入 main 且包含 .changeset/*.md → 自动创建「版本发布 PR」（改版本号 + CHANGELOG）
+#   2. 版本 PR 合入 main（无待处理 changeset）→ 自动执行 pnpm release 发布所有变更包
+#   3. 也可在 Actions 页面手动 Run workflow
+#
+# 注意：
+#   - 使用 npm Trusted Publishing（OIDC），无需配置 NPM_TOKEN / NODE_AUTH_TOKEN！
+#     只需在 npmjs.com 每个包的 Settings → Trusted Publisher 添加本 workflow 即可。
+#   - 千万不要设置 NODE_AUTH_TOKEN / NPM_TOKEN 环境变量（设置了反而会禁用 OIDC）。
+#   - 包首次发布必须手动：npm login && npm publish --access public（trusted publisher
+#     只能配置在已存在的包上）。
+
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write # changesets 打 tag / push 版本 PR
+  id-token: write # 必需：请求 OIDC token 用于 npm 发布
+  pull-requests: write # 创建版本 PR
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Ensure npm supports OIDC publishing (>= 11.5.1)
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm build
+
+      - name: Create Release PR or Publish to npm
+        uses: changesets/action@v1
+        with:
+          publish: pnpm release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
