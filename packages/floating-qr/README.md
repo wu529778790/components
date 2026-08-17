@@ -116,6 +116,15 @@ new FloatingQR({
 }
 ```
 
+## 本地演示
+
+```bash
+pnpm build            # 仓库根目录执行，产出 dist/
+pnpm preview          # 启动静态服务器 http://localhost:8317
+```
+
+浏览器打开 `http://localhost:8317/packages/floating-qr/demo/index.html`，右侧即组件实时样式，左侧面板可调参。
+
 ## 浏览器兼容
 
 现代浏览器（Chrome / Firefox / Safari / Edge），无 IE 支持计划。

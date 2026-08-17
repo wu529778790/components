@@ -16,9 +16,8 @@
 ```
 components/
 ├── packages/          # 独立发布的组件包
-│   ├── floating-qr/   # 浮窗组件
-│   └── ...            # 未来组件
-├── demo/              # 聚合演示站（本地直接打开即可）
+│   └── floating-qr/   # 浮窗组件（含自身 demo/）
+│       └── demo/      # 每个包的 demo 跟随包走
 ├── .github/workflows/ # 自动发版（push 即发布）
 ├── pnpm-workspace.yaml
 └── tsconfig.base.json # 统一 TS 基线
@@ -33,7 +32,7 @@ pnpm dev              # 监听模式构建
 pnpm typecheck        # 类型检查全部包
 ```
 
-演示站：本地构建后直接打开 `demo/index.html`。
+演示站：每个包的 demo 在包内（如 `packages/floating-qr/demo/index.html`），`npm run preview` 后访问对应 URL。
 
 ## 发布新包
 
@@ -43,7 +42,7 @@ pnpm typecheck        # 类型检查全部包
 - **npm 端配置**（每个包一次）：npmjs.com → `package/<包名>/settings` → Trusted Publisher：
   - Provider：`GitHub Actions`；Organization/User：`wu529778790`；Repository：`components`；Workflow filename：`release.yml`
 - **首次发布**：新包第一次需手动 `npm login && npm publish --access public`（trusted publisher 只能配在已存在的包上）。
-- 只发布本次 push 有文件变更的包（`packages/*/` 下），demo / 文档改动不会触发发布。
+- 只发布本次 push 有文件变更的包（`packages/*/` 下，含包内 demo/文档）；只改根目录文件（根 README、workflow）不会触发发布。
 
 ## 技术约定（每个包必须遵守）
 
