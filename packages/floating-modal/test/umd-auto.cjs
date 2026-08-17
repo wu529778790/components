@@ -88,7 +88,7 @@ assert(env2.lastAppended === null, 'data-fm-auto=false disables auto-init')
 assert(typeof env2.context.FloatingModal === 'function', 'class still exposed when disabled')
 
 // 3. manual usage works when auto-init disabled
-const w = new env2.context.FloatingModal({ frequency: 'always' })
+const w = new env2.context.FloatingModal()
 assert(w.isOpen() === true, 'manual new FloatingModal() works after disable')
 
 // 4. window.__FLOATING_MODAL_OPTIONS__ customizes the auto instance
@@ -97,8 +97,7 @@ const env4 = makeEnv({
   setup: (c) => {
     c.window.__FLOATING_MODAL_OPTIONS__ = {
       title: '站点公告',
-      content: '迁移通知',
-      frequency: 'always'
+      content: '迁移通知'
     }
   }
 })

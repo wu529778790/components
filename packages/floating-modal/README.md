@@ -1,14 +1,13 @@
 # @wu529778790/floating-modal
 
-极简、零依赖的**赞助 / 公告弹窗**：居中模态卡片，正文下直接放赞赏码二维码，关闭后 7 天内不再打扰。
+极简、零依赖的**赞助 / 公告弹窗**：居中模态卡片，正文下直接放赞赏码二维码，每次进入页面自动弹出。
 
 适用于个人博客、文档站等"靠爱发电"的场景：一句真诚话术 + 一个扫码动作，得体不烦人。
 
 ## 特性
 
 - 🧩 零依赖、无框架绑定（原生 JS 核心）
-- 🎯 默认赞助话术（自嘲 + 真诚）+ 内置赞赏码二维码，`new FloatingModal()` 零配置可用
-- 🕐 频率控制：每次 / 每天一次 / 关闭后 N 天不再打扰（避免惹人烦）
+- 🎯 默认赞助话术 + 内置赞赏码二维码，`new FloatingModal()` 零配置可用
 - 🎨 CSS 变量主题化（`--fm-*`），支持正文 HTML
 - ⌨️ 点遮罩关闭、Esc 关闭、右上角 X
 - 📦 NPM + CDN 双通道，CDN 引入即自动弹出
@@ -27,7 +26,7 @@ pnpm add @wu529778790/floating-modal
 import FloatingModal from '@wu529778790/floating-modal'
 import '@wu529778790/floating-modal/style.css'
 
-new FloatingModal() // 默认话术 + 默认赞赏码，关闭后 7 天不再打扰
+new FloatingModal() // 默认话术 + 默认赞赏码
 ```
 
 ### 自定义内容
@@ -35,9 +34,8 @@ new FloatingModal() // 默认话术 + 默认赞赏码，关闭后 7 天不再打
 ```ts
 new FloatingModal({
   title: '小水管请求支援',
-  content: '这台小服务器只有 1M 小水管，全靠爱和电费扛到现在。\n觉得有用，扫码请它喝杯咖啡。',
+  content: '小水管服务器扛不住了，如果本站对你有用就支持一下。',
   qr: { src: 'https://.../qrcode.png', alt: '赞赏码' },
-  frequency: 7,          // 关闭后 7 天不再打扰（'always' | 'daily' | number）
   width: 380
 })
 ```
@@ -77,7 +75,6 @@ CDN 自定义参数（引入前定义全局对象即可）：
 | `maskClosable` | `boolean` | `true` | 点遮罩关闭 |
 | `closeOnEsc` | `boolean` | `true` | 按 Esc 关闭 |
 | `showClose` | `boolean` | `true` | 显示右上角关闭按钮 |
-| `frequency` | `'always' \| 'daily' \| number` | `7` | 展示频率：每次 / 每天一次 / 关闭后 N 天不再打扰 |
 | `delay` | `number` | `0` | 延迟展示毫秒数 |
 | `zIndex` | `number` | `10000` | 弹窗层级 |
 | `theme` | `FloatingModalTheme` | - | 主题（见下） |
@@ -87,8 +84,8 @@ CDN 自定义参数（引入前定义全局对象即可）：
 
 | 方法 | 说明 |
 | --- | --- |
-| `show()` | 手动展示（不受频率限制） |
-| `close()` | 关闭并销毁（记录关闭时间） |
+| `show()` | 手动展示 |
+| `close()` | 关闭并销毁 |
 | `destroy()` | 从页面移除并解绑 |
 | `isOpen()` | 当前是否展示中 |
 

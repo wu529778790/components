@@ -108,30 +108,17 @@
       </div>
       <div class="field">
         <label for="content">正文（\n 换行）</label>
-        <textarea id="content">服务器、域名、电费都是自己掏的，内容永远免费。
-赞助完全自愿，觉得有用就支持一下，让它再扛 365 天。</textarea>
+        <textarea id="content">小水管服务器扛不住了，如果本站对你有用就支持一下，让它再多扛几天。</textarea>
       </div>
       <div class="field">
         <label for="qrSrc">赞赏码 URL（留空用默认图）</label>
         <input type="text" id="qrSrc" placeholder="留空使用内置默认赞赏码" />
       </div>
       <div class="field">
-        <label for="frequency">展示频率 frequency</label>
-        <select id="frequency">
-          <option value="7" selected>7（关闭后 7 天不再打扰）</option>
-          <option value="1">1（关闭后 1 天不再打扰）</option>
-          <option value="daily">daily（每天最多一次）</option>
-          <option value="always">always（每次访问都展示）</option>
-        </select>
-      </div>
-      <div class="field">
         <label for="width">宽度 width（px）</label>
         <input type="text" id="width" value="380" />
       </div>
       <button class="btn" id="showBtn">立即弹出</button>
-      <div class="field hint" style="margin-top:8px;">
-        手动弹出的 show() 不受频率限制；自动弹出才受 frequency 控制
-      </div>
     </section>
 
     <section class="docs">
@@ -140,7 +127,7 @@
       <h3>方式零：CDN 零代码（一条标签即自动弹出）</h3>
       <pre><code>&lt;link rel="stylesheet" href="https://unpkg.com/@wu529778790/floating-modal@latest/dist/floating-modal.css"&gt;
 &lt;script src="https://unpkg.com/@wu529778790/floating-modal@latest/dist/index.umd.js"&gt;&lt;/script&gt;
-&lt;!-- 无需任何 JS，默认赞助弹窗自动弹出（关闭后 7 天不再打扰） --&gt;</code></pre>
+&lt;!-- 无需任何 JS，默认赞助弹窗自动弹出 --&gt;</code></pre>
 
       <h3>方式一：NPM 安装</h3>
       <pre><code>pnpm add @wu529778790/floating-modal</code></pre>
@@ -152,8 +139,7 @@ new FloatingModal()  // 零配置，默认话术 + 默认赞赏码
 new FloatingModal({
   title: '站点公告',
   content: '本站将于 8 月 20 日凌晨迁移服务器…',
-  qr: { src: 'https://.../qrcode.png' },
-  frequency: 7
+  qr: { src: 'https://.../qrcode.png' }
 })</code></pre>
 
       <h3>CDN + 自定义参数</h3>
@@ -167,25 +153,21 @@ new FloatingModal({
 &lt;!-- 完全禁用自动弹出：给 &lt;html&gt; 加 data-fm-auto="false" --&gt;</code></pre>
 
       <div class="note">
-        弹窗为模态（遮罩 + 点遮罩关闭 + Esc 关闭）。频率控制存于本地（每次/每天/关闭后 N 天），
-        默认关闭后 7 天内不再打扰，避免烦人。
+        弹窗为模态（遮罩 + 点遮罩关闭 + Esc 关闭）。每次进入页面都会弹出，关闭只对当前这次生效。
       </div>
     </section>
   </main>
 
   <script src="../dist/index.umd.js"></script>
   <script>
-    const DEFAULT_QR = 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260817-165134-105w.png'
     let modal = null
 
     function buildOptions() {
       const qrSrc = document.getElementById('qrSrc').value.trim()
-      const freqVal = document.getElementById('frequency').value
       const options = {
         title: document.getElementById('title').value || '小水管请求支援',
         content: document.getElementById('content').value,
-        width: Number(document.getElementById('width').value) || 380,
-        frequency: freqVal === 'daily' || freqVal === 'always' ? freqVal : Number(freqVal)
+        width: Number(document.getElementById('width').value) || 380
       }
       if (qrSrc) options.qr = { src: qrSrc }
       return options
@@ -197,7 +179,7 @@ new FloatingModal({
       modal.show()
     })
 
-    // 首次进入演示自动弹出一次（绕过频率限制）
+    // 首次进入演示自动弹出一次
     modal = new FloatingModal(buildOptions())
     modal.show()
   </script>

@@ -5,6 +5,5 @@ export default FloatingModal
 export type {
   FloatingModalOptions,
   FloatingModalTheme,
-  FloatingModalQR,
-  ModalFrequency
+  FloatingModalQR
 } from './FloatingModal'

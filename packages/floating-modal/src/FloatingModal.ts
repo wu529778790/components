@@ -1,6 +1,3 @@
-/** 展示频率：'always' 每次访问都展示 / 'daily' 每天最多一次 / number=关闭后 N 天不再打扰 */
-export type ModalFrequency = 'always' | 'daily' | number
-
 export interface FloatingModalTheme {
   /** 卡片背景色 */
   bg?: string
@@ -42,8 +39,6 @@ export interface FloatingModalOptions {
   closeOnEsc?: boolean
   /** 显示右上角关闭按钮，默认 true */
   showClose?: boolean
-  /** 展示频率，默认 7（关闭后 7 天不再打扰） */
-  frequency?: ModalFrequency
   /** 延迟展示毫秒数，默认 0 */
   delay?: number
   /** 弹窗 z-index，默认 10000 */
@@ -63,7 +58,6 @@ interface ResolvedOptions {
   maskClosable: boolean
   closeOnEsc: boolean
   showClose: boolean
-  frequency: ModalFrequency
   delay: number
   zIndex: number
   theme: Required<FloatingModalTheme>
@@ -71,7 +65,7 @@ interface ResolvedOptions {
 }
 
 const DEFAULT_CONTENT =
-  '服务器、域名、电费都是自己掏的，内容永远免费。\n赞助完全自愿，觉得有用就支持一下，让它再扛 365 天。'
+  '小水管服务器扛不住了，如果本站对你有用就支持一下，让它再多扛几天。'
 
 const DEFAULT_QR = {
   src: 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260817-165134-105w.png',
@@ -88,43 +82,6 @@ const DEFAULT_THEME: Required<FloatingModalTheme> = {
   textColor: '#555'
 }
 
-const STORAGE_KEY = 'floating-modal'
-const DAY = 24 * 60 * 60 * 1000
-
-interface StorageState {
-  lastShown?: number
-  closedAt?: number
-}
-
-function readState(): StorageState {
-  if (typeof localStorage === 'undefined') return {}
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? (JSON.parse(raw) as StorageState) : {}
-  } catch {
-    return {}
-  }
-}
-
-function writeState(state: StorageState): void {
-  if (typeof localStorage === 'undefined') return
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-  } catch {
-    /* ignore quota / privacy mode */
-  }
-}
-
-function isSameDay(a: number, b: number): boolean {
-  const da = new Date(a)
-  const db = new Date(b)
-  return (
-    da.getFullYear() === db.getFullYear() &&
-    da.getMonth() === db.getMonth() &&
-    da.getDate() === db.getDate()
-  )
-}
-
 /**
  * A minimal centered modal popup for sponsor QR, notices and announcements.
  * Zero dependencies. Framework-agnostic. Styleable via --fm-* CSS variables.
@@ -135,16 +92,11 @@ export class FloatingModal {
   private closeBtn: HTMLButtonElement | null = null
   private timer: ReturnType<typeof setTimeout> | null = null
   private escHandler: ((e: KeyboardEvent) => void) | null = null
-  private shownAt = 0
 
   constructor(options: FloatingModalOptions = {}) {
     this.opts = this.resolve(options)
-    if (!this.shouldShow()) return
 
-    const show = () => {
-      this.shownAt = Date.now()
-      this.render()
-    }
+    const show = () => this.render()
     if (this.opts.delay > 0) {
       this.timer = setTimeout(show, this.opts.delay)
     } else {
@@ -157,22 +109,18 @@ export class FloatingModal {
     return this.mask !== null && this.mask.isConnected
   }
 
-  /** 展示（手动调用时无视频率限制） */
+  /** 展示 */
   show(): void {
     if (this.isOpen()) return
     if (this.timer) {
       clearTimeout(this.timer)
       this.timer = null
     }
-    this.shownAt = Date.now()
     this.render()
   }
 
-  /** 关闭并销毁（记录关闭时间，用于 frequency 频率控制） */
+  /** 关闭并销毁 */
   close(): void {
-    if (this.opts.frequency !== 'always') {
-      writeState({ ...readState(), closedAt: Date.now() })
-    }
     this.destroy()
     this.opts.onClose?.()
   }
@@ -204,28 +152,11 @@ export class FloatingModal {
       maskClosable: options.maskClosable ?? true,
       closeOnEsc: options.closeOnEsc ?? true,
       showClose: options.showClose ?? true,
-      frequency: options.frequency ?? 7,
       delay: options.delay ?? 0,
       zIndex: options.zIndex ?? 10000,
       theme: { ...DEFAULT_THEME, ...(options.theme ?? {}) },
       onClose: options.onClose
     }
-  }
-
-  private shouldShow(): boolean {
-    const state = readState()
-    const now = Date.now()
-    const freq = this.opts.frequency
-
-    if (freq === 'always') return true
-    if (freq === 'daily') {
-      return !(state.lastShown && isSameDay(state.lastShown, now))
-    }
-    // number: 关闭后 N 天不再打扰
-    if (typeof freq === 'number' && state.closedAt) {
-      return now - state.closedAt >= freq * DAY
-    }
-    return true
   }
 
   private render(): void {
@@ -253,7 +184,6 @@ export class FloatingModal {
         <p class="fm-title">${escapeHtml(this.opts.title)}</p>
         <div class="fm-content">${this.buildContent()}</div>
         ${this.buildQR()}
-        ${this.buildHint()}
       </div>
     `
 
@@ -269,8 +199,6 @@ export class FloatingModal {
       }
       document.addEventListener('keydown', this.escHandler)
     }
-
-    writeState({ ...readState(), lastShown: this.shownAt })
   }
 
   private buildContent(): string {
@@ -285,13 +213,6 @@ export class FloatingModal {
         <img class="fm-qr-img" src="${escapeAttr(qr.src)}" alt="${escapeAttr(qr.alt)}" loading="lazy" />
       </div>
     `
-  }
-
-  private buildHint(): string {
-    const freq = this.opts.frequency
-    if (freq === 'always') return ''
-    if (freq === 'daily') return '<p class="fm-hint">每天最多提醒一次</p>'
-    return `<p class="fm-hint">关闭后 ${freq} 天内不再打扰</p>`
   }
 
   private readonly handleClose = (): void => {

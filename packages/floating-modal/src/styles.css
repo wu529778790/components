@@ -90,12 +90,6 @@
   border-radius: 8px;
 }
 
-.fm-hint {
-  margin: 0;
-  font-size: 11px;
-  color: rgba(0, 0, 0, 0.35);
-}
-
 @keyframes fm-fade-in {
   from {
     opacity: 0;
