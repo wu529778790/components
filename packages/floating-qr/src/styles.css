@@ -1,0 +1,108 @@
+.fq-widget {
+  --fq-bg: rgba(255, 255, 255, 0.96);
+  --fq-accent: #333;
+  --fq-radius: 12px;
+  --fq-border: rgba(0, 0, 0, 0.1);
+  --fq-offset: 16px;
+  --fq-width: 150px;
+
+  position: fixed;
+  z-index: 9999;
+  box-sizing: border-box;
+  width: var(--fq-width);
+  padding: 14px;
+  background: var(--fq-bg);
+  border: 1px solid var(--fq-border);
+  border-radius: var(--fq-radius);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    sans-serif;
+  color: var(--fq-accent);
+  line-height: 1.5;
+}
+
+.fq-widget[data-position="right-bottom"] {
+  right: var(--fq-offset);
+  bottom: var(--fq-offset);
+}
+
+.fq-widget[data-position="right-top"] {
+  right: var(--fq-offset);
+  top: var(--fq-offset);
+}
+
+.fq-widget[data-position="left-bottom"] {
+  left: var(--fq-offset);
+  bottom: var(--fq-offset);
+}
+
+.fq-widget[data-position="left-top"] {
+  left: var(--fq-offset);
+  top: var(--fq-offset);
+}
+
+.fq-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.fq-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.fq-section {
+  text-align: center;
+}
+
+.fq-qr {
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.fq-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.fq-label {
+  margin: 8px 0 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fq-accent);
+}
+
+.fq-desc {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.fq-divider {
+  height: 1px;
+  margin: 10px 0;
+  background: var(--fq-border);
+}
+
+@media (max-width: 767px) {
+  .fq-widget {
+    width: 120px;
+    padding: 10px;
+  }
+}

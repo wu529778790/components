@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>floating-qr · 演示站</title>
+  <link rel="stylesheet" href="../packages/floating-qr/dist/floating-qr.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: #333;
+      background: #fafafa;
+      min-height: 100vh;
+    }
+    header {
+      padding: 40px 32px 24px;
+      border-bottom: 1px solid #eee;
+      background: #fff;
+    }
+    header h1 { margin: 0 0 6px; font-size: 22px; }
+    header p { margin: 0; color: #888; font-size: 13px; }
+    main { display: grid; grid-template-columns: 300px 1fr; gap: 24px; max-width: 1080px; margin: 24px auto; padding: 0 24px; }
+    @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+    .panel {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 18px;
+      align-self: start;
+    }
+    .panel h2 { margin: 0 0 14px; font-size: 15px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 13px; margin-bottom: 6px; color: #555; }
+    .field select,
+    .field input[type="color"],
+    .field input[type="text"] {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .field input[type="checkbox"] { margin-right: 6px; }
+    .field .hint { font-size: 11px; color: #aaa; margin-top: 4px; }
+    .docs { background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 18px; overflow: hidden; }
+    .docs h2 { margin: 0 0 12px; font-size: 15px; }
+    .docs h3 { margin: 18px 0 8px; font-size: 13px; }
+    pre {
+      background: #f6f8fa;
+      border: 1px solid #e6e8eb;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 12px;
+      line-height: 1.7;
+      overflow-x: auto;
+      margin: 0 0 8px;
+    }
+    code { font-family: "SF Mono", Menlo, Consolas, monospace; }
+    .note {
+      font-size: 12px;
+      color: #888;
+      background: #fafafa;
+      border: 1px dashed #ddd;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-top: 12px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #eef3ff;
+      color: #4a6cf7;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>floating-qr 演示站 <span class="badge">@wu529778790/floating-qr</span></h1>
+    <p>极简 · 零依赖 · 公众号 + 赞赏码浮窗。右侧悬浮的卡片就是组件本身，修改参数实时生效。</p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>参数面板（实时生效）</h2>
+      <div class="field">
+        <label for="position">位置 position</label>
+        <select id="position">
+          <option value="right-bottom" selected>right-bottom（右下）</option>
+          <option value="right-top">right-top（右上）</option>
+          <option value="left-bottom">left-bottom（左下）</option>
+          <option value="left-top">left-top（左上）</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="closePersistence">关闭后记住状态</label>
+        <label style="font-weight:400; font-size:13px;">
+          <input type="checkbox" id="closePersistence" />
+          closePersistence = true
+        </label>
+        <div class="hint">勾选后关闭写入 localStorage，刷新不再出现；不勾选则刷新必出现</div>
+      </div>
+      <div class="field">
+        <label for="hideOnMobile">移动端隐藏</label>
+        <label style="font-weight:400; font-size:13px;">
+          <input type="checkbox" id="hideOnMobile" checked />
+          hideOnMobile = true
+        </label>
+        <div class="hint"><768px 时自动不渲染</div>
+      </div>
+      <div class="field">
+        <label for="themeBg">主题 · 背景色</label>
+        <input type="color" id="themeBg" value="#ffffff" />
+      </div>
+      <div class="field">
+        <label for="themeAccent">主题 · 文字强调色</label>
+        <input type="color" id="themeAccent" value="#333333" />
+      </div>
+      <div class="field">
+        <label for="wechatTitle">公众号标题</label>
+        <input type="text" id="wechatTitle" value="公众号" />
+      </div>
+      <div class="field">
+        <label for="donateTitle">赞赏码标题</label>
+        <input type="text" id="donateTitle" value="赞赏码" />
+      </div>
+    </section>
+
+    <section class="docs">
+      <h2>快速上手</h2>
+
+      <h3>方式一：NPM 安装（推荐）</h3>
+      <pre><code>pnpm add @wu529778790/floating-qr</code></pre>
+      <pre><code>import FloatingQR from '@wu529778790/floating-qr'
+import '@wu529778790/floating-qr/style.css'
+
+new FloatingQR({
+  wechat: { src: 'https://.../wechat.jpg', title: '公众号' },
+  donate: { src: 'https://.../donate.png', title: '赞赏码' },
+  position: 'right-bottom'
+})</code></pre>
+
+      <h3>方式二：CDN 引入（零构建）</h3>
+      <pre><code>&lt;link rel="stylesheet" href="https://unpkg.com/@wu529778790/floating-qr@latest/dist/floating-qr.css"&gt;
+&lt;script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/index.umd.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  new FloatingQR({
+    wechat: { src: 'https://.../wechat.jpg', title: '公众号' },
+    donate: { src: 'https://.../donate.png', title: '赞赏码' }
+  })
+&lt;/script&gt;</code></pre>
+
+      <div class="note">
+        演示站引用的是本地构建产物，右上角即实时实例。位置、标题、颜色、记住状态全部可调。
+        NPM 包发布后，把链接换成 <code>unpkg.com</code> 即可在任何网站一行引入。
+      </div>
+    </section>
+  </main>
+
+  <script src="../packages/floating-qr/dist/index.umd.js"></script>
+  <script>
+    const WECHAT_QR = 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/wp/1782738963299-5wrchz.jpg'
+    const DONATE_QR = 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260815-100157-net7.png'
+
+    let widget = null
+
+    function buildOptions() {
+      return {
+        wechat: {
+          src: WECHAT_QR,
+          title: document.getElementById('wechatTitle').value || '公众号'
+        },
+        donate: {
+          src: DONATE_QR,
+          title: document.getElementById('donateTitle').value || '赞赏码'
+        },
+        position: document.getElementById('position').value,
+        closePersistence: document.getElementById('closePersistence').checked,
+        hideOnMobile: document.getElementById('hideOnMobile').checked,
+        theme: {
+          bg: hexToRgba(document.getElementById('themeBg').value, 0.96),
+          accent: document.getElementById('themeAccent').value
+        }
+      }
+    }
+
+    function hexToRgba(hex, alpha) {
+      const n = parseInt(hex.slice(1), 16)
+      return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`
+    }
+
+    function apply() {
+      widget?.destroy()
+      widget = new FloatingQR(buildOptions())
+    }
+
+    document.querySelectorAll('.panel input, .panel select').forEach((el) => {
+      el.addEventListener('input', apply)
+      el.addEventListener('change', apply)
+    })
+
+    apply()
+  </script>
+</body>
+</html>
