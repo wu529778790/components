@@ -71,7 +71,7 @@ interface ResolvedOptions {
 }
 
 const DEFAULT_CONTENT =
-  '这台小服务器只有 1M 小水管，全靠爱和电费扛到现在。\n内容永远免费，若你觉得有用，扫码请它喝杯咖啡，让它多扛 365 天。'
+  '服务器、域名、电费都是自己掏的，内容永远免费。\n赞助完全自愿，觉得有用就支持一下，让它再扛 365 天。'
 
 const DEFAULT_QR = {
   src: 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260817-165134-105w.png',
