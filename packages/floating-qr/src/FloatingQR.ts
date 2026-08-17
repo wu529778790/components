@@ -1,4 +1,10 @@
-export type Position = 'right-bottom' | 'right-top' | 'left-bottom' | 'left-top'
+export type Position =
+  | 'right-bottom'
+  | 'right-top'
+  | 'right-center'
+  | 'left-bottom'
+  | 'left-top'
+  | 'left-center'
 
 export interface FloatingQRBlock {
   /** 二维码图片 URL（可选，缺省使用组件内置的公众号/赞赏码默认图） */

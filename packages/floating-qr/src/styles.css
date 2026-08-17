@@ -42,6 +42,18 @@
   top: var(--fq-offset);
 }
 
+.fq-widget[data-position="right-center"] {
+  right: var(--fq-offset);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.fq-widget[data-position="left-center"] {
+  left: var(--fq-offset);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 .fq-close {
   position: absolute;
   top: 6px;
