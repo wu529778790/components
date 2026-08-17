@@ -1,0 +1,127 @@
+.fm-mask {
+  --fm-overlay: rgba(0, 0, 0, 0.4);
+  --fm-bg: #fff;
+  --fm-accent: #185fa5;
+  --fm-radius: 16px;
+  --fm-border: rgba(0, 0, 0, 0.1);
+  --fm-title-color: #1f1f1f;
+  --fm-text-color: #555;
+  --fm-width: 380px;
+
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  background: var(--fm-overlay);
+  animation: fm-fade-in 0.18s ease;
+}
+
+.fm-modal {
+  position: relative;
+  box-sizing: border-box;
+  width: var(--fm-width);
+  max-width: 92vw;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 28px 28px 24px;
+  background: var(--fm-bg);
+  border: 1px solid var(--fm-border);
+  border-radius: var(--fm-radius);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    sans-serif;
+  line-height: 1.6;
+  animation: fm-rise-in 0.22s ease;
+}
+
+.fm-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.fm-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.fm-title {
+  margin: 0 0 12px;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--fm-title-color);
+}
+
+.fm-content {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--fm-text-color);
+}
+
+.fm-qr {
+  margin: 0 auto 14px;
+  width: 190px;
+  max-width: 100%;
+}
+
+.fm-qr-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.fm-hint {
+  margin: 0;
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.35);
+}
+
+@keyframes fm-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fm-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .fm-modal {
+    padding: 24px 20px 20px;
+  }
+
+  .fm-qr {
+    width: 160px;
+  }
+}

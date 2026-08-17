@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-fm-auto="false">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>floating-modal · 演示站</title>
+  <link rel="stylesheet" href="../dist/floating-modal.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: #333;
+      background: #fafafa;
+      min-height: 100vh;
+    }
+    header {
+      padding: 40px 32px 24px;
+      border-bottom: 1px solid #eee;
+      background: #fff;
+      text-align: center;
+    }
+    header h1 { margin: 0 0 6px; font-size: 22px; }
+    header p { margin: 0; color: #888; font-size: 13px; }
+    main { display: grid; grid-template-columns: 300px 1fr; gap: 24px; max-width: 1080px; margin: 24px auto; padding: 0 24px; }
+    @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+    .panel {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 18px;
+      align-self: start;
+    }
+    .panel h2 { margin: 0 0 14px; font-size: 15px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 13px; margin-bottom: 6px; color: #555; }
+    .field select,
+    .field input[type="text"],
+    .field textarea {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .field textarea { resize: vertical; min-height: 84px; }
+    .field .hint { font-size: 11px; color: #aaa; margin-top: 4px; }
+    .btn {
+      width: 100%;
+      padding: 9px 0;
+      border: none;
+      border-radius: 8px;
+      background: #185fa5;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn:hover { background: #0c447c; }
+    .docs { background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 18px; overflow: hidden; }
+    .docs h2 { margin: 0 0 12px; font-size: 15px; }
+    .docs h3 { margin: 18px 0 8px; font-size: 13px; }
+    pre {
+      background: #f6f8fa;
+      border: 1px solid #e6e8eb;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 12px;
+      line-height: 1.7;
+      overflow-x: auto;
+      margin: 0 0 8px;
+    }
+    code { font-family: "SF Mono", Menlo, Consolas, monospace; }
+    .note {
+      font-size: 12px;
+      color: #888;
+      background: #fafafa;
+      border: 1px dashed #ddd;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-top: 12px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #eef3ff;
+      color: #4a6cf7;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>floating-modal 演示站 <span class="badge">@wu529778790/floating-modal</span></h1>
+    <p>极简 · 零依赖 · 赞助 / 公告弹窗。点「立即弹出」或改参数后重新弹出。</p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>参数面板（改完点「立即弹出」生效）</h2>
+      <div class="field">
+        <label for="title">标题</label>
+        <input type="text" id="title" value="小水管请求支援" />
+      </div>
+      <div class="field">
+        <label for="content">正文（\n 换行）</label>
+        <textarea id="content">这台小服务器只有 1M 小水管，全靠爱和电费扛到现在。
+内容永远免费，若你觉得有用，扫码请它喝杯咖啡，让它多扛 365 天。</textarea>
+      </div>
+      <div class="field">
+        <label for="qrSrc">赞赏码 URL（留空用默认图）</label>
+        <input type="text" id="qrSrc" placeholder="留空使用内置默认赞赏码" />
+      </div>
+      <div class="field">
+        <label for="frequency">展示频率 frequency</label>
+        <select id="frequency">
+          <option value="7" selected>7（关闭后 7 天不再打扰）</option>
+          <option value="1">1（关闭后 1 天不再打扰）</option>
+          <option value="daily">daily（每天最多一次）</option>
+          <option value="always">always（每次访问都展示）</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="width">宽度 width（px）</label>
+        <input type="text" id="width" value="380" />
+      </div>
+      <button class="btn" id="showBtn">立即弹出</button>
+      <div class="field hint" style="margin-top:8px;">
+        手动弹出的 show() 不受频率限制；自动弹出才受 frequency 控制
+      </div>
+    </section>
+
+    <section class="docs">
+      <h2>快速上手</h2>
+
+      <h3>方式零：CDN 零代码（一条标签即自动弹出）</h3>
+      <pre><code>&lt;link rel="stylesheet" href="https://unpkg.com/@wu529778790/floating-modal@latest/dist/floating-modal.css"&gt;
+&lt;script src="https://unpkg.com/@wu529778790/floating-modal@latest/dist/index.umd.js"&gt;&lt;/script&gt;
+&lt;!-- 无需任何 JS，默认赞助弹窗自动弹出（关闭后 7 天不再打扰） --&gt;</code></pre>
+
+      <h3>方式一：NPM 安装</h3>
+      <pre><code>pnpm add @wu529778790/floating-modal</code></pre>
+      <pre><code>import FloatingModal from '@wu529778790/floating-modal'
+import '@wu529778790/floating-modal/style.css'
+
+new FloatingModal()  // 零配置，默认话术 + 默认赞赏码
+// 或自定义：
+new FloatingModal({
+  title: '站点公告',
+  content: '本站将于 8 月 20 日凌晨迁移服务器…',
+  qr: { src: 'https://.../qrcode.png' },
+  frequency: 7
+})</code></pre>
+
+      <h3>CDN + 自定义参数</h3>
+      <pre><code>&lt;script&gt;
+  window.__FLOATING_MODAL_OPTIONS__ = {
+    title: '小水管请求支援',
+    qr: { src: 'https://.../qrcode.png' }
+  }
+&lt;/script&gt;
+&lt;script src="https://unpkg.com/@wu529778790/floating-modal@latest/dist/index.umd.js"&gt;&lt;/script&gt;
+&lt;!-- 完全禁用自动弹出：给 &lt;html&gt; 加 data-fm-auto="false" --&gt;</code></pre>
+
+      <div class="note">
+        弹窗为模态（遮罩 + 点遮罩关闭 + Esc 关闭）。频率控制存于本地（每次/每天/关闭后 N 天），
+        默认关闭后 7 天内不再打扰，避免烦人。
+      </div>
+    </section>
+  </main>
+
+  <script src="../dist/index.umd.js"></script>
+  <script>
+    const DEFAULT_QR = 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260817-165134-105w.png'
+    let modal = null
+
+    function buildOptions() {
+      const qrSrc = document.getElementById('qrSrc').value.trim()
+      const freqVal = document.getElementById('frequency').value
+      const options = {
+        title: document.getElementById('title').value || '小水管请求支援',
+        content: document.getElementById('content').value,
+        width: Number(document.getElementById('width').value) || 380,
+        frequency: freqVal === 'daily' || freqVal === 'always' ? freqVal : Number(freqVal)
+      }
+      if (qrSrc) options.qr = { src: qrSrc }
+      return options
+    }
+
+    document.getElementById('showBtn').addEventListener('click', () => {
+      modal?.destroy()
+      modal = new FloatingModal(buildOptions())
+      modal.show()
+    })
+
+    // 首次进入演示自动弹出一次（绕过频率限制）
+    modal = new FloatingModal(buildOptions())
+    modal.show()
+  </script>
+</body>
+</html>

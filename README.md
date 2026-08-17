@@ -9,7 +9,7 @@
 | 包 | 说明 | 状态 |
 | --- | --- | --- |
 | [`@wu529778790/floating-qr`](./packages/floating-qr) | 公众号 + 赞赏码浮窗 | ✅ 已发布可用 |
-| … | 更多组件持续补充中 | - |
+| [`@wu529778790/floating-modal`](./packages/floating-modal) | 赞助 / 公告弹窗 | 🆕 待发布 |
 
 ## 架构
 
