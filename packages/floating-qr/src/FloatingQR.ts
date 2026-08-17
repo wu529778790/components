@@ -1,8 +1,8 @@
 export type Position = 'right-bottom' | 'right-top' | 'left-bottom' | 'left-top'
 
 export interface FloatingQRBlock {
-  /** 二维码图片 URL（必填） */
-  src: string
+  /** 二维码图片 URL（可选，缺省使用组件内置的公众号/赞赏码默认图） */
+  src?: string
   /** 区块标题文案 */
   title?: string
   /** 区块副文案（可选，不传则不显示） */
@@ -21,10 +21,10 @@ export interface FloatingQRTheme {
 }
 
 export interface FloatingQROptions {
-  /** 公众号区块（必填） */
-  wechat: FloatingQRBlock
-  /** 赞赏码区块（必填） */
-  donate: FloatingQRBlock
+  /** 公众号区块（可选，缺省使用默认公众号二维码） */
+  wechat?: FloatingQRBlock
+  /** 赞赏码区块（可选，缺省使用默认赞赏码） */
+  donate?: FloatingQRBlock
   /** 浮窗位置，默认 right-bottom */
   position?: Position
   /** 关闭后是否记住状态（写入 localStorage），默认 false —— false 时刷新页面必然重新出现 */
@@ -47,9 +47,17 @@ interface ResolvedOptions {
   theme: Required<FloatingQRTheme>
 }
 
-const DEFAULT_TITLES: Record<'wechat' | 'donate', string> = {
-  wechat: '公众号',
-  donate: '赞赏码'
+const DEFAULT_BLOCKS: Record<'wechat' | 'donate', Required<FloatingQRBlock>> = {
+  wechat: {
+    src: 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/wp/1782738963299-5wrchz.jpg',
+    title: '公众号',
+    desc: ''
+  },
+  donate: {
+    src: 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260815-100157-net7.png',
+    title: '赞赏码',
+    desc: ''
+  }
 }
 
 const DEFAULT_THEME: Required<FloatingQRTheme> = {
@@ -94,8 +102,7 @@ export class FloatingQR {
   private el: HTMLElement | null = null
   private closeBtn: HTMLButtonElement | null = null
 
-  constructor(options: FloatingQROptions) {
-    this.validate(options)
+  constructor(options: FloatingQROptions = {}) {
     this.opts = this.resolve(options)
 
     if (this.opts.hideOnMobile && isMobile()) {
@@ -144,24 +151,18 @@ export class FloatingQR {
     this.closeBtn = fresh.closeBtn
   }
 
-  private validate(options: FloatingQROptions): void {
-    if (!options || typeof options !== 'object') {
-      throw new Error('[floating-qr] options is required')
-    }
-    if (!options.wechat?.src) {
-      throw new Error('[floating-qr] options.wechat.src is required')
-    }
-    if (!options.donate?.src) {
-      throw new Error('[floating-qr] options.donate.src is required')
-    }
-  }
-
   private resolve(options: FloatingQROptions): ResolvedOptions {
-    const block = (b: FloatingQRBlock, key: 'wechat' | 'donate'): Required<FloatingQRBlock> => ({
-      src: b.src,
-      title: b.title ?? DEFAULT_TITLES[key],
-      desc: b.desc ?? ''
-    })
+    const block = (
+      b: FloatingQRBlock | undefined,
+      key: 'wechat' | 'donate'
+    ): Required<FloatingQRBlock> => {
+      const def = DEFAULT_BLOCKS[key]
+      return {
+        src: b?.src ?? def.src,
+        title: b?.title ?? def.title,
+        desc: b?.desc ?? def.desc
+      }
+    }
 
     return {
       wechat: block(options.wechat, 'wechat'),

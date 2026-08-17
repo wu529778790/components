@@ -21,7 +21,16 @@ pnpm add @wu529778790/floating-qr
 
 ## 使用
 
-### ESM（推荐）
+### 零配置（最快）
+
+```ts
+import FloatingQR from '@wu529778790/floating-qr'
+import '@wu529778790/floating-qr/style.css'
+
+new FloatingQR() // 直接使用内置公众号 + 赞赏码二维码
+```
+
+### ESM（自定义内容）
 
 ```ts
 import FloatingQR from '@wu529778790/floating-qr'
@@ -39,10 +48,7 @@ new FloatingQR({
 <link rel="stylesheet" href="https://unpkg.com/@wu529778790/floating-qr@latest/dist/floating-qr.css" />
 <script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/index.umd.js"></script>
 <script>
-  new FloatingQR({
-    wechat: { src: 'https://.../wechat-qr.jpg', title: '公众号' },
-    donate: { src: 'https://.../donate-qr.png', title: '赞赏码' }
-  })
+  new FloatingQR()
 </script>
 ```
 
@@ -52,12 +58,16 @@ new FloatingQR({
 
 ### `new FloatingQR(options)`
 
+`options` 整体可选，不传时使用内置的公众号 + 赞赏码默认二维码。
+
 | 字段 | 类型 | 必填 | 默认值 | 说明 |
 | --- | --- | --- | --- | --- |
-| `wechat.src` | `string` | ✅ | - | 公众号二维码图片 URL |
+| `wechat` | `FloatingQRBlock` | - | 内置公众号二维码 | 公众号区块 |
+| `wechat.src` | `string` | - | 内置公众号二维码图 | 公众号二维码图片 URL |
 | `wechat.title` | `string` | - | `'公众号'` | 公众号区块标题 |
 | `wechat.desc` | `string` | - | `''` | 副文案，不传不显示 |
-| `donate.src` | `string` | ✅ | - | 赞赏码图片 URL |
+| `donate` | `FloatingQRBlock` | - | 内置赞赏码 | 赞赏码区块 |
+| `donate.src` | `string` | - | 内置赞赏码图 | 赞赏码图片 URL |
 | `donate.title` | `string` | - | `'赞赏码'` | 赞赏码区块标题 |
 | `donate.desc` | `string` | - | `''` | 副文案，不传不显示 |
 | `position` | `Position` | - | `'right-bottom'` | `right-bottom` / `right-top` / `left-bottom` / `left-top` |

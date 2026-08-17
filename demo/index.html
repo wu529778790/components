@@ -129,10 +129,26 @@
         <label for="donateTitle">赞赏码标题</label>
         <input type="text" id="donateTitle" value="赞赏码" />
       </div>
+      <div class="field">
+        <label for="wechatSrc">公众号二维码 URL（留空用默认图）</label>
+        <input type="text" id="wechatSrc" placeholder="留空使用内置默认图" />
+      </div>
+      <div class="field">
+        <label for="donateSrc">赞赏码 URL（留空用默认图）</label>
+        <input type="text" id="donateSrc" placeholder="留空使用内置默认图" />
+      </div>
     </section>
 
     <section class="docs">
       <h2>快速上手</h2>
+
+      <h3>方式零：零配置（推荐 · 直接使用内置公众号 + 赞赏码）</h3>
+      <pre><code>new FloatingQR()
+// 等价于：
+new FloatingQR({
+  wechat: { src: '内置公众号二维码', title: '公众号' },
+  donate: { src: '内置赞赏码', title: '赞赏码' }
+})</code></pre>
 
       <h3>方式一：NPM 安装（推荐）</h3>
       <pre><code>pnpm add @wu529778790/floating-qr</code></pre>
@@ -164,21 +180,22 @@ new FloatingQR({
 
   <script src="../packages/floating-qr/dist/index.umd.js"></script>
   <script>
-    const WECHAT_QR = 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/wp/1782738963299-5wrchz.jpg'
-    const DONATE_QR = 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260815-100157-net7.png'
-
     let widget = null
 
     function buildOptions() {
+      const wechatSrc = document.getElementById('wechatSrc').value.trim()
+      const donateSrc = document.getElementById('donateSrc').value.trim()
+      const wechat = {
+        title: document.getElementById('wechatTitle').value || '公众号'
+      }
+      const donate = {
+        title: document.getElementById('donateTitle').value || '赞赏码'
+      }
+      if (wechatSrc) wechat.src = wechatSrc
+      if (donateSrc) donate.src = donateSrc
       return {
-        wechat: {
-          src: WECHAT_QR,
-          title: document.getElementById('wechatTitle').value || '公众号'
-        },
-        donate: {
-          src: DONATE_QR,
-          title: document.getElementById('donateTitle').value || '赞赏码'
-        },
+        wechat,
+        donate,
         position: document.getElementById('position').value,
         closePersistence: document.getElementById('closePersistence').checked,
         hideOnMobile: document.getElementById('hideOnMobile').checked,

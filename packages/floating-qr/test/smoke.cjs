@@ -65,12 +65,19 @@ w.close()
 assert(w.isMounted() === false, 'close() unmounts')
 assert(localStorage.getItem('floating-qr:closed') === null, 'no persistence by default')
 
-// 4. missing src throws
-let threw = false
-try { new FQ({ wechat: { src: '' }, donate: { src: 'x' } }) } catch { threw = true }
-assert(threw, 'throws when wechat.src missing')
+// 4. zero-config uses default images (no src required)
+const wZero = new FQ()
+assert(wZero.isMounted(), 'zero-config mounts')
+assert(lastAppended.innerHTML.includes('1782738963299-5wrchz.jpg'), 'default wechat QR used')
+assert(lastAppended.innerHTML.includes('imgx-20260815-100157-net7.png'), 'default donate QR used')
 
-// 5. closePersistence writes localStorage
+// 5. custom src overrides defaults
+const wCustom = new FQ({ wechat: { src: 'custom-wx.png' }, donate: { src: 'custom-dz.png' } })
+assert(wCustom.isMounted(), 'custom config mounts')
+assert(lastAppended.innerHTML.includes('custom-wx.png'), 'custom wechat src used')
+assert(lastAppended.innerHTML.includes('custom-dz.png'), 'custom donate src used')
+
+// 6. closePersistence writes localStorage
 const w2 = new FQ({
   wechat: { src: 'wx.png' },
   donate: { src: 'dz.png' },
@@ -80,7 +87,7 @@ assert(w2.isMounted(), 'second instance mounts')
 w2.close()
 assert(localStorage.getItem('floating-qr:closed') === '1', 'persistence writes mark')
 
-// 6. persistence skip on next construction
+// 7. persistence skip on next construction
 const w3 = new FQ({
   wechat: { src: 'wx.png' },
   donate: { src: 'dz.png' },
@@ -88,7 +95,7 @@ const w3 = new FQ({
 })
 assert(w3.isMounted() === false, 'does not remount when close mark present')
 
-// 7. hideOnMobile skips render
+// 8. hideOnMobile skips render
 global.matchMedia = () => ({ matches: true })
 const w4 = new FQ({
   wechat: { src: 'wx.png' },
