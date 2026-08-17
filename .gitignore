@@ -5,3 +5,4 @@ dist/
 *.local
 _tmp_*
 *.bundled_*.mjs
+.workbuddy/
