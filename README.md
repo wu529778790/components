@@ -19,7 +19,7 @@ components/
 │   ├── floating-qr/   # 浮窗组件
 │   └── ...            # 未来组件
 ├── demo/              # 聚合演示站（本地直接打开即可）
-├── .changeset/        # 版本管理与发版
+├── .github/workflows/ # 自动发版（push 即发布）
 ├── pnpm-workspace.yaml
 └── tsconfig.base.json # 统一 TS 基线
 ```
@@ -37,17 +37,13 @@ pnpm typecheck        # 类型检查全部包
 
 ## 发布新包
 
-**发布已全自动**（`.github/workflows/release.yml`）：PR 合入 main 后 changesets 自动创建版本 PR，合入后自动 `pnpm release` 发布到 npm，全程无需手动执行命令。
+**全自动**（`.github/workflows/release.yml`）：push 到 `main` 后自动给有变更的包 `+0.0.1`（patch）并自动发布到 npm，无需任何手动操作。
 
 - **认证方式**：npm Trusted Publishing（OIDC），**无需配置 token**（npm 已于 2025-12-09 作废 classic token）。
-- **首次发布**：新包第一次发布必须手动执行一次 `npm login && npm publish --access public`（trusted publisher 只能配置在已存在的包上）。
-- **npm 端配置**：每个包在 npmjs.com 的 `package/<包名>/settings` → Trusted Publisher 添加：
-  - Provider：`GitHub Actions`
-  - Organization/User：`wu529778790`
-  - Repository：`components`
-  - Workflow filename：`release.yml`
-
-开发期手动发版：`pnpm changeset` → `pnpm version && pnpm release`。
+- **npm 端配置**（每个包一次）：npmjs.com → `package/<包名>/settings` → Trusted Publisher：
+  - Provider：`GitHub Actions`；Organization/User：`wu529778790`；Repository：`components`；Workflow filename：`release.yml`
+- **首次发布**：新包第一次需手动 `npm login && npm publish --access public`（trusted publisher 只能配在已存在的包上）。
+- 只发布本次 push 有文件变更的包（`packages/*/` 下），demo / 文档改动不会触发发布。
 
 ## 技术约定（每个包必须遵守）
 
@@ -55,7 +51,7 @@ pnpm typecheck        # 类型检查全部包
 - **构建**：tsup，输出 `ESM + CJS + IIFE(UMD)` 三格式
 - **依赖**：零运行时依赖（或极低），不绑定框架
 - **样式**：CSS 变量驱动主题，样式与 JS 分离导出
-- **发版**：changesets 统一管理版本号与 CHANGELOG
+- **发版**：GitHub Actions 自动 bump patch + 发布（OIDC 免 token）
 
 ## License
 

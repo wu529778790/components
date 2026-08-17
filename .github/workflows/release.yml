@@ -1,16 +1,16 @@
 # 自动发布到 npm（OIDC Trusted Publishing，免 token）
 #
-# 触发方式：
-#   1. PR 合入 main 且包含 .changeset/*.md → 自动创建「版本发布 PR」（改版本号 + CHANGELOG）
-#   2. 版本 PR 合入 main（无待处理 changeset）→ 自动执行 pnpm release 发布所有变更包
-#   3. 也可在 Actions 页面手动 Run workflow
+# 流程：push 到 main → 自动给「有变更的包」加一个小版本（patch）→ 构建 → 自动发布到 npm
+# 无需手动跑任何命令，也无需 changesets 版本 PR。
+#
+# 认证：npm Trusted Publishing（OIDC），无需配置 token。
+#   npm 端：每个包在 npmjs.com → Settings → Trusted Publisher 配置：
+#   Provider=GitHub Actions / Organization=wu529778790 / Repository=components / Workflow=release.yml
+#   （首次发布需手动：npm login && npm publish --access public）
 #
 # 注意：
-#   - 使用 npm Trusted Publishing（OIDC），无需配置 NPM_TOKEN / NODE_AUTH_TOKEN！
-#     只需在 npmjs.com 每个包的 Settings → Trusted Publisher 添加本 workflow 即可。
-#   - 千万不要设置 NODE_AUTH_TOKEN / NPM_TOKEN 环境变量（设置了反而会禁用 OIDC）。
-#   - 包首次发布必须手动：npm login && npm publish --access public（trusted publisher
-#     只能配置在已存在的包上）。
+#   - 不要设置 NODE_AUTH_TOKEN / NPM_TOKEN（设了会禁用 OIDC）
+#   - 版本 commit 由 GITHUB_TOKEN 推送，不会再次触发本 workflow（防递归）
 
 name: Release
 
@@ -20,9 +20,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write # changesets 打 tag / push 版本 PR
+  contents: write # 提交版本号变更
   id-token: write # 必需：请求 OIDC token 用于 npm 发布
-  pull-requests: write # 创建版本 PR
 
 concurrency:
   group: release
@@ -54,12 +53,41 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Detect changed packages
+        id: changed
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            BEFORE="HEAD~1"
+          else
+            BEFORE="${{ github.event.before }}"
+          fi
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            BEFORE="$(git hash-object -t tree /dev/null)"
+          fi
+          CHANGED=$(git diff --name-only "$BEFORE" "${{ github.sha }}" \
+            | sed -n 's|^packages/\([^/]*\)/.*|\1|p' | sort -u)
+          echo "changed=$CHANGED"
+          echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
+
+      - name: Bump patch version for changed packages
+        if: steps.changed.outputs.changed != ''
+        run: |
+          for pkg in ${{ steps.changed.outputs.changed }}; do
+            (cd "packages/$pkg" && npm version patch --no-git-tag-version)
+          done
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add packages
+          git commit -m "chore: bump patch version [skip ci]"
+          git push
+
       - name: Build all packages
         run: pnpm build
 
-      - name: Create Release PR or Publish to npm
-        uses: changesets/action@v1
-        with:
-          publish: pnpm release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish changed packages to npm
+        if: steps.changed.outputs.changed != ''
+        run: |
+          for pkg in ${{ steps.changed.outputs.changed }}; do
+            echo ">> Publishing packages/$pkg"
+            (cd "packages/$pkg" && npm publish)
+          done
