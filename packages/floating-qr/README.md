@@ -42,17 +42,30 @@ new FloatingQR({
 })
 ```
 
-### CDN（零构建，直接放任意页面）
+### CDN 零代码（最快 · 一条标签即自动出现）
 
 ```html
 <link rel="stylesheet" href="https://unpkg.com/@wu529778790/floating-qr@latest/dist/floating-qr.css" />
 <script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/index.umd.js"></script>
-<script>
-  new FloatingQR()
-</script>
+<!-- 无需任何 JS，浮窗自动出现，使用内置公众号 + 赞赏码 -->
 ```
 
-> CDN 方式全局挂载为 `window.FloatingQR`，可直接 `new FloatingQR(...)`。
+**CDN + 自定义参数**：引入前定义一个全局对象即可，无需手动 `new`：
+
+```html
+<script>
+  window.__FLOATING_QR_OPTIONS__ = {
+    wechat: { title: '扫码关注' },
+    donate: { title: '赞赏支持' },
+    position: 'right-bottom'
+  }
+</script>
+<script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/index.umd.js"></script>
+```
+
+**完全禁用自动初始化**（改用手动控制）：给 `<html>` 加 `data-fq-auto="false"`，然后手动 `new FloatingQR(...)`。
+
+> CDN 方式全局挂载为 `window.FloatingQR`。自动初始化只执行一次（`__floatingQrAutoInit__` 守卫）。
 
 ## API
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-fq-auto="false">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -142,34 +142,30 @@
     <section class="docs">
       <h2>快速上手</h2>
 
-      <h3>方式零：零配置（推荐 · 直接使用内置公众号 + 赞赏码）</h3>
-      <pre><code>new FloatingQR()
-// 等价于：
-new FloatingQR({
-  wechat: { src: '内置公众号二维码', title: '公众号' },
-  donate: { src: '内置赞赏码', title: '赞赏码' }
-})</code></pre>
+      <h3>方式零：CDN 零代码（最快 · 引一条标签即自动出现）</h3>
+      <pre><code>&lt;link rel="stylesheet" href="https://unpkg.com/@wu529778790/floating-qr@latest/dist/floating-qr.css"&gt;
+&lt;script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/index.umd.js"&gt;&lt;/script&gt;
+&lt;!-- 无需任何 JS，浮窗自动出现，用内置公众号 + 赞赏码 --&gt;</code></pre>
 
       <h3>方式一：NPM 安装（推荐）</h3>
       <pre><code>pnpm add @wu529778790/floating-qr</code></pre>
       <pre><code>import FloatingQR from '@wu529778790/floating-qr'
 import '@wu529778790/floating-qr/style.css'
 
-new FloatingQR({
-  wechat: { src: 'https://.../wechat.jpg', title: '公众号' },
-  donate: { src: 'https://.../donate.png', title: '赞赏码' },
-  position: 'right-bottom'
-})</code></pre>
+new FloatingQR()  // 零配置，或传参数自定义
+// new FloatingQR({ wechat: { src, title }, donate: { src, title }, position })</code></pre>
 
-      <h3>方式二：CDN 引入（零构建）</h3>
+      <h3>方式二：CDN + 自定义参数（不想用默认图时）</h3>
       <pre><code>&lt;link rel="stylesheet" href="https://unpkg.com/@wu529778790/floating-qr@latest/dist/floating-qr.css"&gt;
-&lt;script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/index.umd.js"&gt;&lt;/script&gt;
 &lt;script&gt;
-  new FloatingQR({
+  window.__FLOATING_QR_OPTIONS__ = {
     wechat: { src: 'https://.../wechat.jpg', title: '公众号' },
     donate: { src: 'https://.../donate.png', title: '赞赏码' }
-  })
-&lt;/script&gt;</code></pre>
+  }
+&lt;/script&gt;
+&lt;script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/index.umd.js"&gt;&lt;/script&gt;
+
+&lt;!-- 完全禁用自动初始化：给 &lt;html&gt; 加 data-fq-auto="false" 再手动 new --&gt;</code></pre>
 
       <div class="note">
         演示站引用的是本地构建产物，右上角即实时实例。位置、标题、颜色、记住状态全部可调。

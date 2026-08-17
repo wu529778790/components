@@ -18,7 +18,16 @@ export default defineConfig([
     globalName: 'FloatingQR',
     outDir: 'dist',
     footer: {
-      js: 'if (typeof FloatingQR !== "undefined") { FloatingQR = FloatingQR.default || FloatingQR; }'
+      js: `
+if (typeof FloatingQR !== "undefined") {
+  FloatingQR = FloatingQR.default || FloatingQR;
+  var fqDoc = document.documentElement;
+  var fqDisabled = fqDoc && fqDoc.getAttribute("data-fq-auto") === "false";
+  if (!fqDisabled && !window.__floatingQrAutoInit__) {
+    window.__floatingQrAutoInit__ = true;
+    new FloatingQR(window.__FLOATING_QR_OPTIONS__ || undefined);
+  }
+}`
     },
     outExtension() {
       return { js: '.umd.js' }
