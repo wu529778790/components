@@ -8,7 +8,8 @@
   "scripts": {
     "build": "pnpm -r --filter \"./packages/*\" build",
     "dev": "pnpm -r --filter \"./packages/*\" dev --parallel",
-    "typecheck": "pnpm -r --filter \"./packages/*\" typecheck"
+    "typecheck": "pnpm -r --filter \"./packages/*\" typecheck",
+    "preview": "python3 -m http.server 8317"
   },
   "devDependencies": {
     "typescript": "^5.6.3"
