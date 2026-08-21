@@ -124,7 +124,7 @@
       <h2>快速上手（Script 注入 · 改一处全站生效）</h2>
 
       <h3>方式一：CDN 一行引入（零配置，自动弹出默认弹窗）</h3>
-      <pre><code>&lt;script src="https://cdn.jsdmirror.com/gh/wu529778790/components@master/cdn/floating-modal.js"&gt;&lt;/script&gt;
+      <pre><code>&lt;script src="https://cdn.jsdmirror.com/gh/wu529778790/components@main/cdn/floating-modal.wc.js"&gt;&lt;/script&gt;
 &lt;!-- 无需任何标签/JS，进入页面自动弹出默认赞助弹窗 --&gt;</code></pre>
 
       <h3>方式二：声明式标签（默认连接即弹出；auto-show="false" 时手动调用 show()）</h3>
@@ -134,7 +134,7 @@
   content="本站将于 8 月 20 日凌晨迁移服务器…"
   qr-src="https://.../qrcode.png"&gt;
 &lt;/floating-modal&gt;
-&lt;script src="https://cdn.jsdmirror.com/gh/wu529778790/components@master/cdn/floating-modal.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.jsdmirror.com/gh/wu529778790/components@main/cdn/floating-modal.wc.js"&gt;&lt;/script&gt;
 &lt;script&gt;document.querySelector('floating-modal').show()&lt;/script&gt;</code></pre>
 
       <h3>方式三：全局配置</h3>
@@ -144,7 +144,7 @@
     qr: { src: 'https://.../qrcode.png' }
   }
 &lt;/script&gt;
-&lt;script src="https://cdn.jsdmirror.com/gh/wu529778790/components@master/cdn/floating-modal.js"&gt;&lt;/script&gt;</code></pre>
+&lt;script src="https://cdn.jsdmirror.com/gh/wu529778790/components@main/cdn/floating-modal.wc.js"&gt;&lt;/script&gt;</code></pre>
 
       <h3>方式四：NPM 双轨（React/Vue 项目照旧）</h3>
       <pre><code>pnpm add @wu529778790/floating-modal
