@@ -32,5 +32,15 @@ if (typeof FloatingModal !== "undefined") {
     outExtension() {
       return { js: '.umd.js' }
     }
+  },
+  {
+    // Web Component 单文件产物：自动注册 <floating-modal>，样式内联进 shadow DOM
+    entry: { 'floating-modal': 'src/web-component.ts' },
+    format: ['iife'],
+    outDir: 'dist',
+    loader: { '.css': 'text' },
+    outExtension() {
+      return { js: '.wc.js' }
+    }
   }
 ])

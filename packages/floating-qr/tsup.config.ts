@@ -32,5 +32,15 @@ if (typeof FloatingQR !== "undefined") {
     outExtension() {
       return { js: '.umd.js' }
     }
+  },
+  {
+    // Web Component 单文件产物：自动注册 <floating-qr>，样式内联进 shadow DOM
+    entry: { 'floating-qr': 'src/web-component.ts' },
+    format: ['iife'],
+    outDir: 'dist',
+    loader: { '.css': 'text' },
+    outExtension() {
+      return { js: '.wc.js' }
+    }
   }
 ])

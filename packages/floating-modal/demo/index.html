@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-fm-auto="false">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>floating-modal · 演示站</title>
-  <link rel="stylesheet" href="../dist/floating-modal.css" />
+  <title>floating-modal · Web Component 演示站</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -95,8 +94,8 @@
 </head>
 <body>
   <header>
-    <h1>floating-modal 演示站 <span class="badge">@wu529778790/floating-modal</span></h1>
-    <p>极简 · 零依赖 · 赞助 / 公告弹窗。点「立即弹出」或改参数后重新弹出。</p>
+    <h1>floating-modal 演示站 <span class="badge">&lt;floating-modal&gt; Web Component</span></h1>
+    <p>极简 · 零依赖 · 赞助 / 公告弹窗。改参数后点「立即弹出」生效。</p>
   </header>
 
   <main>
@@ -122,66 +121,68 @@
     </section>
 
     <section class="docs">
-      <h2>快速上手</h2>
+      <h2>快速上手（Script 注入 · 改一处全站生效）</h2>
 
-      <h3>方式零：CDN 零代码（一条标签即自动弹出）</h3>
-      <pre><code>&lt;link rel="stylesheet" href="https://unpkg.com/@wu529778790/floating-modal@latest/dist/floating-modal.css"&gt;
-&lt;script src="https://unpkg.com/@wu529778790/floating-modal@latest/dist/index.umd.js"&gt;&lt;/script&gt;
-&lt;!-- 无需任何 JS，默认赞助弹窗自动弹出 --&gt;</code></pre>
+      <h3>方式一：CDN 一行引入（零配置，自动弹出默认弹窗）</h3>
+      <pre><code>&lt;script src="https://cdn.jsdmirror.com/gh/wu529778790/components@master/cdn/floating-modal.js"&gt;&lt;/script&gt;
+&lt;!-- 无需任何标签/JS，进入页面自动弹出默认赞助弹窗 --&gt;</code></pre>
 
-      <h3>方式一：NPM 安装</h3>
-      <pre><code>pnpm add @wu529778790/floating-modal</code></pre>
-      <pre><code>import FloatingModal from '@wu529778790/floating-modal'
-import '@wu529778790/floating-modal/style.css'
+      <h3>方式二：声明式标签（默认连接即弹出；auto-show="false" 时手动调用 show()）</h3>
+      <pre><code>&lt;floating-modal
+  auto-show="false"
+  title="站点公告"
+  content="本站将于 8 月 20 日凌晨迁移服务器…"
+  qr-src="https://.../qrcode.png"&gt;
+&lt;/floating-modal&gt;
+&lt;script src="https://cdn.jsdmirror.com/gh/wu529778790/components@master/cdn/floating-modal.js"&gt;&lt;/script&gt;
+&lt;script&gt;document.querySelector('floating-modal').show()&lt;/script&gt;</code></pre>
 
-new FloatingModal()  // 零配置，默认话术 + 默认赞赏码
-// 或自定义：
-new FloatingModal({
-  title: '站点公告',
-  content: '本站将于 8 月 20 日凌晨迁移服务器…',
-  qr: { src: 'https://.../qrcode.png' }
-})</code></pre>
-
-      <h3>CDN + 自定义参数</h3>
+      <h3>方式三：全局配置</h3>
       <pre><code>&lt;script&gt;
   window.__FLOATING_MODAL_OPTIONS__ = {
     title: '小水管请求支援',
     qr: { src: 'https://.../qrcode.png' }
   }
 &lt;/script&gt;
-&lt;script src="https://unpkg.com/@wu529778790/floating-modal@latest/dist/index.umd.js"&gt;&lt;/script&gt;
-&lt;!-- 完全禁用自动弹出：给 &lt;html&gt; 加 data-fm-auto="false" --&gt;</code></pre>
+&lt;script src="https://cdn.jsdmirror.com/gh/wu529778790/components@master/cdn/floating-modal.js"&gt;&lt;/script&gt;</code></pre>
+
+      <h3>方式四：NPM 双轨（React/Vue 项目照旧）</h3>
+      <pre><code>pnpm add @wu529778790/floating-modal
+import FloatingModal from '@wu529778790/floating-modal'
+import '@wu529778790/floating-modal/style.css'
+new FloatingModal()</code></pre>
 
       <div class="note">
-        弹窗为模态（遮罩 + 点遮罩关闭 + Esc 关闭）。每次进入页面都会弹出，关闭只对当前这次生效。
+        全部支持属性：<code>auto-show</code> <code>title</code> <code>content</code> <code>content-html</code>
+        <code>qr-src</code> <code>qr-alt</code> <code>width</code> <code>delay</code> <code>z-index</code>
+        <code>mask-closable</code> <code>close-on-esc</code> <code>show-close</code>
+        <code>theme-bg/-accent/-radius/-border/-overlay/-title-color/-text-color</code>
+        <br>不想自动弹出：给 <code>&lt;html&gt;</code> 加 <code>data-fm-auto="false"</code>。
+        样式已隔离在 shadow DOM，外部可用 <code>--fm-*</code> 变量覆盖。
       </div>
     </section>
   </main>
 
-  <script src="../dist/index.umd.js"></script>
-  <script>
-    let modal = null
+  <!-- auto-show="false"：不自动弹，由下方按钮触发 show() -->
+  <floating-modal id="demo-modal" auto-show="false" title="小水管请求支援"></floating-modal>
 
-    function buildOptions() {
+  <script src="../dist/floating-modal.wc.js"></script>
+  <script>
+    const modalEl = document.getElementById('demo-modal')
+
+    function apply() {
       const qrSrc = document.getElementById('qrSrc').value.trim()
-      const options = {
-        title: document.getElementById('title').value || '小水管请求支援',
-        content: document.getElementById('content').value,
-        width: Number(document.getElementById('width').value) || 380
-      }
-      if (qrSrc) options.qr = { src: qrSrc }
-      return options
+      modalEl.setAttribute('title', document.getElementById('title').value || '小水管请求支援')
+      modalEl.setAttribute('content', document.getElementById('content').value)
+      modalEl.setAttribute('width', document.getElementById('width').value || '380')
+      if (qrSrc) modalEl.setAttribute('qr-src', qrSrc)
+      else modalEl.removeAttribute('qr-src')
     }
 
     document.getElementById('showBtn').addEventListener('click', () => {
-      modal?.destroy()
-      modal = new FloatingModal(buildOptions())
-      modal.show()
+      apply()
+      modalEl.show()
     })
-
-    // 首次进入演示自动弹出一次
-    modal = new FloatingModal(buildOptions())
-    modal.show()
   </script>
 </body>
 </html>

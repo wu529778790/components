@@ -85,6 +85,8 @@ const DEFAULT_THEME: Required<FloatingModalTheme> = {
 /**
  * A minimal centered modal popup for sponsor QR, notices and announcements.
  * Zero dependencies. Framework-agnostic. Styleable via --fm-* CSS variables.
+ *
+ * @param container 渲染容器，默认 document.body；Web Component 场景传入 shadow root
  */
 export class FloatingModal {
   private readonly opts: ResolvedOptions
@@ -92,9 +94,14 @@ export class FloatingModal {
   private closeBtn: HTMLButtonElement | null = null
   private timer: ReturnType<typeof setTimeout> | null = null
   private escHandler: ((e: KeyboardEvent) => void) | null = null
+  private readonly container: HTMLElement | ShadowRoot
 
-  constructor(options: FloatingModalOptions = {}) {
+  constructor(
+    options: FloatingModalOptions = {},
+    container: HTMLElement | ShadowRoot = document.body
+  ) {
     this.opts = this.resolve(options)
+    this.container = container
 
     const show = () => this.render()
     if (this.opts.delay > 0) {
@@ -190,7 +197,7 @@ export class FloatingModal {
     this.closeBtn = mask.querySelector<HTMLButtonElement>('.fm-close')
     this.closeBtn?.addEventListener('click', this.handleClose)
 
-    document.body.appendChild(mask)
+    this.container.appendChild(mask)
     this.mask = mask
 
     if (this.opts.closeOnEsc) {

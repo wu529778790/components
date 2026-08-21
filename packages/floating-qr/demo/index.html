@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-fq-auto="false">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>floating-qr · 演示站</title>
-  <link rel="stylesheet" href="../dist/floating-qr.css" />
+  <title>floating-qr · Web Component 演示站</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -82,13 +81,13 @@
 </head>
 <body>
   <header>
-    <h1>floating-qr 演示站 <span class="badge">@wu529778790/floating-qr</span></h1>
-    <p>极简 · 零依赖 · 公众号 + 赞赏码浮窗。右侧悬浮的卡片就是组件本身，修改参数实时生效。</p>
+    <h1>floating-qr 演示站 <span class="badge">&lt;floating-qr&gt; Web Component</span></h1>
+    <p>极简 · 零依赖 · 公众号 + 赞赏码浮窗。右侧悬浮卡片即组件实例，面板改参数即时热更新。</p>
   </header>
 
   <main>
     <section class="panel">
-      <h2>参数面板（实时生效）</h2>
+      <h2>参数面板（操作 <code>&lt;floating-qr&gt;</code> 属性，即时生效）</h2>
       <div class="field">
         <label for="position">位置 position</label>
         <select id="position">
@@ -104,7 +103,7 @@
         <label for="closePersistence">关闭后记住状态</label>
         <label style="font-weight:400; font-size:13px;">
           <input type="checkbox" id="closePersistence" />
-          closePersistence = true
+          close-persistence
         </label>
         <div class="hint">勾选后关闭写入 localStorage，刷新不再出现；不勾选则刷新必出现</div>
       </div>
@@ -112,7 +111,7 @@
         <label for="hideOnMobile">移动端隐藏</label>
         <label style="font-weight:400; font-size:13px;">
           <input type="checkbox" id="hideOnMobile" checked />
-          hideOnMobile = true
+          hide-on-mobile
         </label>
         <div class="hint"><768px 时自动不渲染</div>
       </div>
@@ -143,76 +142,74 @@
     </section>
 
     <section class="docs">
-      <h2>快速上手</h2>
+      <h2>快速上手（Script 注入 · 改一处全站生效）</h2>
 
-      <h3>方式零：CDN 零代码（最快 · 引一条标签即自动出现）</h3>
-      <pre><code>&lt;link rel="stylesheet" href="https://unpkg.com/@wu529778790/floating-qr@latest/dist/floating-qr.css"&gt;
-&lt;script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/index.umd.js"&gt;&lt;/script&gt;
-&lt;!-- 无需任何 JS，浮窗自动出现，用内置公众号 + 赞赏码 --&gt;</code></pre>
+      <h3>方式一：CDN 一行引入（零配置，自动出现默认浮窗）</h3>
+      <pre><code>&lt;script src="https://cdn.jsdmirror.com/gh/wu529778790/components@master/cdn/floating-qr.js"&gt;&lt;/script&gt;
+&lt;!-- 无需任何标签/JS，自动注入默认公众号 + 赞赏码浮窗 --&gt;</code></pre>
 
-      <h3>方式一：NPM 安装（推荐）</h3>
-      <pre><code>pnpm add @wu529778790/floating-qr</code></pre>
-      <pre><code>import FloatingQR from '@wu529778790/floating-qr'
-import '@wu529778790/floating-qr/style.css'
+      <h3>方式二：声明式标签（按需定制，属性即时热更新）</h3>
+      <pre><code>&lt;floating-qr
+  position="left-bottom"
+  theme-accent="#e04040"
+  wechat-title="公众号"
+  donate-title="赞赏码"&gt;
+&lt;/floating-qr&gt;
+&lt;script src="https://cdn.jsdmirror.com/gh/wu529778790/components@master/cdn/floating-qr.js"&gt;&lt;/script&gt;</code></pre>
 
-new FloatingQR()  // 零配置，或传参数自定义
-// new FloatingQR({ wechat: { src, title }, donate: { src, title }, position })</code></pre>
-
-      <h3>方式二：CDN + 自定义参数（不想用默认图时）</h3>
-      <pre><code>&lt;link rel="stylesheet" href="https://unpkg.com/@wu529778790/floating-qr@latest/dist/floating-qr.css"&gt;
-&lt;script&gt;
+      <h3>方式三：全局配置（复杂参数：二维码 URL、主题色）</h3>
+      <pre><code>&lt;script&gt;
   window.__FLOATING_QR_OPTIONS__ = {
     wechat: { src: 'https://.../wechat.jpg', title: '公众号' },
-    donate: { src: 'https://.../donate.png', title: '赞赏码' }
+    donate: { src: 'https://.../donate.png', title: '赞赏码' },
+    theme: { bg: '#fff', accent: '#333' }
   }
 &lt;/script&gt;
-&lt;script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/index.umd.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.jsdmirror.com/gh/wu529778790/components@master/cdn/floating-qr.js"&gt;&lt;/script&gt;</code></pre>
 
-&lt;!-- 完全禁用自动初始化：给 &lt;html&gt; 加 data-fq-auto="false" 再手动 new --&gt;</code></pre>
+      <h3>方式四：NPM 双轨（React/Vue 项目照旧）</h3>
+      <pre><code>pnpm add @wu529778790/floating-qr
+import FloatingQR from '@wu529778790/floating-qr'
+import '@wu529778790/floating-qr/style.css'
+new FloatingQR()</code></pre>
 
       <div class="note">
-        演示站引用的是本地构建产物，右上角即实时实例。位置、标题、颜色、记住状态全部可调。
-        NPM 包发布后，把链接换成 <code>unpkg.com</code> 即可在任何网站一行引入。
+        全部支持属性：<code>position</code> <code>close-persistence</code> <code>hide-on-mobile</code>
+        <code>z-index</code> <code>wechat-src/-title/-desc</code> <code>donate-src/-title/-desc</code>
+        <code>theme-bg</code> <code>theme-accent</code> <code>theme-radius</code> <code>theme-border</code>
+        <br>不想自动注入：给 <code>&lt;html&gt;</code> 加 <code>data-fq-auto="false"</code>。
+        样式已隔离在 shadow DOM，外部可用 <code>--fq-*</code> 变量覆盖。
       </div>
     </section>
   </main>
 
-  <script src="../dist/index.umd.js"></script>
-  <script>
-    let widget = null
+  <!-- 声明式标签：本页用标签模式，无标签时才走自动注入 -->
+  <floating-qr id="demo-widget"></floating-qr>
 
-    function buildOptions() {
-      const wechatSrc = document.getElementById('wechatSrc').value.trim()
-      const donateSrc = document.getElementById('donateSrc').value.trim()
-      const wechat = {
-        title: document.getElementById('wechatTitle').value || '公众号'
-      }
-      const donate = {
-        title: document.getElementById('donateTitle').value || '赞赏码'
-      }
-      if (wechatSrc) wechat.src = wechatSrc
-      if (donateSrc) donate.src = donateSrc
-      return {
-        wechat,
-        donate,
-        position: document.getElementById('position').value,
-        closePersistence: document.getElementById('closePersistence').checked,
-        hideOnMobile: document.getElementById('hideOnMobile').checked,
-        theme: {
-          bg: hexToRgba(document.getElementById('themeBg').value, 0.96),
-          accent: document.getElementById('themeAccent').value
-        }
-      }
+  <script src="../dist/floating-qr.wc.js"></script>
+  <script>
+    const widget = document.getElementById('demo-widget')
+
+    function setOrRemove(name, value) {
+      if (value) widget.setAttribute(name, value)
+      else widget.removeAttribute(name)
+    }
+
+    function apply() {
+      widget.setAttribute('position', document.getElementById('position').value)
+      widget.toggleAttribute('close-persistence', document.getElementById('closePersistence').checked)
+      widget.toggleAttribute('hide-on-mobile', document.getElementById('hideOnMobile').checked)
+      widget.setAttribute('theme-bg', hexToRgba(document.getElementById('themeBg').value, 0.96))
+      widget.setAttribute('theme-accent', document.getElementById('themeAccent').value)
+      setOrRemove('wechat-title', document.getElementById('wechatTitle').value)
+      setOrRemove('donate-title', document.getElementById('donateTitle').value)
+      setOrRemove('wechat-src', document.getElementById('wechatSrc').value.trim())
+      setOrRemove('donate-src', document.getElementById('donateSrc').value.trim())
     }
 
     function hexToRgba(hex, alpha) {
       const n = parseInt(hex.slice(1), 16)
       return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`
-    }
-
-    function apply() {
-      widget?.destroy()
-      widget = new FloatingQR(buildOptions())
     }
 
     document.querySelectorAll('.panel input, .panel select').forEach((el) => {

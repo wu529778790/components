@@ -102,13 +102,18 @@ function setCloseMark(): void {
 /**
  * A minimal floating widget that shows a WeChat QR and a donation QR.
  * Zero dependencies. Framework-agnostic. Styleable via --fq-* CSS variables.
+ *
+ * @param container 渲染容器，默认 document.body；Web Component 场景传入 shadow root
  */
 export class FloatingQR {
   private readonly opts: ResolvedOptions
   private el: HTMLElement | null = null
   private closeBtn: HTMLButtonElement | null = null
 
-  constructor(options: FloatingQROptions = {}) {
+  constructor(
+    options: FloatingQROptions = {},
+    container: HTMLElement | ShadowRoot = document.body
+  ) {
     this.opts = this.resolve(options)
 
     if (this.opts.hideOnMobile && isMobile()) {
@@ -118,7 +123,7 @@ export class FloatingQR {
       return
     }
 
-    this.render()
+    this.render(container)
   }
 
   /** 是否已挂载到页面 */
@@ -181,7 +186,7 @@ export class FloatingQR {
     }
   }
 
-  private render(): void {
+  private render(container: HTMLElement | ShadowRoot = document.body): void {
     const { wechat, donate, position, zIndex, theme } = this.opts
 
     const root = document.createElement('div')
@@ -215,10 +220,9 @@ export class FloatingQR {
     this.closeBtn = root.querySelector<HTMLButtonElement>('.fq-close')
     this.closeBtn?.addEventListener('click', this.handleClose)
 
-    document.body.appendChild(root)
+    container.appendChild(root)
     this.el = root
   }
-
   private readonly handleClose = (): void => {
     this.close()
   }
