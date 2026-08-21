@@ -9,9 +9,11 @@
     "build": "pnpm -r --filter \"./packages/*\" build",
     "dev": "pnpm -r --filter \"./packages/*\" dev --parallel",
     "typecheck": "pnpm -r --filter \"./packages/*\" typecheck",
-    "preview": "python3 -m http.server 8317"
+    "preview": "python3 -m http.server 8317",
+    "cdn": "node scripts/cdn.mjs"
   },
   "devDependencies": {
+    "esbuild": "^0.28.2",
     "typescript": "^5.6.3"
   }
 }
