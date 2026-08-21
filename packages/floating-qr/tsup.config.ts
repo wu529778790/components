@@ -1,4 +1,8 @@
 import { defineConfig } from 'tsup'
+import { createRequire } from 'node:module'
+
+const require = createRequire(import.meta.url)
+const PKG_VERSION = require('./package.json').version
 
 export default defineConfig([
   {
@@ -39,6 +43,7 @@ if (typeof FloatingQR !== "undefined") {
     format: ['iife'],
     outDir: 'dist',
     loader: { '.css': 'text' },
+    banner: { js: `/* @wu529778790/floating-qr v${PKG_VERSION} */` },
     outExtension() {
       return { js: '.wc.js' }
     }
