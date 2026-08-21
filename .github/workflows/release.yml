@@ -63,9 +63,14 @@ jobs:
           if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
             BEFORE="$(git hash-object -t tree /dev/null)"
           fi
+          # 只统计影响构建产物的包（排除 demo/test/dist 文档类变更，避免误触发发版）
           CHANGED=$(git diff --name-only "$BEFORE" "${{ github.sha }}" \
-            | sed -n 's|^packages/\([^/]*\)/.*|\1|p' | sort -u)
-          echo "changed=$CHANGED"
+            | grep -E '^packages/[^/]+/.*' \
+            | grep -vE '^packages/[^/]+/(demo|test|dist)/' \
+            | sed -n 's|^packages/\([^/]*\)/.*|\1|p' \
+            | sort -u \
+            | tr '\n' ' ')
+          # 单行空格分隔输出（多行值写 GITHUB_OUTPUT 会报 Invalid format）
           echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
 
       - name: Bump patch version for changed packages
