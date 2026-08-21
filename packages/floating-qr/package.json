@@ -1,6 +1,6 @@
 {
   "name": "@wu529778790/floating-qr",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "A minimal, zero-dependency floating widget to showcase WeChat official account QR and donation QR codes on any website.",
   "type": "module",
   "main": "./dist/index.umd.cjs",
