@@ -1,3 +1,4 @@
+/* @wu529778790/floating-modal v0.1.2 */
 "use strict";
 (() => {
   // src/FloatingModal.ts
