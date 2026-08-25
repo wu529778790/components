@@ -71,11 +71,29 @@
   background: transparent;
   color: rgba(0, 0, 0, 0.35);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: color 0.15s ease, opacity 0.15s ease;
 }
 
 .fq-close:hover {
   color: rgba(0, 0, 0, 0.7);
+}
+
+/* 触屏设备（无 hover）：关闭按钮常显，保证可关闭 */
+.fq-close {
+  opacity: 1;
+}
+
+/* 支持 hover 的设备（鼠标）：平时隐藏，悬停卡片时浮现 */
+@media (hover: hover) and (pointer: fine) {
+  .fq-close {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .fq-widget:hover .fq-close,
+  .fq-close:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 .fq-section {
