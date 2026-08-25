@@ -31,7 +31,7 @@ export interface FloatingQROptions {
   wechat?: FloatingQRBlock
   /** 赞赏码区块（可选，缺省使用默认赞赏码） */
   donate?: FloatingQRBlock
-  /** 浮窗位置，默认 right-bottom */
+  /** 浮窗位置，默认 right-center */
   position?: Position
   /** 关闭后是否记住状态（写入 localStorage），默认 false —— false 时刷新页面必然重新出现 */
   closePersistence?: boolean
@@ -178,7 +178,7 @@ export class FloatingQR {
     return {
       wechat: block(options.wechat, 'wechat'),
       donate: block(options.donate, 'donate'),
-      position: options.position ?? 'right-bottom',
+      position: options.position ?? 'right-center',
       closePersistence: options.closePersistence ?? false,
       hideOnMobile: options.hideOnMobile ?? true,
       zIndex: options.zIndex ?? 9999,

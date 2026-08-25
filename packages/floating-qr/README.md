@@ -83,7 +83,7 @@ new FloatingQR({
 | `donate.src` | `string` | 内置赞赏码图 | 赞赏码图片 URL |
 | `donate.title` | `string` | `'赞赏码'` | 赞赏码区块标题 |
 | `donate.desc` | `string` | `''` | 副文案，不传不显示 |
-| `position` | `Position` | `'right-bottom'` | `right-bottom` / `right-top` / `right-center` / `left-bottom` / `left-top` / `left-center` |
+| `position` | `Position` | `'right-center'` | `right-bottom` / `right-top` / `right-center` / `left-bottom` / `left-top` / `left-center` |
 | `closePersistence` | `boolean` | `false` | `true` 时关闭写入 localStorage，刷新不再出现 |
 | `hideOnMobile` | `boolean` | `true` | `<768px` 时不渲染 |
 | `zIndex` | `number` | `9999` | 浮窗层级 |
