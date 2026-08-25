@@ -56,9 +56,9 @@ function parseLinkHrefs(raw: string | null): FloatingQRLink[] | null {
       // 按域名猜内置图标：github.com / t.me(telegram) / x.com、twitter.com
       const guess = /github\.com/i.test(href)
         ? 'github'
-        : /(^|\.)t\.me/i.test(href)
+        : /t\.me/i.test(href)
           ? 'tg'
-          : /(^|\.)x\.com$|twitter\.com/i.test(href)
+          : /x\.com|twitter\.com/i.test(href)
             ? 'x'
             : undefined
       return { href, icon: guess, title: guess }
