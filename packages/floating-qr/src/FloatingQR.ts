@@ -63,6 +63,8 @@ interface ResolvedOptions {
   hideOnMobile: boolean
   zIndex: number
   theme: Required<FloatingQRTheme>
+  /** 用户显式传入的主题子集（未配置的 key 交给 CSS 默认值，可随系统深浅色变化） */
+  themeOverrides: FloatingQRTheme
   links: FloatingQRLink[]
 }
 
@@ -191,6 +193,7 @@ export class FloatingQR {
     this.destroy()
     const fresh = new FloatingQR(options)
     this.opts.theme = fresh.opts.theme
+    this.opts.themeOverrides = fresh.opts.themeOverrides
     this.opts.position = fresh.opts.position
     this.opts.closePersistence = fresh.opts.closePersistence
     this.opts.hideOnMobile = fresh.opts.hideOnMobile
@@ -223,21 +226,29 @@ export class FloatingQR {
       hideOnMobile: options.hideOnMobile ?? true,
       zIndex: options.zIndex ?? 9999,
       theme: { ...DEFAULT_THEME, ...(options.theme ?? {}) },
+      themeOverrides: options.theme ?? {},
       links: options.links ?? DEFAULT_LINKS
     }
   }
 
   private render(container: HTMLElement | ShadowRoot = document.body): void {
-    const { wechat, donate, position, zIndex, theme, links } = this.opts
+    const { wechat, donate, position, zIndex, themeOverrides, links } = this.opts
 
     const root = document.createElement('div')
     root.className = 'fq-widget'
     root.dataset.position = position
     root.style.zIndex = String(zIndex)
-    root.style.setProperty('--fq-bg', theme.bg)
-    root.style.setProperty('--fq-accent', theme.accent)
-    root.style.setProperty('--fq-radius', theme.radius)
-    root.style.setProperty('--fq-border', theme.border)
+    // 仅把用户显式设置的主题写为 inline（用户优先）；
+    // 未设置的 key 交给 CSS 变量默认值，以便跟随系统深浅色（prefers-color-scheme）
+    const overrides = [
+      ['--fq-bg', themeOverrides.bg],
+      ['--fq-accent', themeOverrides.accent],
+      ['--fq-radius', themeOverrides.radius],
+      ['--fq-border', themeOverrides.border]
+    ] as const
+    for (const [key, value] of overrides) {
+      if (value !== undefined) root.style.setProperty(key, value)
+    }
 
     root.innerHTML = `
       <button class="fq-close" type="button" aria-label="关闭浮窗">${CLOSE_SVG}</button>
