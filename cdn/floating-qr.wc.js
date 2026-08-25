@@ -1,4 +1,4 @@
-/* @wu529778790/floating-qr v0.1.6 */
+/* @wu529778790/floating-qr v0.1.8 */
 "use strict";
 (() => {
   // src/FloatingQR.ts
@@ -20,6 +20,25 @@
     radius: "12px",
     border: "rgba(0, 0, 0, 0.1)"
   };
+  var DEFAULT_LINKS = [
+    { href: "https://t.me/shenzjd_com", icon: "tg", title: "Telegram" },
+    { href: "https://github.com/wu529778790", icon: "github", title: "GitHub" },
+    { href: "https://x.com/shenzujiudi", icon: "x", title: "X" }
+  ];
+  var LINK_ICONS = {
+    tg: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M21.9 4.6c.3-1.2-.9-2.2-2-1.7L2.7 10.2c-1.2.5-1.1 2.2.1 2.6l4.3 1.4 1.6 5.2c.3 1.1 1.7 1.4 2.5.6l2.4-2.4 4.5 3.3c1 .7 2.4.2 2.7-1L21.9 4.6zM8.6 13.5l8.7-5.4c.1-.1.3.1.2.2l-6.8 6.7c-.2.2-.3.4-.4.7l-.5 2.6c0 .1-.2.1-.2 0l-.9-4.7c-.1-.1 0-.2 0-.1z"/></svg>',
+    github: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2C6.5 2 2 6.6 2 12.2c0 4.5 2.9 8.3 6.8 9.7.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.8 1a9.6 9.6 0 0 1 5 0c2-1.3 2.8-1 2.8-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5 4-1.4 6.8-5.2 6.8-9.7C22 6.6 17.5 2 12 2z"/></svg>',
+    x: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M17.5 3h3.1l-6.7 7.7L21.8 21h-6.2l-4.8-6.3L5.1 21H2l7.2-8.2L2.5 3h6.3l4.4 5.8L17.5 3zm-1.1 16.1h1.7L8.1 4.7H6.3L16.4 19.1z"/></svg>'
+  };
+  function resolveLinkIcon(icon, title) {
+    if (!icon) return escapeHtml((title || "\u2022").slice(0, 1));
+    if (LINK_ICONS[icon]) return LINK_ICONS[icon];
+    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(icon) || icon.startsWith("data:")) {
+      return `<img class="fq-link-img" src="${escapeAttr(icon)}" alt="" loading="lazy" />`;
+    }
+    if (icon.includes("<")) return icon;
+    return escapeHtml(icon.slice(0, 1));
+  }
   var STORAGE_KEY = "floating-qr:closed";
   var MOBILE_QUERY = "(max-width: 767px)";
   function isMobile() {
@@ -88,11 +107,12 @@
       this.opts.zIndex = fresh.opts.zIndex;
       this.opts.wechat = fresh.opts.wechat;
       this.opts.donate = fresh.opts.donate;
+      this.opts.links = fresh.opts.links;
       this.el = fresh.el;
       this.closeBtn = fresh.closeBtn;
     }
     resolve(options) {
-      var _a, _b, _c, _d, _e;
+      var _a, _b, _c, _d, _e, _f;
       const block = (b, key) => {
         var _a2, _b2, _c2;
         const def = DEFAULT_BLOCKS[key];
@@ -105,16 +125,17 @@
       return {
         wechat: block(options.wechat, "wechat"),
         donate: block(options.donate, "donate"),
-        position: (_a = options.position) != null ? _a : "right-bottom",
+        position: (_a = options.position) != null ? _a : "right-center",
         closePersistence: (_b = options.closePersistence) != null ? _b : false,
         hideOnMobile: (_c = options.hideOnMobile) != null ? _c : true,
         zIndex: (_d = options.zIndex) != null ? _d : 9999,
-        theme: { ...DEFAULT_THEME, ...(_e = options.theme) != null ? _e : {} }
+        theme: { ...DEFAULT_THEME, ...(_e = options.theme) != null ? _e : {} },
+        links: (_f = options.links) != null ? _f : DEFAULT_LINKS
       };
     }
     render(container = document.body) {
       var _a;
-      const { wechat, donate, position, zIndex, theme } = this.opts;
+      const { wechat, donate, position, zIndex, theme, links } = this.opts;
       const root = document.createElement("div");
       root.className = "fq-widget";
       root.dataset.position = position;
@@ -140,6 +161,14 @@
         <p class="fq-label">${escapeHtml(donate.title)}</p>
         ${donate.desc ? `<p class="fq-desc">${escapeHtml(donate.desc)}</p>` : ""}
       </div>
+      ${links.length ? `<div class="fq-links">${links.map(
+        (link) => {
+          var _a2;
+          return `
+        <a class="fq-link" href="${escapeAttr(link.href)}" title="${escapeAttr((_a2 = link.title) != null ? _a2 : "")}" target="_blank" rel="noopener noreferrer">${resolveLinkIcon(link.icon, link.title)}</a>`;
+        }
+      ).join("")}
+        </div>` : ""}
     `;
       this.closeBtn = root.querySelector(".fq-close");
       (_a = this.closeBtn) == null ? void 0 : _a.addEventListener("click", this.handleClose);
@@ -156,7 +185,7 @@
   }
 
   // src/styles.css
-  var styles_default = '.fq-widget {\n  --fq-bg: rgba(255, 255, 255, 0.96);\n  --fq-accent: #333;\n  --fq-radius: 12px;\n  --fq-border: rgba(0, 0, 0, 0.1);\n  --fq-offset: 16px;\n  --fq-width: 150px;\n\n  position: fixed;\n  z-index: 9999;\n  box-sizing: border-box;\n  width: var(--fq-width);\n  padding: 14px;\n  background: var(--fq-bg);\n  border: 1px solid var(--fq-border);\n  border-radius: var(--fq-radius);\n  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,\n    "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",\n    sans-serif;\n  color: var(--fq-accent);\n  line-height: 1.5;\n}\n\n.fq-widget[data-position="right-bottom"] {\n  right: var(--fq-offset);\n  bottom: var(--fq-offset);\n}\n\n.fq-widget[data-position="right-top"] {\n  right: var(--fq-offset);\n  top: var(--fq-offset);\n}\n\n.fq-widget[data-position="left-bottom"] {\n  left: var(--fq-offset);\n  bottom: var(--fq-offset);\n}\n\n.fq-widget[data-position="left-top"] {\n  left: var(--fq-offset);\n  top: var(--fq-offset);\n}\n\n.fq-widget[data-position="right-center"] {\n  right: var(--fq-offset);\n  top: 50%;\n  transform: translateY(-50%);\n}\n\n.fq-widget[data-position="left-center"] {\n  left: var(--fq-offset);\n  top: 50%;\n  transform: translateY(-50%);\n}\n\n.fq-close {\n  position: absolute;\n  top: 6px;\n  right: 6px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  padding: 0;\n  margin: 0;\n  border: none;\n  border-radius: 50%;\n  background: transparent;\n  color: rgba(0, 0, 0, 0.35);\n  cursor: pointer;\n  transition: background 0.15s ease, color 0.15s ease;\n}\n\n.fq-close:hover {\n  background: rgba(0, 0, 0, 0.06);\n  color: rgba(0, 0, 0, 0.7);\n}\n\n.fq-section {\n  text-align: center;\n}\n\n.fq-qr {\n  overflow: hidden;\n  border-radius: 4px;\n}\n\n.fq-img {\n  display: block;\n  width: 100%;\n  height: auto;\n}\n\n.fq-label {\n  margin: 8px 0 0;\n  font-size: 12px;\n  font-weight: 500;\n  color: var(--fq-accent);\n}\n\n.fq-desc {\n  margin: 2px 0 0;\n  font-size: 11px;\n  color: rgba(0, 0, 0, 0.45);\n}\n\n.fq-divider {\n  height: 1px;\n  margin: 10px 0;\n  background: var(--fq-border);\n}\n\n@media (max-width: 767px) {\n  .fq-widget {\n    width: 120px;\n    padding: 10px;\n  }\n}\n';
+  var styles_default = '.fq-widget {\n  --fq-bg: rgba(255, 255, 255, 0.96);\n  --fq-accent: #333;\n  --fq-radius: 12px;\n  --fq-border: rgba(0, 0, 0, 0.1);\n  --fq-offset: 16px;\n  --fq-width: 150px;\n\n  position: fixed;\n  z-index: 9999;\n  box-sizing: border-box;\n  width: var(--fq-width);\n  padding: 14px;\n  background: var(--fq-bg);\n  border: 1px solid var(--fq-border);\n  border-radius: var(--fq-radius);\n  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,\n    "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",\n    sans-serif;\n  color: var(--fq-accent);\n  line-height: 1.5;\n}\n\n.fq-widget[data-position="right-bottom"] {\n  right: var(--fq-offset);\n  bottom: var(--fq-offset);\n}\n\n.fq-widget[data-position="right-top"] {\n  right: var(--fq-offset);\n  top: var(--fq-offset);\n}\n\n.fq-widget[data-position="left-bottom"] {\n  left: var(--fq-offset);\n  bottom: var(--fq-offset);\n}\n\n.fq-widget[data-position="left-top"] {\n  left: var(--fq-offset);\n  top: var(--fq-offset);\n}\n\n.fq-widget[data-position="right-center"] {\n  right: var(--fq-offset);\n  top: 50%;\n  transform: translateY(-50%);\n}\n\n.fq-widget[data-position="left-center"] {\n  left: var(--fq-offset);\n  top: 50%;\n  transform: translateY(-50%);\n}\n\n.fq-close {\n  position: absolute;\n  top: 6px;\n  right: 6px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  padding: 0;\n  margin: 0;\n  border: none;\n  border-radius: 50%;\n  background: transparent;\n  color: rgba(0, 0, 0, 0.35);\n  cursor: pointer;\n  transition: background 0.15s ease, color 0.15s ease;\n}\n\n.fq-close:hover {\n  background: rgba(0, 0, 0, 0.06);\n  color: rgba(0, 0, 0, 0.7);\n}\n\n.fq-section {\n  text-align: center;\n}\n\n.fq-qr {\n  overflow: hidden;\n  border-radius: 4px;\n}\n\n.fq-img {\n  display: block;\n  width: 100%;\n  height: auto;\n}\n\n.fq-label {\n  margin: 8px 0 0;\n  font-size: 12px;\n  font-weight: 500;\n  color: var(--fq-accent);\n}\n\n.fq-desc {\n  margin: 2px 0 0;\n  font-size: 11px;\n  color: rgba(0, 0, 0, 0.45);\n}\n\n.fq-divider {\n  height: 1px;\n  margin: 10px 0;\n  background: var(--fq-border);\n}\n\n/* \u5E95\u90E8\u793E\u4EA4\u94FE\u63A5\uFF08Telegram / GitHub / X \u7B49\uFF09 */\n.fq-links {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 10px;\n  margin-top: 10px;\n  padding-top: 10px;\n  border-top: 1px solid var(--fq-border);\n}\n\n.fq-link {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  width: 24px;\n  height: 24px;\n  border-radius: 50%;\n  color: rgba(0, 0, 0, 0.45);\n  text-decoration: none;\n  transition: color 0.15s ease, background 0.15s ease;\n}\n\n.fq-link:hover {\n  color: var(--fq-accent);\n  background: rgba(0, 0, 0, 0.05);\n}\n\n.fq-link svg {\n  display: block;\n}\n\n.fq-link-img {\n  width: 16px;\n  height: 16px;\n}\n\n.fq-link-txt {\n  font-size: 12px;\n  line-height: 1;\n}\n\n@media (max-width: 767px) {\n  .fq-widget {\n    width: 120px;\n    padding: 10px;\n  }\n}\n';
 
   // src/web-component.ts
   var TAG = "floating-qr";
@@ -183,6 +212,15 @@
     ["theme-radius", "radius"],
     ["theme-border", "border"]
   ];
+  function parseLinkHrefs(raw) {
+    if (raw === null) return null;
+    const trimmed = raw.trim().toLowerCase();
+    if (trimmed === "" || trimmed === "none" || trimmed === "off") return [];
+    return raw.split(",").map((s) => s.trim()).filter(Boolean).map((href) => {
+      const guess = /github\.com/i.test(href) ? "github" : /(^|\.)t\.me/i.test(href) ? "tg" : /(^|\.)x\.com$|twitter\.com/i.test(href) ? "x" : void 0;
+      return { href, icon: guess, title: guess };
+    });
+  }
   var FloatingQRElement = class extends HTMLElement {
     constructor() {
       super();
@@ -205,6 +243,7 @@
         "donate-src",
         "donate-title",
         "donate-desc",
+        "link-hrefs",
         ...THEME_ATTRS.map(([attr]) => attr)
       ];
     }
@@ -253,6 +292,8 @@
         if (desc !== null) b.desc = desc;
         return b;
       };
+      const attrHrefs = get("link-hrefs");
+      const attrParsed = parseLinkHrefs(attrHrefs);
       return {
         ...global,
         position: (_b = get("position")) != null ? _b : global.position,
@@ -261,7 +302,8 @@
         zIndex: numAttr(this, "z-index", (_e = global.zIndex) != null ? _e : 9999),
         theme: { ...(_f = global.theme) != null ? _f : {}, ...theme },
         wechat: block("wechat", global.wechat),
-        donate: block("donate", global.donate)
+        donate: block("donate", global.donate),
+        links: attrParsed != null ? attrParsed : global.links
       };
     }
   };
