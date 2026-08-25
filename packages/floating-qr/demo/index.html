@@ -148,14 +148,19 @@
         <div class="hint"><768px 时自动不渲染</div>
       </div>
       <div class="field">
-        <label for="themeBg">主题 · 背景色（留空 = 跟随系统深浅色）</label>
-        <input type="color" id="themeBg" value="" />
-        <div class="hint">填写后自定义背景色，优先于系统深色</div>
+        <label>
+          <input type="checkbox" id="customTheme" />
+          自定义主题色（默认跟随系统深浅色）
+        </label>
+        <div class="hint">勾选后可设置背景/文字颜色；不勾选完全跟随系统深浅色</div>
       </div>
-      <div class="field">
-        <label for="themeAccent">主题 · 文字强调色（留空 = 跟随系统深浅色）</label>
-        <input type="color" id="themeAccent" value="" />
-        <div class="hint">填写后自定义文字/图标颜色，优先于系统深色</div>
+      <div class="field" id="themeBgField" style="display:none">
+        <label for="themeBg">主题 · 背景色</label>
+        <input type="color" id="themeBg" value="#ffffff" />
+      </div>
+      <div class="field" id="themeAccentField" style="display:none">
+        <label for="themeAccent">主题 · 文字强调色</label>
+        <input type="color" id="themeAccent" value="#333333" />
       </div>
       <div class="field">
         <label for="wechatTitle">公众号标题</label>
@@ -231,7 +236,7 @@ new FloatingQR()</code></pre>
   <floating-qr id="demo-widget"
     link-hrefs="https://t.me/shenzjd_com,https://github.com/wu529778790,https://x.com/shenzujiudi"></floating-qr>
 
-  <script src="../dist/floating-qr.wc.js"></script>
+  <script src="../dist/floating-qr.wc.js?v=20260825"></script>
   <script>
     const widget = document.getElementById('demo-widget')
 
@@ -244,8 +249,8 @@ new FloatingQR()</code></pre>
       widget.setAttribute('position', document.getElementById('position').value)
       widget.toggleAttribute('close-persistence', document.getElementById('closePersistence').checked)
       widget.toggleAttribute('hide-on-mobile', document.getElementById('hideOnMobile').checked)
-      setOrRemove('theme-bg', document.getElementById('themeBg').value ? hexToRgba(document.getElementById('themeBg').value, 0.96) : '')
-      setOrRemove('theme-accent', document.getElementById('themeAccent').value || '')
+      setOrRemove('theme-bg', document.getElementById('customTheme').checked ? hexToRgba(document.getElementById('themeBg').value, 0.96) : '')
+      setOrRemove('theme-accent', document.getElementById('customTheme').checked ? document.getElementById('themeAccent').value : '')
       setOrRemove('wechat-title', document.getElementById('wechatTitle').value)
       setOrRemove('donate-title', document.getElementById('donateTitle').value)
       setOrRemove('wechat-src', document.getElementById('wechatSrc').value.trim())
@@ -266,6 +271,14 @@ new FloatingQR()</code></pre>
     document.querySelectorAll('.panel input, .panel select').forEach((el) => {
       el.addEventListener('input', apply)
       el.addEventListener('change', apply)
+    })
+
+    // 自定义主题色开关：控制颜色输入框显隐
+    const customTheme = document.getElementById('customTheme')
+    customTheme.addEventListener('change', () => {
+      document.getElementById('themeBgField').style.display = customTheme.checked ? '' : 'none'
+      document.getElementById('themeAccentField').style.display = customTheme.checked ? '' : 'none'
+      apply()
     })
 
     apply()
