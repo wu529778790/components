@@ -20,6 +20,39 @@
     sans-serif;
   color: var(--fq-accent);
   line-height: 1.5;
+  color-scheme: light dark;
+}
+
+/* 跟随系统深色模式（仅影响默认值，显式设置的 --fq-* 变量优先） */
+@media (prefers-color-scheme: dark) {
+  .fq-widget {
+    --fq-bg: rgba(28, 28, 30, 0.96);
+    --fq-accent: rgba(255, 255, 255, 0.92);
+    --fq-border: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  }
+
+  .fq-close {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .fq-close:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .fq-desc {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .fq-link {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .fq-link:hover {
+    color: var(--fq-accent);
+    background: rgba(255, 255, 255, 0.08);
+  }
 }
 
 .fq-widget[data-position="right-bottom"] {
