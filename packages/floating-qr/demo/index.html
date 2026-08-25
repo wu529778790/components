@@ -139,6 +139,13 @@
         <label for="donateSrc">赞赏码 URL（留空用默认图）</label>
         <input type="text" id="donateSrc" placeholder="留空使用内置默认图" />
       </div>
+      <div class="field">
+        <label style="font-weight:400; font-size:13px;">
+          <input type="checkbox" id="linksEnabled" checked />
+          显示社交链接（Telegram / GitHub / X）
+        </label>
+        <div class="hint">对应 link-hrefs 属性，逗号分隔 URL</div>
+      </div>
     </section>
 
     <section class="docs">
@@ -176,6 +183,7 @@ new FloatingQR()</code></pre>
       <div class="note">
         全部支持属性：<code>position</code> <code>close-persistence</code> <code>hide-on-mobile</code>
         <code>z-index</code> <code>wechat-src/-title/-desc</code> <code>donate-src/-title/-desc</code>
+        <code>link-hrefs</code>
         <code>theme-bg</code> <code>theme-accent</code> <code>theme-radius</code> <code>theme-border</code>
         <br>不想自动注入：给 <code>&lt;html&gt;</code> 加 <code>data-fq-auto="false"</code>。
         样式已隔离在 shadow DOM，外部可用 <code>--fq-*</code> 变量覆盖。
@@ -186,7 +194,8 @@ new FloatingQR()</code></pre>
   </main>
 
   <!-- 声明式标签：本页用标签模式，无标签时才走自动注入 -->
-  <floating-qr id="demo-widget"></floating-qr>
+  <floating-qr id="demo-widget"
+    link-hrefs="https://t.me/shenzjd_com,https://github.com/wu529778790,https://x.com/shenzujiudi"></floating-qr>
 
   <script src="../dist/floating-qr.wc.js"></script>
   <script>
@@ -207,6 +216,12 @@ new FloatingQR()</code></pre>
       setOrRemove('donate-title', document.getElementById('donateTitle').value)
       setOrRemove('wechat-src', document.getElementById('wechatSrc').value.trim())
       setOrRemove('donate-src', document.getElementById('donateSrc').value.trim())
+      setOrRemove(
+        'link-hrefs',
+        document.getElementById('linksEnabled').checked
+          ? 'https://t.me/shenzjd_com,https://github.com/wu529778790,https://x.com/shenzujiudi'
+          : ''
+      )
     }
 
     function hexToRgba(hex, alpha) {
