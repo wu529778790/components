@@ -95,6 +95,33 @@ const w3 = new FQ({
 })
 assert(w3.isMounted() === false, 'does not remount when close mark present')
 
+// 7.5 links render as share row (icons resolved, hrefs escaped)
+const wLinks = new FQ({
+  wechat: { src: 'wx.png' },
+  donate: { src: 'dz.png' },
+  links: [
+    { href: 'https://t.me/shenzjd_com', icon: 'tg', title: 'Telegram' },
+    { href: 'https://github.com/wu529778790', icon: 'github', title: 'GitHub' },
+    { href: 'https://x.com/shenzujiudi', icon: 'x', title: 'X' }
+  ]
+})
+const linksHtml = lastAppended.innerHTML
+assert(linksHtml.includes('fq-links'), 'links row rendered')
+assert(linksHtml.includes('https://t.me/shenzjd_com'), 'telegram href present')
+assert(linksHtml.includes('https://github.com/wu529778790'), 'github href present')
+assert(linksHtml.includes('https://x.com/shenzujiudi'), 'x href present')
+assert(linksHtml.includes('fq-link-img') === false, 'builtin icon keys resolve to inline SVG')
+// zero-config shows the default social links row
+const wZero2 = new FQ()
+assert(wZero2.isMounted() === true, 'zero-config mounts')
+const zeroHtml = wZero2.el.innerHTML
+assert(zeroHtml.includes('fq-links'), 'default links row rendered')
+assert(zeroHtml.includes('https://t.me/shenzjd_com'), 'default telegram link present')
+// explicit links: [] hides the row
+const wNoLinks = new FQ({ links: [] })
+assert(wNoLinks.isMounted() === true, 'no-links mounts')
+assert(wNoLinks.el.innerHTML.includes('fq-links') === false, 'links: [] suppresses default row')
+
 // 8. hideOnMobile skips render
 global.matchMedia = () => ({ matches: true })
 const w4 = new FQ({

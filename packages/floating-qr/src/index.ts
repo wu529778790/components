@@ -6,5 +6,6 @@ export type {
   FloatingQROptions,
   FloatingQRBlock,
   FloatingQRTheme,
+  FloatingQRLink,
   Position
 } from './FloatingQR'

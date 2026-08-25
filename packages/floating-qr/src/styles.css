@@ -112,6 +112,48 @@
   background: var(--fq-border);
 }
 
+/* 底部社交链接（Telegram / GitHub / X 等） */
+.fq-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--fq-border);
+}
+
+.fq-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: rgba(0, 0, 0, 0.45);
+  text-decoration: none;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.fq-link:hover {
+  color: var(--fq-accent);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.fq-link svg {
+  display: block;
+}
+
+.fq-link-img {
+  width: 16px;
+  height: 16px;
+}
+
+.fq-link-txt {
+  font-size: 12px;
+  line-height: 1;
+}
+
 @media (max-width: 767px) {
   .fq-widget {
     width: 120px;

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.9 - 2026-08-25
+
+### Features
+- 底部新增社交链接行（公众号 / 赞赏码下方）：默认 Telegram / GitHub / X 三个图标
+- JS 选项 `links: FloatingQRLink[]`（内置图标 key `tg` / `github` / `x`，或 SVG / 图片 URL / 首字母）
+- Web Component 新增 `link-hrefs` 属性：逗号分隔 URL 自动匹配内置图标；`none` / 空串可显式隐藏
+- 显式传 `links: []` 可隐藏默认社交链接
+
 ## 0.1.6 - 2026-08-17
 
 ### Changed

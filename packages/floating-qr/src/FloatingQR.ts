@@ -26,6 +26,16 @@ export interface FloatingQRTheme {
   border?: string
 }
 
+/** 底部社交链接（Telegram / GitHub / X 等） */
+export interface FloatingQRLink {
+  /** 链接地址 */
+  href: string
+  /** 图标（可直接传 SVG 字符串，或内置 key / URL） */
+  icon?: string
+  /** 链接标题（alt / aria-label） */
+  title?: string
+}
+
 export interface FloatingQROptions {
   /** 公众号区块（可选，缺省使用默认公众号二维码） */
   wechat?: FloatingQRBlock
@@ -41,6 +51,8 @@ export interface FloatingQROptions {
   zIndex?: number
   /** 主题（映射为 CSS 变量，也可直接覆盖 --fq-* 变量） */
   theme?: FloatingQRTheme
+  /** 底部社交链接（公众号/赞赏码下方），如 Telegram、GitHub、X */
+  links?: FloatingQRLink[]
 }
 
 interface ResolvedOptions {
@@ -51,6 +63,7 @@ interface ResolvedOptions {
   hideOnMobile: boolean
   zIndex: number
   theme: Required<FloatingQRTheme>
+  links: FloatingQRLink[]
 }
 
 const DEFAULT_BLOCKS: Record<'wechat' | 'donate', Required<FloatingQRBlock>> = {
@@ -71,6 +84,32 @@ const DEFAULT_THEME: Required<FloatingQRTheme> = {
   accent: '#333',
   radius: '12px',
   border: 'rgba(0, 0, 0, 0.1)'
+}
+
+/** 默认底部社交链接（零配置/CDN 一行即可展示，可传 links: [] 隐藏） */
+const DEFAULT_LINKS: FloatingQRLink[] = [
+  { href: 'https://t.me/shenzjd_com', icon: 'tg', title: 'Telegram' },
+  { href: 'https://github.com/wu529778790', icon: 'github', title: 'GitHub' },
+  { href: 'https://x.com/shenzujiudi', icon: 'x', title: 'X' }
+]
+
+/** 链接图标内置 key → SVG（可直接用 icon: 'tg' / 'github' / 'x'） */
+const LINK_ICONS: Record<string, string> = {
+  tg: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M21.9 4.6c.3-1.2-.9-2.2-2-1.7L2.7 10.2c-1.2.5-1.1 2.2.1 2.6l4.3 1.4 1.6 5.2c.3 1.1 1.7 1.4 2.5.6l2.4-2.4 4.5 3.3c1 .7 2.4.2 2.7-1L21.9 4.6zM8.6 13.5l8.7-5.4c.1-.1.3.1.2.2l-6.8 6.7c-.2.2-.3.4-.4.7l-.5 2.6c0 .1-.2.1-.2 0l-.9-4.7c-.1-.1 0-.2 0-.1z"/></svg>',
+  github:
+    '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2C6.5 2 2 6.6 2 12.2c0 4.5 2.9 8.3 6.8 9.7.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.8 1a9.6 9.6 0 0 1 5 0c2-1.3 2.8-1 2.8-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5 4-1.4 6.8-5.2 6.8-9.7C22 6.6 17.5 2 12 2z"/></svg>',
+  x: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M17.5 3h3.1l-6.7 7.7L21.8 21h-6.2l-4.8-6.3L5.1 21H2l7.2-8.2L2.5 3h6.3l4.4 5.8L17.5 3zm-1.1 16.1h1.7L8.1 4.7H6.3L16.4 19.1z"/></svg>'
+}
+
+/** 解析链接图标：内置 key → SVG；URL → <img>；含 < 视为原始 SVG；其余用首字母 */
+function resolveLinkIcon(icon: string | undefined, title: string | undefined): string {
+  if (!icon) return escapeHtml((title || '•').slice(0, 1))
+  if (LINK_ICONS[icon]) return LINK_ICONS[icon]
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(icon) || icon.startsWith('data:')) {
+    return `<img class="fq-link-img" src="${escapeAttr(icon)}" alt="" loading="lazy" />`
+  }
+  if (icon.includes('<')) return icon
+  return escapeHtml(icon.slice(0, 1))
 }
 
 const STORAGE_KEY = 'floating-qr:closed'
@@ -158,6 +197,7 @@ export class FloatingQR {
     this.opts.zIndex = fresh.opts.zIndex
     this.opts.wechat = fresh.opts.wechat
     this.opts.donate = fresh.opts.donate
+    this.opts.links = fresh.opts.links
     this.el = fresh.el
     this.closeBtn = fresh.closeBtn
   }
@@ -182,12 +222,13 @@ export class FloatingQR {
       closePersistence: options.closePersistence ?? false,
       hideOnMobile: options.hideOnMobile ?? true,
       zIndex: options.zIndex ?? 9999,
-      theme: { ...DEFAULT_THEME, ...(options.theme ?? {}) }
+      theme: { ...DEFAULT_THEME, ...(options.theme ?? {}) },
+      links: options.links ?? DEFAULT_LINKS
     }
   }
 
   private render(container: HTMLElement | ShadowRoot = document.body): void {
-    const { wechat, donate, position, zIndex, theme } = this.opts
+    const { wechat, donate, position, zIndex, theme, links } = this.opts
 
     const root = document.createElement('div')
     root.className = 'fq-widget'
@@ -215,6 +256,15 @@ export class FloatingQR {
         <p class="fq-label">${escapeHtml(donate.title)}</p>
         ${donate.desc ? `<p class="fq-desc">${escapeHtml(donate.desc)}</p>` : ''}
       </div>
+      ${links.length
+        ? `<div class="fq-links">${links
+            .map(
+              (link) => `
+        <a class="fq-link" href="${escapeAttr(link.href)}" title="${escapeAttr(link.title ?? '')}" target="_blank" rel="noopener noreferrer">${resolveLinkIcon(link.icon, link.title)}</a>`
+            )
+            .join('')}
+        </div>`
+        : ''}
     `
 
     this.closeBtn = root.querySelector<HTMLButtonElement>('.fq-close')

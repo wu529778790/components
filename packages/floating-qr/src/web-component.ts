@@ -8,7 +8,7 @@
  *
  * 样式内联进 shadow DOM，外部可通过 :host 上的 --fq-* CSS 变量定制。
  */
-import { FloatingQR, type FloatingQROptions, type FloatingQRTheme } from './FloatingQR'
+import { FloatingQR, type FloatingQROptions, type FloatingQRLink, type FloatingQRTheme } from './FloatingQR'
 import styles from './styles.css'
 
 const TAG = 'floating-qr'
@@ -42,6 +42,29 @@ const THEME_ATTRS: ReadonlyArray<readonly [string, keyof FloatingQRTheme]> = [
   ['theme-border', 'border']
 ]
 
+/** 解析 link-hrefs 属性：逗号分隔 URL 列表 → 内置图标 key 推导；
+ *  字面量 `none` / `off` / 空串表示显式隐藏（不显示默认社交链接） */
+function parseLinkHrefs(raw: string | null): FloatingQRLink[] | null {
+  if (raw === null) return null
+  const trimmed = raw.trim().toLowerCase()
+  if (trimmed === '' || trimmed === 'none' || trimmed === 'off') return []
+  return raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((href) => {
+      // 按域名猜内置图标：github.com / t.me(telegram) / x.com、twitter.com
+      const guess = /github\.com/i.test(href)
+        ? 'github'
+        : /(^|\.)t\.me/i.test(href)
+          ? 'tg'
+          : /(^|\.)x\.com$|twitter\.com/i.test(href)
+            ? 'x'
+            : undefined
+      return { href, icon: guess, title: guess }
+    })
+}
+
 export class FloatingQRElement extends HTMLElement {
   static get observedAttributes(): string[] {
     return [
@@ -55,6 +78,7 @@ export class FloatingQRElement extends HTMLElement {
       'donate-src',
       'donate-title',
       'donate-desc',
+      'link-hrefs',
       ...THEME_ATTRS.map(([attr]) => attr)
     ]
   }
@@ -126,6 +150,9 @@ export class FloatingQRElement extends HTMLElement {
       return b
     }
 
+    const attrHrefs = get('link-hrefs')
+    const attrParsed = parseLinkHrefs(attrHrefs)
+
     return {
       ...global,
       position: (get('position') as FloatingQROptions['position']) ?? global.position,
@@ -134,7 +161,8 @@ export class FloatingQRElement extends HTMLElement {
       zIndex: numAttr(this, 'z-index', global.zIndex ?? 9999),
       theme: { ...(global.theme ?? {}), ...theme },
       wechat: block('wechat', global.wechat),
-      donate: block('donate', global.donate)
+      donate: block('donate', global.donate),
+      links: attrParsed ?? global.links
     }
   }
 }

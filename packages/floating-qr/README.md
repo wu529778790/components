@@ -84,6 +84,7 @@ new FloatingQR() // 直接使用内置公众号 + 赞赏码二维码
 | `donate-src` | `string` | 内置赞赏码图 | 赞赏码图片 URL |
 | `donate-title` | `string` | `'赞赏码'` | 赞赏码区块标题 |
 | `donate-desc` | `string` | `''` | 副文案，不传不显示 |
+| `link-hrefs` | `string` | - | 社交链接 URL 列表，逗号分隔；自动按域名匹配内置图标 |
 | `theme-bg` | `string` | 半透明白 | 背景色 |
 | `theme-accent` | `string` | `#333` | 标题文字强调色 |
 | `theme-radius` | `string` | `12px` | 圆角 |
@@ -111,10 +112,31 @@ new FloatingQR() // 直接使用内置公众号 + 赞赏码二维码
 | `closePersistence` | `boolean` | `false` | `true` 时关闭写入 localStorage，刷新不再出现 |
 | `hideOnMobile` | `boolean` | `true` | `<768px` 时不渲染 |
 | `zIndex` | `number` | `9999` | 浮窗层级 |
+| `links` | `FloatingQRLink[]` | `[]` | 底部社交链接（见下） |
 | `theme.bg` | `string` | 半透明白 | 背景色 |
 | `theme.accent` | `string` | `#333` | 标题文字强调色 |
 | `theme.radius` | `string` | `12px` | 圆角 |
 | `theme.border` | `string` | `rgba(0,0,0,.1)` | 边框色 |
+
+#### 链接 `links`
+
+在公众号/赞赏码下方渲染一排社交图标链接：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `href` | `string` | 链接地址（必填） |
+| `icon` | `string` | 图标：内置 key（`tg` / `github` / `x`）、SVG 字符串、图片 URL，缺省用标题首字母 |
+| `title` | `string` | 链接标题（hover 提示 / aria-label） |
+
+```ts
+new FloatingQR({
+  links: [
+    { href: 'https://t.me/shenzjd_com', icon: 'tg', title: 'Telegram' },
+    { href: 'https://github.com/wu529778790', icon: 'github', title: 'GitHub' },
+    { href: 'https://x.com/shenzujiudi', icon: 'x', title: 'X (Twitter)' }
+  ]
+})
+```
 
 ### 实例方法
 
