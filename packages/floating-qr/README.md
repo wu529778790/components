@@ -6,8 +6,9 @@
 
 ## 特性
 
-- 🧩 零依赖、无框架绑定（原生 JS 核心，任意技术栈可用）
-- 🎨 CSS 变量主题化，一行覆盖背景色 / 强调色 / 圆角 / 边框
+- 🧩 Web Component 封装，一行 `<script>` 注入、改一处全站生效
+- 🎯 声明式标签 `<floating-qr>`，属性改动即时热更新
+- 🎨 CSS 变量主题化（`--fq-*`），一行覆盖背景色 / 强调色 / 圆角 / 边框
 - 📱 移动端默认隐藏，可配置开启
 - 🧹 关闭即消失，默认不记住状态（刷新必重新出现）
 - 📦 NPM + CDN 双通道引入，TypeScript 类型齐全
@@ -19,9 +20,46 @@ pnpm add @wu529778790/floating-qr
 # 或 npm i @wu529778790/floating-qr / yarn add @wu529778790/floating-qr
 ```
 
-## 使用
+## 快速开始（推荐 · Web Component）
 
-### 零配置（最快）
+### 方式一：CDN 一行引入（零配置，自动出现默认浮窗）
+
+```html
+<script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/floating-qr.wc.js"></script>
+<!-- 无需任何标签/JS，自动注入默认公众号 + 赞赏码浮窗 -->
+```
+
+### 方式二：声明式标签（按需定制，属性即时热更新）
+
+```html
+<floating-qr
+  position="left-bottom"
+  theme-accent="#e04040"
+  wechat-title="公众号"
+  donate-title="赞赏码">
+</floating-qr>
+<script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/floating-qr.wc.js"></script>
+```
+
+### 方式三：全局配置（复杂参数：二维码 URL、主题色）
+
+```html
+<script>
+  window.__FLOATING_QR_OPTIONS__ = {
+    wechat: { src: 'https://.../wechat.jpg', title: '公众号' },
+    donate: { src: 'https://.../donate.png', title: '赞赏码' },
+    theme: { bg: '#fff', accent: '#333' }
+  }
+</script>
+<script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/floating-qr.wc.js"></script>
+```
+
+**不想自动注入**：给 `<html>` 加 `data-fq-auto="false"`，此时只有页面中的 `<floating-qr>` 标签会生效。
+
+> 备选 CDN（GitHub 直连，push 即生效、不依赖 npm 发布）：
+> `https://cdn.jsdmirror.com/gh/wu529778790/components@main/cdn/floating-qr.wc.js`
+
+### 方式四：NPM 双轨（React/Vue 项目照旧）
 
 ```ts
 import FloatingQR from '@wu529778790/floating-qr'
@@ -30,44 +68,30 @@ import '@wu529778790/floating-qr/style.css'
 new FloatingQR() // 直接使用内置公众号 + 赞赏码二维码
 ```
 
-### ESM（自定义内容）
+## Web Component 属性
 
-```ts
-import FloatingQR from '@wu529778790/floating-qr'
-import '@wu529778790/floating-qr/style.css'
+`<floating-qr>` 全部属性均可选，不设即用默认值；`data-fq-auto="false"` 可完全禁用自动初始化。
 
-new FloatingQR({
-  wechat: { src: 'https://.../wechat-qr.jpg', title: '公众号' },
-  donate: { src: 'https://.../donate-qr.png', title: '赞赏码' }
-})
-```
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `position` | `string` | `'right-center'` | `right-bottom` / `right-top` / `right-center` / `left-bottom` / `left-top` / `left-center` |
+| `close-persistence` | `boolean` | 关 | 打开时关闭写入 localStorage，刷新不再出现 |
+| `hide-on-mobile` | `boolean` | 开 | `<768px` 时不渲染 |
+| `z-index` | `number` | `9999` | 浮窗层级 |
+| `wechat-src` | `string` | 内置公众号二维码图 | 公众号二维码图片 URL |
+| `wechat-title` | `string` | `'公众号'` | 公众号区块标题 |
+| `wechat-desc` | `string` | `''` | 副文案，不传不显示 |
+| `donate-src` | `string` | 内置赞赏码图 | 赞赏码图片 URL |
+| `donate-title` | `string` | `'赞赏码'` | 赞赏码区块标题 |
+| `donate-desc` | `string` | `''` | 副文案，不传不显示 |
+| `theme-bg` | `string` | 半透明白 | 背景色 |
+| `theme-accent` | `string` | `#333` | 标题文字强调色 |
+| `theme-radius` | `string` | `12px` | 圆角 |
+| `theme-border` | `string` | `rgba(0,0,0,.1)` | 边框色 |
 
-### CDN 零代码（最快 · 一条标签即自动出现）
+> 样式已隔离在 shadow DOM，外部可用 `--fq-*` 变量覆盖（见下文「自定义主题」）。
 
-```html
-<link rel="stylesheet" href="https://unpkg.com/@wu529778790/floating-qr@latest/dist/floating-qr.css" />
-<script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/index.umd.js"></script>
-<!-- 无需任何 JS，浮窗自动出现，使用内置公众号 + 赞赏码 -->
-```
-
-**CDN + 自定义参数**：引入前定义一个全局对象即可，无需手动 `new`：
-
-```html
-<script>
-  window.__FLOATING_QR_OPTIONS__ = {
-    wechat: { title: '扫码关注' },
-    donate: { title: '赞赏支持' },
-    position: 'right-bottom'
-  }
-</script>
-<script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/index.umd.js"></script>
-```
-
-**完全禁用自动初始化**（改用手动控制）：给 `<html>` 加 `data-fq-auto="false"`，然后手动 `new FloatingQR(...)`。
-
-> CDN 方式全局挂载为 `window.FloatingQR`。自动初始化只执行一次（`__floatingQrAutoInit__` 守卫）。
-
-## API
+## JS API（NPM 双轨）
 
 ### `new FloatingQR(options)`
 
@@ -118,7 +142,7 @@ new FloatingQR({
 
 ## 在线演示
 
-**https://wu529778790.github.io/components/packages/floating-qr/demo/**
+**https://blog.shenzjd.com/components/packages/floating-qr/demo/**
 
 ## 本地演示
 
