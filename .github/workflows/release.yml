@@ -74,16 +74,32 @@ jobs:
           echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
 
       - name: Bump patch version for changed packages
+        id: bump
         if: steps.changed.outputs.changed != ''
         run: |
           for pkg in ${{ steps.changed.outputs.changed }}; do
             (cd "packages/$pkg" && npm version patch --no-git-tag-version)
           done
+          # 输出每次 <pkg>@<version>，供 publish 步骤做「已发布则跳过」的幂等判断
+          VERSIONS=""
+          for pkg in ${{ steps.changed.outputs.changed }}; do
+            v=$(node -p "require('./packages/$pkg/package.json').version")
+            VERSIONS="$VERSIONS $pkg@$v"
+          done
+          echo "versions=$(echo $VERSIONS | xargs)" >> "$GITHUB_OUTPUT"
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add packages
-          git commit -m "chore: bump patch version [skip ci]"
-          git push
+          git commit -m "chore: bump patch version [skip ci]" || echo "无变更可提交"
+          # 并发 / 延迟触发下，远端可能已被其他 job 抢先写入版本号：
+          # 先 rebase 融合；rebase 冲突或 push 被拒都视为「远端已落地该版本」，
+          # 不把回写冲突当成流程失败（版本发布本体在下一步校验）。
+          git pull --rebase origin "$GITHUB_REF_NAME" 2>&1 || {
+            echo "::warning::远端已有并发提交，本地版本号与远端冲突，以远端为准继续"
+            git rebase --abort 2>/dev/null || true
+          }
+          git push 2>&1 || { echo "::warning::版本号回写被拒（远端已推进），视为已由并发 job 落地"; }
 
       - name: Build all packages
         run: pnpm build
@@ -91,7 +107,15 @@ jobs:
       - name: Publish changed packages to npm
         if: steps.changed.outputs.changed != ''
         run: |
-          for pkg in ${{ steps.changed.outputs.changed }}; do
-            echo ">> Publishing packages/$pkg"
-            (cd "packages/$pkg" && npm publish)
+          # 幂等：目标版本已在 npm 上（并发 job 已发布）则跳过，避免
+          # 「版本已存在」报错把整个流程标红。
+          for item in ${{ steps.bump.outputs.versions }}; do
+            pkg="${item%@*}"; ver="${item#*@}"
+            name=$(node -p "require('./packages/$pkg/package.json').name")
+            echo ">> Publishing $name@$ver"
+            if npm view "$name@$ver" version >/dev/null 2>&1; then
+              echo "  ✔ $ver 已存在于 npm（并发 job 已发布），跳过"
+            else
+              (cd "packages/$pkg" && npm publish)
+            fi
           done
