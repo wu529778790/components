@@ -1,4 +1,4 @@
-/* @wu529778790/user-avatar v0.1.0 */
+/* @wu529778790/user-avatar v0.1.1 */
 "use strict";
 (() => {
   // src/wx-auth.ts
@@ -73,6 +73,14 @@
       this.githubMsgListener = null;
       this.saving = false;
       this.nicknameDraft = "";
+      /** 窗口重新聚焦时刷新（登录弹窗 / OAuth 子窗关闭后切回自动同步头像） */
+      this.onWindowFocus = () => {
+        void this.fetchUser();
+      };
+      /** 页面从隐藏切回可见时刷新 */
+      this.onVisibility = () => {
+        if (document.visibilityState === "visible") void this.fetchUser();
+      };
       this.container = container;
       this.opts = this.resolve(options);
       this.root = document.createElement("div");
@@ -97,6 +105,8 @@
       this.applyTheme();
       this.render();
       void this.fetchUser();
+      window.addEventListener("focus", this.onWindowFocus);
+      document.addEventListener("visibilitychange", this.onVisibility);
       return this;
     }
     /** 卸载并销毁 */
@@ -118,6 +128,8 @@
         window.removeEventListener("message", this.githubMsgListener);
         this.githubMsgListener = null;
       }
+      window.removeEventListener("focus", this.onWindowFocus);
+      document.removeEventListener("visibilitychange", this.onVisibility);
       this.root.remove();
     }
     // ==================== 初始化 ====================
