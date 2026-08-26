@@ -134,15 +134,17 @@
     }
     // ==================== 初始化 ====================
     resolve(options) {
-      var _a, _b, _c, _d, _e, _f, _g;
+      var _a, _b, _c, _d, _e, _f;
+      const sdk = (_a = options.sdk) != null ? _a : getWindowSdk();
+      const apiBase = options.apiBase !== void 0 && options.apiBase !== "" ? options.apiBase : "https://wx-auth.shenzjd.com";
       return {
-        sdk: (_a = options.sdk) != null ? _a : getWindowSdk(),
-        apiBase: (_b = options.apiBase) != null ? _b : "",
-        fixed: (_c = options.fixed) != null ? _c : true,
-        offset: (_d = options.offset) != null ? _d : "1rem 1.5rem",
-        size: (_e = options.size) != null ? _e : DEFAULT_THEME.size,
-        zIndex: (_f = options.zIndex) != null ? _f : 12e3,
-        theme: { ...DEFAULT_THEME, ...(_g = options.theme) != null ? _g : {} },
+        sdk,
+        apiBase,
+        fixed: (_b = options.fixed) != null ? _b : true,
+        offset: (_c = options.offset) != null ? _c : "1rem 1.5rem",
+        size: (_d = options.size) != null ? _d : DEFAULT_THEME.size,
+        zIndex: (_e = options.zIndex) != null ? _e : 12e3,
+        theme: { ...DEFAULT_THEME, ...(_f = options.theme) != null ? _f : {} },
         onLogin: options.onLogin,
         onLogout: options.onLogout,
         onGithubBound: options.onGithubBound
