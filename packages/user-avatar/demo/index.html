@@ -26,7 +26,7 @@
     padding: 0.45rem 0.9rem; border-radius: 999px; font-size: 0.85rem; cursor: pointer;
     transition: all .15s ease;
   }
-  button.pill:hover { border-color: #07c160; color: #07c160; }
+  button.pill:hover { border-color: #1f2328; color: #1f2328; }
   ul.tips { color: #57606a; font-size: 0.85rem; line-height: 1.8; margin: 0; padding-left: 1.2rem; }
   .status-line { font-size: 0.85rem; color: #57606a; margin-top: 0.6rem; }
   .status-line b { color: #1f2328; }
@@ -35,7 +35,7 @@
 <body>
 
 <!-- ===== 组件挂载点：右上角头像 ===== -->
-<user-avatar theme-accent="#07c160" offset="1rem 1.5rem" size="2.5rem" fixed></user-avatar>
+<user-avatar  offset="1rem 1.5rem" size="2.5rem" fixed></user-avatar>
 
 <div class="page">
   <h1>用户头像 · 账号组件（<code>@wu529778790/user-avatar</code>）</h1>
@@ -56,7 +56,7 @@
     <ul class="tips">
       <li>本页为 <b>Mock 演示</b>：用内存对象模拟 <code>window.WxAuth</code> 与 <code>/api/auth/*</code> 接口，未接真实后端。</li>
       <li>生产接入：先引入 <code>wx-auth-sdk</code> 并 <code>WxAuth.init()</code>（组件自动探测 window.WxAuth），再引本组件。</li>
-      <li>Web Component 用法：<code>&lt;user-avatar theme-accent="#07c160" offset="1rem 1.5rem"&gt;&lt;/user-avatar&gt;</code></li>
+      <li>Web Component 用法：<code>&lt;user-avatar  offset="1rem 1.5rem"&gt;&lt;/user-avatar&gt;</code></li>
     </ul>
   </div>
 </div>
@@ -136,7 +136,7 @@
 
   // 简单 toast 提示
   const toastEl = document.createElement('div');
-  toastEl.style.cssText = 'position:fixed;top:5rem;right:6rem;background:#07c160;color:#fff;padding:8px 14px;border-radius:8px;font-size:13px;z-index:99999;display:none;box-shadow:0 4px 16px rgba(0,0,0,.2)';
+  toastEl.style.cssText = 'position:fixed;top:5rem;right:6rem;background:#1f2328;color:#fff;padding:8px 14px;border-radius:8px;font-size:13px;z-index:99999;display:none;box-shadow:0 4px 16px rgba(0,0,0,.2)';
   document.body.appendChild(toastEl);
   function toast(text) {
     toastEl.textContent = text;
@@ -168,7 +168,6 @@
     if (!el) return;
     const parent = el.parentElement;
     const clone = document.createElement('user-avatar');
-    clone.setAttribute('theme-accent', '#07c160');
     clone.setAttribute('offset', '1rem 1.5rem');
     clone.setAttribute('size', '2.5rem');
     parent.replaceChild(clone, el);

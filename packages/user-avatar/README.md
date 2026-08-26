@@ -49,7 +49,7 @@ pnpm add @wu529778790/user-avatar
   size="44px"                               <!-- 头像尺寸 -->
   fixed                                     <!-- 固定右上角 -->
   offset="1rem 1.5rem"                      <!-- top right 偏移 -->
-  theme-accent="#07c160">
+  >
 </user-avatar>
 ```
 
@@ -78,7 +78,7 @@ avatar.unmount()              // 卸载
 | `offset` | `string` | `'1rem 1.5rem'` | 固定定位偏移（top right） |
 | `size` | `string` | `'2.5rem'` | 头像直径 |
 | `z-index` | `number` | `12000` | 弹窗层级 |
-| `theme-accent` | `string` | `#07c160` | 主色（登录/按钮/toast） |
+| `theme-accent` | `string` | `#1f2328` | 主色（头像/按钮/toast，默认中性灰黑） |
 | `theme-size` | `string` | `2.5rem` | 头像尺寸（略同 size） |
 | `theme-radius` | `string` | `16px` | 卡片/弹窗圆角 |
 | `theme-bg` | `string` | `#fff` | 卡片背景 |
@@ -98,7 +98,7 @@ const avatar = new UserAvatar({
   apiBase: '',                       // 后端地址，留空同域
   sdk: window.WxAuth,                // 可显式传 SDK，缺省自动取 window.WxAuth
   fixed: true, offset: '1rem 1.5rem',
-  theme: { accent: '#07c160' },
+  theme: { accent: '#1f2328' },
   onLogin: (user) => console.log('登录', user),
   onLogout: () => console.log('登出'),
   onGithubBound: (user) => console.log('绑定 GitHub', user),

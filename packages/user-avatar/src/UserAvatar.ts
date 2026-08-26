@@ -91,7 +91,7 @@ interface ResolvedOptions {
 const DEFAULT_THEME: Theme = {
   btnBg: '#ffffff',
   size: '2.5rem',
-  accent: '#07c160',
+  accent: '#1f2328',
   btnBorder: 'rgba(27, 31, 36, 0.12)',
   radius: '16px',
   bg: '#ffffff',
