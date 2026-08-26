@@ -32,8 +32,16 @@
 <!-- ===== 真实 SDK：wx-auth-sdk（UMD） ===== -->
 <script src="https://unpkg.com/wx-auth-sdk@latest/dist/wx-auth.umd.js"></script>
 <script>
-  // 真初始化：默认参数即可（apiBase 默认 https://wx-auth.shenzjd.com）
-  window.WxAuth && window.WxAuth.init()
+  // 真初始化。注意两点（这就是之前页面一打开就弹认证窗的根因）：
+  // 1) SDK 默认 silent:false → init 立即跑 autoCheck()，只要本地没有有效凭证
+  //    （或 check 请求失败）就 showAuthModal() 强制弹窗；且 required:true 默认
+  //    没有关闭按钮，用户关不掉。头像是「可选登录」组件，绝不应在加载时自动弹。
+  // 2) apiBase 显式指向认证后端 wx-auth.shenzjd.com（与组件默认一致），
+  //    避免 SDK 在页面无 /api/auth/* 的静态环境里拿到错误 base。
+  window.WxAuth && window.WxAuth.init({
+    apiBase: 'https://wx-auth.shenzjd.com',
+    silent: true
+  })
 </script>
 
 <!-- ===== 组件（Web Component 单文件，CDN 正式版） ===== -->
