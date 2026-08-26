@@ -15,66 +15,25 @@
   .page { max-width: 760px; margin: 0 auto; padding: 4rem 1.5rem 3rem; }
   h1 { font-size: 1.6rem; margin: 0 0 0.4rem; }
   .sub { color: #656d76; font-size: 0.9rem; margin-bottom: 2rem; }
-  .card {
-    background: #fff; border: 1px solid rgba(27,31,36,0.1); border-radius: 12px;
-    padding: 1.25rem 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  }
-  .card h2 { font-size: 1rem; margin: 0 0 0.8rem; }
-  ul.tips { color: #57606a; font-size: 0.85rem; line-height: 1.9; margin: 0; padding-left: 1.2rem; }
-  .status-line { font-size: 0.85rem; color: #57606a; margin-top: 0.6rem; }
-  .status-line b { color: #1f2328; }
   code { background: rgba(27,31,36,0.06); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.9em; }
 </style>
 </head>
 <body>
 
 <!-- ===== 组件挂载点：右上角头像 ===== -->
-<user-avatar
-  api-base="https://wx-auth.shenzjd.com"
-  offset="1rem 1.5rem"
-  size="2.5rem"
-  fixed
-></user-avatar>
+<user-avatar></user-avatar>
 
 <div class="page">
   <h1>用户头像 · 账号组件（<code>@wu529778790/user-avatar</code>）</h1>
-  <p class="sub">未登录 → 点击头像弹出微信登录；已登录 → 头像下拉「设置 / 退出登录」→ 设置弹窗（GitHub 绑定、改昵称）</p>
-
-  <div class="card">
-    <h2>体验（点右上角头像）</h2>
-    <p class="status-line">
-      本页接入<b>真实后端</b>（微信认证服务 <code>https://wx-auth.shenzjd.com</code>），无任何模拟数据。<br>
-      未登录时点击头像 → 弹出微信扫码登录（关注公众号 + 验证码）；登录后即可查看 / 修改昵称、绑定 GitHub。
-    </p>
-  </div>
-
-  <div class="card">
-    <h2>接入方式（本页即真实环境示例）</h2>
-    <ul class="tips">
-      <li>先加载 <code>wx-auth-sdk</code>（UMD，注入 <code>window.WxAuth</code>）并初始化：<br>
-          <code>WxAuth.init({ apiBase: 'https://wx-auth.shenzjd.com', silent: true })</code></li>
-      <li>再引本组件单文件：<br>
-          <code>&lt;script src="https://unpkg.com/@wu529778790/user-avatar@latest/dist/user-avatar.wc.js"&gt;&lt;/script&gt;</code></li>
-      <li>同域直接 <code>&lt;user-avatar&gt;&lt;/user-avatar&gt;</code>；跨域加 <code>api-base</code> 指向后端。</li>
-    </ul>
-  </div>
+  <p class="sub">点右上角头像：未登录 → 微信登录；已登录 → 「设置 / 退出登录」→ 设置里可绑定 GitHub、改昵称。</p>
+  <p class="sub">本页接入真实后端（微信认证服务 <code>https://wx-auth.shenzjd.com</code>），无任何模拟数据——登录、头像、昵称、GitHub 绑定全部真实。</p>
 </div>
 
 <!-- ===== 真实 SDK：wx-auth-sdk（UMD） ===== -->
 <script src="https://unpkg.com/wx-auth-sdk@latest/dist/wx-auth.umd.js"></script>
 <script>
-  // 初始化 SDK：silent 静默模式 —— 有 token 则静默校验，无 token 不打扰；
-  // 仅在用户点击头像时由组件触发 requireAuth() 弹出登录窗。
-  window.WxAuth && window.WxAuth.init({
-    apiBase: 'https://wx-auth.shenzjd.com',
-    silent: true,
-    onVerified: (user) => {
-      console.log('[demo] 微信登录成功', user);
-    },
-    onError: (error) => {
-      console.error('[demo] 登录错误', error);
-    }
-  });
+  // 真初始化：默认参数即可（apiBase 默认 https://wx-auth.shenzjd.com）
+  window.WxAuth && window.WxAuth.init()
 </script>
 
 <!-- ===== 组件（Web Component 单文件） ===== -->
