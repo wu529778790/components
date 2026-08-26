@@ -232,8 +232,16 @@ export class UserAvatar {
   }
 
   private async logout(): Promise<void> {
-    this.opts.sdk?.clearToken()
-    deleteAuthCookies()
+    // 优先服务端吊销（SDK >= 1.2.18）：POST /api/auth/logout 把 token 拉黑，
+    // 根治「其他子域 localStorage 备份仍能恢复登录」的问题。
+    // 老版本 SDK 无 revoke() → 回退仅本地 clearToken（行为同旧版）。
+    const sdk = this.opts.sdk
+    if (sdk?.revoke) {
+      await sdk.revoke()
+    } else {
+      sdk?.clearToken()
+      deleteAuthCookies()
+    }
     this.user = null
     this.closeMenu()
     this.closeSettings()

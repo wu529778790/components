@@ -9,6 +9,8 @@ export interface WxAuthApi {
   requireAuth(): Promise<boolean>
   /** 清空本地登录凭证（Cookie + localStorage 双删） */
   clearToken(): void
+  /** 服务端吊销当前 token + 清本地（SDK >= 1.2.18；老版本无此方法） */
+  revoke?(): Promise<boolean>
   /** 初始化（silent 模式下仅静默校验，不弹窗） */
   init?(options?: Record<string, unknown>): void
 }
