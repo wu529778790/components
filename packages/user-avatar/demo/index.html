@@ -33,12 +33,11 @@
 <script src="https://unpkg.com/wx-auth-sdk@latest/dist/wx-auth.umd.js"></script>
 <script>
   // 真初始化，按 SDK 官方的「延迟弹窗」模式（README「silent 模式」一节）：
-  // - 先静默初始化：只校验现有 cookie，已登录静默通过，不弹窗（这是关键——
-  //   默认 silent:false 时 init 遇到未认证会立刻强制弹窗，且关不掉）
-  // - 需要登录时（点头像 / requireAuth）才弹窗
-  // - required:false = 可选认证语义：弹窗带 × 关闭按钮，用户可主动关闭
+  // - silent:true：先静默初始化，只校验现有 cookie，已登录静默通过、不弹窗
+  //   （这是关键——默认 silent:false 时 init 遇到未认证会立刻强制弹窗，且关不掉）
+  // - required:false：可选认证语义，弹窗带 × 关闭按钮，用户可主动关闭
+  // - apiBase 用 SDK 内置默认（https://wx-auth.shenzjd.com），无需显式传
   window.WxAuth && window.WxAuth.init({
-    apiBase: 'https://wx-auth.shenzjd.com',
     silent: true,
     required: false
   })
