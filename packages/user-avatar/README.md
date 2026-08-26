@@ -45,7 +45,6 @@ pnpm add @wu529778790/user-avatar
 
 ```html
 <user-avatar
-  api-base="https://wx-auth.shenzjd.com"   <!-- 后端地址，留空走同域 -->
   size="44px"                               <!-- 头像尺寸 -->
   fixed                                     <!-- 固定右上角 -->
   offset="1rem 1.5rem"                      <!-- top right 偏移 -->
@@ -73,7 +72,7 @@ avatar.unmount()              // 卸载
 
 | 属性 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `api-base` | `string` | 同域 | 后端 API 前缀（wx-auth 后端地址） |
+| `api-base` | `string` | `https://wx-auth.shenzjd.com` | 后端 API 前缀（默认写死自家 wx-auth 后端，一般无需配置） |
 | `fixed` | `boolean` | true | 是否固定右上角（`fixed` 存在即 true） |
 | `offset` | `string` | `'1rem 1.5rem'` | 固定定位偏移（top right） |
 | `size` | `string` | `'2.5rem'` | 头像直径 |
@@ -95,7 +94,7 @@ avatar.unmount()              // 卸载
 import { UserAvatar, UserAvatarOptions } from '@wu529778790/user-avatar'
 
 const avatar = new UserAvatar({
-  apiBase: '',                       // 后端地址，留空同域
+  // apiBase 不传即默认 https://wx-auth.shenzjd.com（自家后端，一般无需配置）
   sdk: window.WxAuth,                // 可显式传 SDK，缺省自动取 window.WxAuth
   fixed: true, offset: '1rem 1.5rem',
   theme: { accent: '#1f2328' },

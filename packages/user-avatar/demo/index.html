@@ -20,8 +20,8 @@
 </head>
 <body>
 
-<!-- ===== 组件挂载点：右上角头像（api-base 指向微信认证后端） ===== -->
-<user-avatar api-base="https://wx-auth.shenzjd.com"></user-avatar>
+<!-- ===== 组件挂载点：右上角头像（零配置，后端地址已默认写死） ===== -->
+<user-avatar></user-avatar>
 
 <div class="page">
   <h1>用户头像 · 账号组件（<code>@wu529778790/user-avatar</code>）</h1>
@@ -36,7 +36,7 @@
   window.WxAuth && window.WxAuth.init()
 </script>
 
-<!-- ===== 组件（Web Component 单文件） ===== -->
+<!-- ===== 组件（Web Component 单文件，CDN 正式版） ===== -->
 <script src="https://unpkg.com/@wu529778790/user-avatar@latest/dist/user-avatar.wc.js"></script>
 
 </body>

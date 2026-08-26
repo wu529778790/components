@@ -180,9 +180,14 @@ export class UserAvatar {
   // ==================== 初始化 ====================
 
   private resolve(options: UserAvatarOptions): ResolvedOptions {
+    const sdk = options.sdk ?? getWindowSdk()
+    // 默认后端固定为 wx-auth 服务（自家项目，直接写死）；传了 api-base 则覆盖
+    const apiBase = options.apiBase !== undefined && options.apiBase !== ''
+      ? options.apiBase
+      : 'https://wx-auth.shenzjd.com'
     return {
-      sdk: options.sdk ?? getWindowSdk(),
-      apiBase: options.apiBase ?? '',
+      sdk,
+      apiBase,
       fixed: options.fixed ?? true,
       offset: options.offset ?? '1rem 1.5rem',
       size: options.size ?? DEFAULT_THEME.size,
