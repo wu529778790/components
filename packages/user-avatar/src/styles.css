@@ -1,0 +1,549 @@
+/* ============================================================
+   user-avatar 组件样式
+   全部主题通过 --ua-* CSS 变量驱动，直接覆盖变量即可换肤。
+   ============================================================ */
+
+.ua-root {
+  /* ===== 主题变量（默认值，可在任意父级覆盖） ===== */
+  --ua-btn-bg: #ffffff;
+  --ua-size: 2.5rem;
+  --ua-accent: #07c160;
+  --ua-btn-border: rgba(27, 31, 36, 0.12);
+  --ua-radius: 16px;
+  --ua-bg: #ffffff;
+  --ua-text: #1f2328;
+  --ua-sub: #656d76;
+  --ua-overlay: rgba(31, 35, 40, 0.45);
+  --ua-danger: #dc2626;
+  --ua-success: #1a7f37;
+
+  /* 图标尺寸 */
+  --ua-icon: 1rem;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    sans-serif;
+  color-scheme: light dark;
+  line-height: 1.5;
+}
+
+.ua-root * {
+  box-sizing: border-box;
+}
+
+/* ==================== 头像按钮 ==================== */
+
+.ua-widget {
+  position: relative;
+  display: inline-block;
+}
+
+.ua-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ua-size);
+  height: var(--ua-size);
+  padding: 0;
+  border: 1px solid var(--ua-btn-border);
+  border-radius: 50%;
+  background: var(--ua-btn-bg);
+  color: var(--ua-sub);
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ua-avatar:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  border-color: var(--ua-accent);
+}
+
+.ua-avatar:active {
+  transform: scale(0.96);
+}
+
+.ua-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ua-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--ua-accent), color-mix(in srgb, var(--ua-accent) 60%, #000));
+  color: #fff;
+  font-size: calc(var(--ua-size) * 0.45);
+  font-weight: 600;
+}
+
+.ua-icon {
+  width: var(--ua-icon);
+  height: var(--ua-icon);
+  flex-shrink: 0;
+}
+
+.ua-icon-user {
+  width: calc(var(--ua-size) * 0.5);
+  height: calc(var(--ua-size) * 0.5);
+}
+
+/* ==================== 下拉菜单 ==================== */
+
+.ua-menu {
+  position: absolute;
+  top: calc(var(--ua-size) + 0.5rem);
+  right: 0;
+  min-width: 12rem;
+  background: var(--ua-bg);
+  border: 1px solid var(--ua-btn-border);
+  border-radius: var(--ua-radius);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  animation: ua-pop 0.16s ease;
+}
+
+@keyframes ua-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ua-menu-user {
+  padding: 0.6rem 0.9rem;
+  background: color-mix(in srgb, var(--ua-accent) 6%, var(--ua-bg));
+  border-bottom: 1px solid var(--ua-btn-border);
+}
+
+.ua-menu-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ua-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.ua-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: none;
+  background: transparent;
+  color: var(--ua-text);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ua-menu-item span {
+  flex: 1;
+}
+
+.ua-menu-item:hover {
+  background: color-mix(in srgb, var(--ua-text) 6%, var(--ua-bg));
+}
+
+.ua-menu-item-danger {
+  color: var(--ua-danger);
+  border-top: 1px solid var(--ua-btn-border);
+}
+
+.ua-menu-item-danger:hover {
+  background: color-mix(in srgb, var(--ua-danger) 8%, var(--ua-bg));
+}
+
+/* ==================== 设置弹窗（遮罩 + 对话框） ==================== */
+
+.ua-mask {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--ua-overlay);
+  backdrop-filter: blur(2px);
+  animation: ua-fade 0.18s ease;
+}
+
+@keyframes ua-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ua-dialog {
+  width: 100%;
+  max-width: 26rem;
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  background: var(--ua-bg);
+  border-radius: var(--ua-radius);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+  animation: ua-up 0.2s ease;
+}
+
+@keyframes ua-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ua-dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--ua-btn-border);
+}
+
+.ua-dialog-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ua-text);
+}
+
+.ua-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ua-sub);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.ua-close:hover {
+  background: color-mix(in srgb, var(--ua-text) 8%, var(--ua-bg));
+  color: var(--ua-text);
+}
+
+.ua-dialog-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* 用户信息行 */
+.ua-user-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.ua-big-avatar {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--ua-btn-border);
+}
+
+.ua-big-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--ua-accent), color-mix(in srgb, var(--ua-accent) 55%, #000));
+  color: #fff;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.ua-user-meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.ua-user-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ua-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ua-user-sub {
+  font-size: 0.75rem;
+  color: var(--ua-sub);
+  margin-top: 0.15rem;
+}
+
+/* openid 展示 */
+.ua-mono-row {
+  background: color-mix(in srgb, var(--ua-text) 5%, var(--ua-bg));
+  border-radius: calc(var(--ua-radius) * 0.6);
+  padding: 0.85rem 1rem;
+}
+
+.ua-mono-label {
+  font-size: 0.72rem;
+  color: var(--ua-sub);
+  margin-bottom: 0.35rem;
+}
+
+.ua-mono-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  color: var(--ua-text);
+  background: var(--ua-bg);
+  border: 1px solid var(--ua-btn-border);
+  border-radius: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  word-break: break-all;
+  user-select: all;
+}
+
+/* 区块 */
+.ua-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.ua-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ua-text);
+}
+
+.ua-section-title .ua-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--ua-sub);
+}
+
+/* GitHub 已绑定 */
+.ua-github-bound {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  background: color-mix(in srgb, var(--ua-text) 4%, var(--ua-bg));
+  border-radius: calc(var(--ua-radius) * 0.6);
+  padding: 0.7rem 0.9rem;
+}
+
+.ua-github-info {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.ua-gh-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--ua-btn-border);
+}
+
+.ua-gh-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #24292f;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.ua-gh-meta {
+  min-width: 0;
+}
+
+.ua-gh-login {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ua-text);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ua-badge {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--ua-success);
+  background: color-mix(in srgb, var(--ua-success) 12%, var(--ua-bg));
+  border: 1px solid color-mix(in srgb, var(--ua-success) 30%, var(--ua-bg));
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+  flex-shrink: 0;
+}
+
+.ua-gh-date {
+  font-size: 0.72rem;
+  color: var(--ua-sub);
+  margin-top: 0.15rem;
+}
+
+.ua-gh-unbind {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--ua-danger);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--ua-danger) 40%, var(--ua-bg));
+  border-radius: 0.5rem;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ua-gh-unbind:hover {
+  background: color-mix(in srgb, var(--ua-danger) 8%, var(--ua-bg));
+}
+
+/* GitHub 未绑定 */
+.ua-github-unbound {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.ua-gh-tip {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--ua-sub);
+}
+
+.ua-gh-bind {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.65rem;
+  border: none;
+  border-radius: calc(var(--ua-radius) * 0.6);
+  background: #24292f;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ua-gh-bind:hover {
+  background: #1a1f24;
+}
+
+.ua-gh-bind .ua-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* 昵称编辑 */
+.ua-nickname-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.ua-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.875rem;
+  color: var(--ua-text);
+  background: color-mix(in srgb, var(--ua-text) 4%, var(--ua-bg));
+  border: 1px solid var(--ua-btn-border);
+  border-radius: calc(var(--ua-radius) * 0.6);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ua-input:focus {
+  border-color: var(--ua-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ua-accent) 22%, transparent);
+}
+
+.ua-input::placeholder {
+  color: var(--ua-sub);
+}
+
+.ua-save {
+  flex-shrink: 0;
+  padding: 0.6rem 1.1rem;
+  border: none;
+  border-radius: calc(var(--ua-radius) * 0.6);
+  background: var(--ua-accent);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+
+.ua-save:hover {
+  filter: brightness(1.05);
+}
+
+.ua-save:active {
+  transform: scale(0.97);
+}
+
+.ua-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ua-msg {
+  min-height: 1.1em;
+  font-size: 0.75rem;
+}
+
+.ua-msg-ok {
+  color: var(--ua-success);
+}
+
+.ua-msg-err {
+  color: var(--ua-danger);
+}
+
+/* ==================== 响应式 ==================== */
+
+@media (max-width: 480px) {
+  .ua-dialog {
+    max-width: 100%;
+  }
+}

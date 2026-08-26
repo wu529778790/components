@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | [`@wu529778790/floating-qr`](./packages/floating-qr) | 公众号 + 赞赏码浮窗 | ✅ 已发布可用 |
 | [`@wu529778790/floating-modal`](./packages/floating-modal) | 赞助 / 公告弹窗 | ✅ 已发布可用 |
+| [`@wu529778790/user-avatar`](./packages/user-avatar) | 右上角头像账号组件（微信登录 / GitHub 绑定 / 设置面板） | 🆕 待发布 |
 
 ## 架构
 

@@ -1,0 +1,56 @@
+{
+  "name": "@wu529778790/user-avatar",
+  "version": "0.1.0",
+  "description": "A zero-dependency avatar account widget: WeChat subscription login, user menu, settings panel with GitHub binding and nickname editing.",
+  "type": "module",
+  "main": "./dist/index.umd.cjs",
+  "module": "./dist/index.esm.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.umd.cjs"
+    },
+    "./style.css": "./dist/user-avatar.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "avatar",
+    "user",
+    "account",
+    "login",
+    "wechat",
+    "wx",
+    "auth",
+    "github",
+    "dropdown",
+    "profile",
+    "微信登录",
+    "用户头像",
+    "账号面板",
+    "设置面板"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wu529778790/components.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": [
+    "*.css"
+  ],
+  "scripts": {
+    "build": "tsup && node -e \"require('fs').copyFileSync('src/styles.css','dist/user-avatar.css')\"",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
+  }
+}
