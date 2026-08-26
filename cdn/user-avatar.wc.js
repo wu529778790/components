@@ -1,4 +1,4 @@
-/* @wu529778790/user-avatar v0.1.1 */
+/* @wu529778790/user-avatar v0.1.3 */
 "use strict";
 (() => {
   // src/wx-auth.ts
@@ -283,9 +283,6 @@
         if (this.user) this.toggleMenu();
         else void this.triggerLogin();
       });
-      btn.addEventListener("mouseenter", () => {
-        if (this.user && !this.menuEl) this.openMenu();
-      });
     }
     offsetTop() {
       const m = /^([^,\s]+)/.exec(this.opts.offset);
@@ -337,7 +334,6 @@
         document.removeEventListener("mousedown", onDocDown);
         document.removeEventListener("keydown", onDocKey);
       };
-      menu.addEventListener("mouseleave", () => this.closeMenu());
       (_a = menu.querySelector('[data-action="settings"]')) == null ? void 0 : _a.addEventListener("click", () => {
         this.openSettings();
       });
