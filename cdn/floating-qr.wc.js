@@ -1,4 +1,4 @@
-/* @wu529778790/floating-qr v0.1.8 */
+/* @wu529778790/floating-qr v0.1.10 */
 "use strict";
 (() => {
   // src/FloatingQR.ts
@@ -101,6 +101,7 @@
       this.destroy();
       const fresh = new _FloatingQR(options);
       this.opts.theme = fresh.opts.theme;
+      this.opts.themeOverrides = fresh.opts.themeOverrides;
       this.opts.position = fresh.opts.position;
       this.opts.closePersistence = fresh.opts.closePersistence;
       this.opts.hideOnMobile = fresh.opts.hideOnMobile;
@@ -112,7 +113,7 @@
       this.closeBtn = fresh.closeBtn;
     }
     resolve(options) {
-      var _a, _b, _c, _d, _e, _f;
+      var _a, _b, _c, _d, _e, _f, _g;
       const block = (b, key) => {
         var _a2, _b2, _c2;
         const def = DEFAULT_BLOCKS[key];
@@ -130,20 +131,26 @@
         hideOnMobile: (_c = options.hideOnMobile) != null ? _c : true,
         zIndex: (_d = options.zIndex) != null ? _d : 9999,
         theme: { ...DEFAULT_THEME, ...(_e = options.theme) != null ? _e : {} },
-        links: (_f = options.links) != null ? _f : DEFAULT_LINKS
+        themeOverrides: (_f = options.theme) != null ? _f : {},
+        links: (_g = options.links) != null ? _g : DEFAULT_LINKS
       };
     }
     render(container = document.body) {
       var _a;
-      const { wechat, donate, position, zIndex, theme, links } = this.opts;
+      const { wechat, donate, position, zIndex, themeOverrides, links } = this.opts;
       const root = document.createElement("div");
       root.className = "fq-widget";
       root.dataset.position = position;
       root.style.zIndex = String(zIndex);
-      root.style.setProperty("--fq-bg", theme.bg);
-      root.style.setProperty("--fq-accent", theme.accent);
-      root.style.setProperty("--fq-radius", theme.radius);
-      root.style.setProperty("--fq-border", theme.border);
+      const overrides = [
+        ["--fq-bg", themeOverrides.bg],
+        ["--fq-accent", themeOverrides.accent],
+        ["--fq-radius", themeOverrides.radius],
+        ["--fq-border", themeOverrides.border]
+      ];
+      for (const [key, value] of overrides) {
+        if (value !== void 0) root.style.setProperty(key, value);
+      }
       root.innerHTML = `
       <button class="fq-close" type="button" aria-label="\u5173\u95ED\u6D6E\u7A97">${CLOSE_SVG}</button>
       <div class="fq-section">
@@ -185,7 +192,7 @@
   }
 
   // src/styles.css
-  var styles_default = '.fq-widget {\n  --fq-bg: rgba(255, 255, 255, 0.96);\n  --fq-accent: #333;\n  --fq-radius: 12px;\n  --fq-border: rgba(0, 0, 0, 0.1);\n  --fq-offset: 16px;\n  --fq-width: 150px;\n\n  position: fixed;\n  z-index: 9999;\n  box-sizing: border-box;\n  width: var(--fq-width);\n  padding: 14px;\n  background: var(--fq-bg);\n  border: 1px solid var(--fq-border);\n  border-radius: var(--fq-radius);\n  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,\n    "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",\n    sans-serif;\n  color: var(--fq-accent);\n  line-height: 1.5;\n}\n\n.fq-widget[data-position="right-bottom"] {\n  right: var(--fq-offset);\n  bottom: var(--fq-offset);\n}\n\n.fq-widget[data-position="right-top"] {\n  right: var(--fq-offset);\n  top: var(--fq-offset);\n}\n\n.fq-widget[data-position="left-bottom"] {\n  left: var(--fq-offset);\n  bottom: var(--fq-offset);\n}\n\n.fq-widget[data-position="left-top"] {\n  left: var(--fq-offset);\n  top: var(--fq-offset);\n}\n\n.fq-widget[data-position="right-center"] {\n  right: var(--fq-offset);\n  top: 50%;\n  transform: translateY(-50%);\n}\n\n.fq-widget[data-position="left-center"] {\n  left: var(--fq-offset);\n  top: 50%;\n  transform: translateY(-50%);\n}\n\n.fq-close {\n  position: absolute;\n  top: 6px;\n  right: 6px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  padding: 0;\n  margin: 0;\n  border: none;\n  border-radius: 50%;\n  background: transparent;\n  color: rgba(0, 0, 0, 0.35);\n  cursor: pointer;\n  transition: background 0.15s ease, color 0.15s ease;\n}\n\n.fq-close:hover {\n  background: rgba(0, 0, 0, 0.06);\n  color: rgba(0, 0, 0, 0.7);\n}\n\n.fq-section {\n  text-align: center;\n}\n\n.fq-qr {\n  overflow: hidden;\n  border-radius: 4px;\n}\n\n.fq-img {\n  display: block;\n  width: 100%;\n  height: auto;\n}\n\n.fq-label {\n  margin: 8px 0 0;\n  font-size: 12px;\n  font-weight: 500;\n  color: var(--fq-accent);\n}\n\n.fq-desc {\n  margin: 2px 0 0;\n  font-size: 11px;\n  color: rgba(0, 0, 0, 0.45);\n}\n\n.fq-divider {\n  height: 1px;\n  margin: 10px 0;\n  background: var(--fq-border);\n}\n\n/* \u5E95\u90E8\u793E\u4EA4\u94FE\u63A5\uFF08Telegram / GitHub / X \u7B49\uFF09 */\n.fq-links {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 10px;\n  margin-top: 10px;\n  padding-top: 10px;\n  border-top: 1px solid var(--fq-border);\n}\n\n.fq-link {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  width: 24px;\n  height: 24px;\n  border-radius: 50%;\n  color: rgba(0, 0, 0, 0.45);\n  text-decoration: none;\n  transition: color 0.15s ease, background 0.15s ease;\n}\n\n.fq-link:hover {\n  color: var(--fq-accent);\n  background: rgba(0, 0, 0, 0.05);\n}\n\n.fq-link svg {\n  display: block;\n}\n\n.fq-link-img {\n  width: 16px;\n  height: 16px;\n}\n\n.fq-link-txt {\n  font-size: 12px;\n  line-height: 1;\n}\n\n@media (max-width: 767px) {\n  .fq-widget {\n    width: 120px;\n    padding: 10px;\n  }\n}\n';
+  var styles_default = '.fq-widget {\n  --fq-bg: rgba(255, 255, 255, 0.96);\n  --fq-accent: #333;\n  --fq-radius: 12px;\n  --fq-border: rgba(0, 0, 0, 0.1);\n  --fq-offset: 16px;\n  --fq-width: 150px;\n\n  position: fixed;\n  z-index: 9999;\n  box-sizing: border-box;\n  width: var(--fq-width);\n  padding: 14px;\n  background: var(--fq-bg);\n  border: 1px solid var(--fq-border);\n  border-radius: var(--fq-radius);\n  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,\n    "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",\n    sans-serif;\n  color: var(--fq-accent);\n  line-height: 1.5;\n  color-scheme: light dark;\n}\n\n.fq-widget[data-position="right-bottom"] {\n  right: var(--fq-offset);\n  bottom: var(--fq-offset);\n}\n\n.fq-widget[data-position="right-top"] {\n  right: var(--fq-offset);\n  top: var(--fq-offset);\n}\n\n.fq-widget[data-position="left-bottom"] {\n  left: var(--fq-offset);\n  bottom: var(--fq-offset);\n}\n\n.fq-widget[data-position="left-top"] {\n  left: var(--fq-offset);\n  top: var(--fq-offset);\n}\n\n.fq-widget[data-position="right-center"] {\n  right: var(--fq-offset);\n  top: 50%;\n  transform: translateY(-50%);\n}\n\n.fq-widget[data-position="left-center"] {\n  left: var(--fq-offset);\n  top: 50%;\n  transform: translateY(-50%);\n}\n\n.fq-close {\n  position: absolute;\n  top: -2px;\n  right: -2px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  padding: 0;\n  margin: 0;\n  border: none;\n  border-radius: 50%;\n  background: transparent;\n  color: rgba(0, 0, 0, 0.35);\n  cursor: pointer;\n  transition: color 0.15s ease, opacity 0.15s ease;\n}\n\n.fq-close:hover {\n  color: rgba(0, 0, 0, 0.7);\n}\n\n/* \u89E6\u5C4F\u8BBE\u5907\uFF08\u65E0 hover\uFF09\uFF1A\u5173\u95ED\u6309\u94AE\u5E38\u663E\uFF0C\u4FDD\u8BC1\u53EF\u5173\u95ED */\n.fq-close {\n  opacity: 1;\n}\n\n/* \u652F\u6301 hover \u7684\u8BBE\u5907\uFF08\u9F20\u6807\uFF09\uFF1A\u5E73\u65F6\u9690\u85CF\uFF0C\u60AC\u505C\u5361\u7247\u65F6\u6D6E\u73B0 */\n@media (hover: hover) and (pointer: fine) {\n  .fq-close {\n    opacity: 0;\n    pointer-events: none;\n  }\n  .fq-widget:hover .fq-close,\n  .fq-close:focus-visible {\n    opacity: 1;\n    pointer-events: auto;\n  }\n}\n\n.fq-section {\n  text-align: center;\n}\n\n.fq-qr {\n  overflow: hidden;\n  border-radius: 4px;\n}\n\n.fq-img {\n  display: block;\n  width: 100%;\n  height: auto;\n}\n\n.fq-label {\n  margin: 8px 0 0;\n  font-size: 12px;\n  font-weight: 500;\n  color: var(--fq-accent);\n}\n\n.fq-desc {\n  margin: 2px 0 0;\n  font-size: 11px;\n  color: rgba(0, 0, 0, 0.45);\n}\n\n.fq-divider {\n  height: 1px;\n  margin: 10px 0;\n  background: var(--fq-border);\n}\n\n/* \u5E95\u90E8\u793E\u4EA4\u94FE\u63A5\uFF08Telegram / GitHub / X \u7B49\uFF09 */\n.fq-links {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 10px;\n  margin-top: 10px;\n  padding-top: 10px;\n  border-top: 1px solid var(--fq-border);\n}\n\n.fq-link {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  width: 24px;\n  height: 24px;\n  border-radius: 50%;\n  color: rgba(0, 0, 0, 0.45);\n  text-decoration: none;\n  transition: color 0.15s ease, background 0.15s ease;\n}\n\n.fq-link:hover {\n  color: var(--fq-accent);\n  background: rgba(0, 0, 0, 0.05);\n}\n\n.fq-link svg {\n  display: block;\n}\n\n.fq-link-img {\n  width: 16px;\n  height: 16px;\n}\n\n.fq-link-txt {\n  font-size: 12px;\n  line-height: 1;\n}\n\n@media (max-width: 767px) {\n  .fq-widget {\n    width: 120px;\n    padding: 10px;\n  }\n}\n\n/* \u8DDF\u968F\u7CFB\u7EDF\u6DF1\u8272\u6A21\u5F0F \u2014\u2014 \u5FC5\u987B\u653E\u6587\u4EF6\u672B\u5C3E\uFF0C\u786E\u4FDD\u4F18\u5148\u7EA7\u9AD8\u4E8E\u4E0A\u9762\u7684\u6D45\u8272\u89C4\u5219\n   (\u4EC5\u5F71\u54CD\u9ED8\u8BA4\u503C\uFF1B\u7528\u6237\u663E\u5F0F\u8BBE\u7F6E\u7684 --fq-* inline \u53D8\u91CF\u4ECD\u4F18\u5148) */\n@media (prefers-color-scheme: dark) {\n  .fq-widget {\n    --fq-bg: rgba(28, 28, 30, 0.96);\n    --fq-accent: rgba(255, 255, 255, 0.92);\n    --fq-border: rgba(255, 255, 255, 0.14);\n    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);\n  }\n\n  .fq-close {\n    color: rgba(255, 255, 255, 0.4);\n  }\n\n  .fq-close:hover {\n    color: rgba(255, 255, 255, 0.8);\n  }\n\n  .fq-desc {\n    color: rgba(255, 255, 255, 0.55);\n  }\n\n  .fq-link {\n    color: rgba(255, 255, 255, 0.5);\n  }\n\n  .fq-link:hover {\n    color: var(--fq-accent);\n    background: rgba(255, 255, 255, 0.08);\n  }\n}\n';
 
   // src/web-component.ts
   var TAG = "floating-qr";
@@ -217,7 +224,7 @@
     const trimmed = raw.trim().toLowerCase();
     if (trimmed === "" || trimmed === "none" || trimmed === "off") return [];
     return raw.split(",").map((s) => s.trim()).filter(Boolean).map((href) => {
-      const guess = /github\.com/i.test(href) ? "github" : /(^|\.)t\.me/i.test(href) ? "tg" : /(^|\.)x\.com$|twitter\.com/i.test(href) ? "x" : void 0;
+      const guess = /github\.com/i.test(href) ? "github" : /t\.me/i.test(href) ? "tg" : /x\.com|twitter\.com/i.test(href) ? "x" : void 0;
       return { href, icon: guess, title: guess };
     });
   }
