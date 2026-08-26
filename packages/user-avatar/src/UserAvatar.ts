@@ -399,7 +399,10 @@ export class UserAvatar {
     `
 
     const onDocDown = (e: MouseEvent) => {
-      if (!this.root.contains(e.target as Node)) this.closeMenu()
+      // 组件可能挂在 shadow DOM（Web Component）。document 收到的事件在跨过
+      // shadow 边界时 e.target 会被 retarget 成 host，contains 永远 false，
+      // 导致"点菜单项即被误关"。composedPath() 含 shadow 内完整路径，用它判断。
+      if (!e.composedPath().includes(this.root)) this.closeMenu()
     }
     const onDocKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') this.closeMenu()
@@ -448,7 +451,8 @@ export class UserAvatar {
     this.bindSettingsEvents(settings)
 
     const onMaskDown = (e: MouseEvent) => {
-      if (e.target === settings) this.closeSettings()
+      // 同 openMenu：shadow DOM 下 e.target 被 retarget 成 host，用 composedPath[0] 取真实点击目标
+      if (e.composedPath()[0] === settings) this.closeSettings()
     }
     const onDocKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') this.closeSettings()
