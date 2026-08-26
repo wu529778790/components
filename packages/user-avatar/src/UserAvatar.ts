@@ -143,6 +143,10 @@ export class UserAvatar {
     this.applyTheme()
     this.render()
     void this.fetchUser()
+    // 页面重新聚焦/显示时刷新用户信息：
+    // 微信登录弹窗关闭、GitHub OAuth 子窗口关闭、或他从别的窗口登录后切回，头像自动同步
+    window.addEventListener('focus', this.onWindowFocus)
+    document.addEventListener('visibilitychange', this.onVisibility)
     return this
   }
 
@@ -168,6 +172,8 @@ export class UserAvatar {
       window.removeEventListener('message', this.githubMsgListener)
       this.githubMsgListener = null
     }
+    window.removeEventListener('focus', this.onWindowFocus)
+    document.removeEventListener('visibilitychange', this.onVisibility)
     this.root.remove()
   }
 
@@ -249,6 +255,16 @@ export class UserAvatar {
       this.user = null
     }
     this.render()
+  }
+
+  /** 窗口重新聚焦时刷新（登录弹窗 / OAuth 子窗关闭后切回自动同步头像） */
+  private readonly onWindowFocus = (): void => {
+    void this.fetchUser()
+  }
+
+  /** 页面从隐藏切回可见时刷新 */
+  private readonly onVisibility = (): void => {
+    if (document.visibilityState === 'visible') void this.fetchUser()
   }
 
   private async saveNickname(): Promise<void> {
