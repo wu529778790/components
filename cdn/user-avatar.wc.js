@@ -1,4 +1,4 @@
-/* @wu529778790/user-avatar v0.1.3 */
+/* @wu529778790/user-avatar v0.1.4 */
 "use strict";
 (() => {
   // src/wx-auth.ts
@@ -323,7 +323,7 @@
       <button type="button" class="ua-menu-item ua-menu-item-danger" data-action="logout">${LOGOUT_ICON}<span>\u9000\u51FA\u767B\u5F55</span></button>
     `;
       const onDocDown = (e) => {
-        if (!this.root.contains(e.target)) this.closeMenu();
+        if (!e.composedPath().includes(this.root)) this.closeMenu();
       };
       const onDocKey = (e) => {
         if (e.key === "Escape") this.closeMenu();
@@ -365,7 +365,7 @@
       this.root.appendChild(settings);
       this.bindSettingsEvents(settings);
       const onMaskDown = (e) => {
-        if (e.target === settings) this.closeSettings();
+        if (e.composedPath()[0] === settings) this.closeSettings();
       };
       const onDocKey = (e) => {
         if (e.key === "Escape") this.closeSettings();
