@@ -1,4 +1,4 @@
-/* @wu529778790/user-avatar v0.1.4 */
+/* @wu529778790/user-avatar v0.1.5 */
 "use strict";
 (() => {
   // src/wx-auth.ts
@@ -181,14 +181,19 @@
       return ok;
     }
     async logout() {
-      var _a, _b, _c;
-      (_a = this.opts.sdk) == null ? void 0 : _a.clearToken();
-      deleteAuthCookies();
+      var _a, _b;
+      const sdk = this.opts.sdk;
+      if (sdk == null ? void 0 : sdk.revoke) {
+        await sdk.revoke();
+      } else {
+        sdk == null ? void 0 : sdk.clearToken();
+        deleteAuthCookies();
+      }
       this.user = null;
       this.closeMenu();
       this.closeSettings();
       this.render();
-      (_c = (_b = this.opts).onLogout) == null ? void 0 : _c.call(_b);
+      (_b = (_a = this.opts).onLogout) == null ? void 0 : _b.call(_a);
     }
     // ==================== 数据 ====================
     async fetchUser() {
