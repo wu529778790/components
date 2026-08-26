@@ -20,164 +20,65 @@
     padding: 1.25rem 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   }
   .card h2 { font-size: 1rem; margin: 0 0 0.8rem; }
-  .row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
-  button.pill {
-    border: 1px solid rgba(27,31,36,0.15); background: #fff; color: #1f2328;
-    padding: 0.45rem 0.9rem; border-radius: 999px; font-size: 0.85rem; cursor: pointer;
-    transition: all .15s ease;
-  }
-  button.pill:hover { border-color: #1f2328; color: #1f2328; }
-  ul.tips { color: #57606a; font-size: 0.85rem; line-height: 1.8; margin: 0; padding-left: 1.2rem; }
+  ul.tips { color: #57606a; font-size: 0.85rem; line-height: 1.9; margin: 0; padding-left: 1.2rem; }
   .status-line { font-size: 0.85rem; color: #57606a; margin-top: 0.6rem; }
   .status-line b { color: #1f2328; }
+  code { background: rgba(27,31,36,0.06); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.9em; }
 </style>
 </head>
 <body>
 
 <!-- ===== 组件挂载点：右上角头像 ===== -->
-<user-avatar  offset="1rem 1.5rem" size="2.5rem" fixed></user-avatar>
+<user-avatar
+  api-base="https://wx-auth.shenzjd.com"
+  offset="1rem 1.5rem"
+  size="2.5rem"
+  fixed
+></user-avatar>
 
 <div class="page">
   <h1>用户头像 · 账号组件（<code>@wu529778790/user-avatar</code>）</h1>
-  <p class="sub">未登录 → 点击弹出微信登录；已登录 → 头像下拉「设置 / 退出登录」→ 设置弹窗（GitHub 绑定、改昵称）</p>
+  <p class="sub">未登录 → 点击头像弹出微信登录；已登录 → 头像下拉「设置 / 退出登录」→ 设置弹窗（GitHub 绑定、改昵称）</p>
 
   <div class="card">
     <h2>体验（点右上角头像）</h2>
-    <div class="row">
-      <button class="pill" id="btn-login">🔁 切换 登录 / 未登录</button>
-      <button class="pill" id="btn-gh">🐙 切换 GitHub 绑定状态</button>
-    </div>
-    <p class="status-line">当前演示状态：<b id="state">未登录</b><br>
-      点头像 → 未登录时触发 Mock 登录弹窗；已登录时出现下拉菜单（设置 → GitHub 绑定/改昵称）。</p>
+    <p class="status-line">
+      本页接入<b>真实后端</b>（微信认证服务 <code>https://wx-auth.shenzjd.com</code>），无任何模拟数据。<br>
+      未登录时点击头像 → 弹出微信扫码登录（关注公众号 + 验证码）；登录后即可查看 / 修改昵称、绑定 GitHub。
+    </p>
   </div>
 
   <div class="card">
-    <h2>说明</h2>
+    <h2>接入方式（本页即真实环境示例）</h2>
     <ul class="tips">
-      <li>本页为 <b>Mock 演示</b>：用内存对象模拟 <code>window.WxAuth</code> 与 <code>/api/auth/*</code> 接口，未接真实后端。</li>
-      <li>生产接入：先引入 <code>wx-auth-sdk</code> 并 <code>WxAuth.init()</code>（组件自动探测 window.WxAuth），再引本组件。</li>
-      <li>Web Component 用法：<code>&lt;user-avatar  offset="1rem 1.5rem"&gt;&lt;/user-avatar&gt;</code></li>
+      <li>先加载 <code>wx-auth-sdk</code>（UMD，注入 <code>window.WxAuth</code>）并初始化：<br>
+          <code>WxAuth.init({ apiBase: 'https://wx-auth.shenzjd.com', silent: true })</code></li>
+      <li>再引本组件单文件：<br>
+          <code>&lt;script src="https://unpkg.com/@wu529778790/user-avatar@latest/dist/user-avatar.wc.js"&gt;&lt;/script&gt;</code></li>
+      <li>同域直接 <code>&lt;user-avatar&gt;&lt;/user-avatar&gt;</code>；跨域加 <code>api-base</code> 指向后端。</li>
     </ul>
   </div>
 </div>
 
+<!-- ===== 真实 SDK：wx-auth-sdk（UMD） ===== -->
+<script src="https://unpkg.com/wx-auth-sdk@latest/dist/wx-auth.umd.js"></script>
 <script>
-  /* ============================================================
-     演示数据层：必须先于组件脚本，注入 window.WxAuth 与 mock fetch
-     ============================================================ */
-  let authed = false;      // 是否已微信登录
-  let githubBound = false; // 是否已绑定 GitHub
-  let nickname = '神族九帝';
-
-  function makeUser() {
-    return {
-      openid: 'o_demo_8f3k2m1x9q7w',
-      nickname,
-      headimgurl: '',
-      authenticatedAt: new Date().toISOString(),
-      status: 'active',
-      role: 'sub',
-      vipExpiresAt: null,
-      isAdmin: false,
-      github: githubBound
-        ? {
-            githubId: 529778790,
-            login: 'wu529778790',
-            avatar: 'https://avatars.githubusercontent.com/u/529778790?v=4',
-            boundAt: new Date().toISOString()
-          }
-        : null
-    };
-  }
-
-  // —— mock 后端接口 ——
-  const realFetch = window.fetch;
-  window.fetch = async (input, init) => {
-    const url = String(input);
-    if (url.includes('/api/auth/userinfo')) {
-      await new Promise(r => setTimeout(r, 250));
-      return jsonResp(authed ? { authenticated: true, user: makeUser() } : { authenticated: false });
-    }
-    if (url.includes('/api/auth/profile')) {
-      try {
-        const body = JSON.parse(init?.body || '{}');
-        if (body.action === 'set-nickname') { nickname = body.nickname; return jsonResp({ success: true }); }
-        if (body.action === 'unbind-github') { githubBound = false; return jsonResp({ success: true, message: '已解绑' }); }
-      } catch {}
-      return jsonResp({ success: false, message: '不支持的操作' });
-    }
-    return realFetch(url, init);
-  };
-  function jsonResp(obj) {
-    return new Response(JSON.stringify(obj), {
-      status: 200, headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
-  // —— 模拟 wx-auth-sdk：window.WxAuth ——
-  // 生产环境这是真实 SDK：requireAuth() 会弹出「扫码关注公众号 + 输入验证码」窗口，
-  // 验证成功后把签名 token 写入 Cookie（wxauth-token），组件据此拉取用户详情。
-  window.WxAuth = {
-    requireAuth: async () => {
-      console.log('📱 演示：这里将弹出微信扫码登录窗口（生产环境由 wx-auth-sdk 渲染）');
-      authed = true;
-      document.cookie = 'wxauth-token=demo-token;path=/;SameSite=Strict';
-      updateStateUI();
-      toast('已模拟登录成功');
-      return true;
+  // 初始化 SDK：silent 静默模式 —— 有 token 则静默校验，无 token 不打扰；
+  // 仅在用户点击头像时由组件触发 requireAuth() 弹出登录窗。
+  window.WxAuth && window.WxAuth.init({
+    apiBase: 'https://wx-auth.shenzjd.com',
+    silent: true,
+    onVerified: (user) => {
+      console.log('[demo] 微信登录成功', user);
     },
-    clearToken: () => {
-      authed = false;
-      githubBound = false;
-      document.cookie = 'wxauth-token=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
-      updateStateUI();
+    onError: (error) => {
+      console.error('[demo] 登录错误', error);
     }
-  };
-
-  // 简单 toast 提示
-  const toastEl = document.createElement('div');
-  toastEl.style.cssText = 'position:fixed;top:5rem;right:6rem;background:#1f2328;color:#fff;padding:8px 14px;border-radius:8px;font-size:13px;z-index:99999;display:none;box-shadow:0 4px 16px rgba(0,0,0,.2)';
-  document.body.appendChild(toastEl);
-  function toast(text) {
-    toastEl.textContent = text;
-    toastEl.style.display = 'block';
-    setTimeout(() => (toastEl.style.display = 'none'), 1600);
-  }
-
-  // —— 演示控制 ——
-  const stateEl = document.getElementById('state');
-  function updateStateUI() {
-    stateEl.textContent = [authed ? '已登录' : '未登录', authed && githubBound ? '+ GitHub 已绑定' : ''].filter(Boolean).join(' ');
-  }
-  document.getElementById('btn-login').addEventListener('click', () => {
-    authed = !authed;
-    if (!authed) githubBound = false;
-    // 同步写/清登录 cookie（组件的 fetchUser 读它）
-    if (authed) document.cookie = 'wxauth-token=demo-token;path=/;SameSite=Strict';
-    else document.cookie = 'wxauth-token=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
-    updateStateUI(); refreshWidget();
   });
-  document.getElementById('btn-gh').addEventListener('click', () => {
-    githubBound = !githubBound;
-    updateStateUI(); refreshWidget();
-  });
-
-  // 重建组件：模拟"外部刷新用户状态"（生产里 component.refresh() 或重新加载）
-  function refreshWidget() {
-    const el = document.querySelector('user-avatar');
-    if (!el) return;
-    const parent = el.parentElement;
-    const clone = document.createElement('user-avatar');
-    clone.setAttribute('offset', '1rem 1.5rem');
-    clone.setAttribute('size', '2.5rem');
-    parent.replaceChild(clone, el);
-  }
-
-  updateStateUI();
 </script>
 
-<!-- 组件（Web Component 单文件）在 mock 之后引入（轮询可兜底 SDK 晚于组件的情况） -->
-<script src="../dist/user-avatar.wc.js"></script>
+<!-- ===== 组件（Web Component 单文件） ===== -->
+<script src="https://unpkg.com/@wu529778790/user-avatar@latest/dist/user-avatar.wc.js"></script>
 
 </body>
 </html>
