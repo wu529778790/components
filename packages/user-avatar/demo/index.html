@@ -32,15 +32,15 @@
 <!-- ===== 真实 SDK：wx-auth-sdk（UMD） ===== -->
 <script src="https://unpkg.com/wx-auth-sdk@latest/dist/wx-auth.umd.js"></script>
 <script>
-  // 真初始化。注意两点（这就是之前页面一打开就弹认证窗的根因）：
-  // 1) SDK 默认 silent:false → init 立即跑 autoCheck()，只要本地没有有效凭证
-  //    （或 check 请求失败）就 showAuthModal() 强制弹窗；且 required:true 默认
-  //    没有关闭按钮，用户关不掉。头像是「可选登录」组件，绝不应在加载时自动弹。
-  // 2) apiBase 显式指向认证后端 wx-auth.shenzjd.com（与组件默认一致），
-  //    避免 SDK 在页面无 /api/auth/* 的静态环境里拿到错误 base。
+  // 真初始化，按 SDK 官方的「延迟弹窗」模式（README「silent 模式」一节）：
+  // - 先静默初始化：只校验现有 cookie，已登录静默通过，不弹窗（这是关键——
+  //   默认 silent:false 时 init 遇到未认证会立刻强制弹窗，且关不掉）
+  // - 需要登录时（点头像 / requireAuth）才弹窗
+  // - required:false = 可选认证语义：弹窗带 × 关闭按钮，用户可主动关闭
   window.WxAuth && window.WxAuth.init({
     apiBase: 'https://wx-auth.shenzjd.com',
-    silent: true
+    silent: true,
+    required: false
   })
 </script>
 

@@ -21,7 +21,7 @@ pnpm add @wu529778790/user-avatar
 
 ## 快速开始（推荐 · Web Component）
 
-> ⚠️ 前置：本组件依赖 **wx-auth-sdk**（`window.WxAuth`）。请先引入 SDK 并 `WxAuth.init({ required: false })`，组件会自动探测并复用。
+> ⚠️ 前置：本组件依赖 **wx-auth-sdk**（`window.WxAuth`）。请先引入 SDK 并 `WxAuth.init({ silent: true, required: false })`，组件会自动探测并复用。
 
 ### 方式一：CDN 一行引入
 
@@ -29,7 +29,10 @@ pnpm add @wu529778790/user-avatar
 <!-- 1. 先引入 wx-auth-sdk（微信认证，登录弹窗由它渲染） -->
 <script src="https://unpkg.com/wx-auth-sdk/dist/wx-auth.umd.js"></script>
 <script>
-  WxAuth.init({ required: false, onVerified: () => location.reload() })
+  // silent:true = 加载时只静默校验登录态、绝不自动弹登录窗（头像组件是可选项登录，
+  //               弹窗只由点击头像时 SDK.requireAuth() 触发）
+  // required:false = 可选认证：弹窗带 × 关闭按钮，用户可主动关闭
+  WxAuth.init({ silent: true, required: false, onVerified: () => location.reload() })
 </script>
 
 <!-- 2. 再引入本组件 -->
