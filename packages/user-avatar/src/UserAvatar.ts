@@ -354,9 +354,6 @@ export class UserAvatar {
       if (this.user) this.toggleMenu()
       else void this.triggerLogin()
     })
-    btn.addEventListener('mouseenter', () => {
-      if (this.user && !this.menuEl) this.openMenu()
-    })
   }
 
   private offsetTop(): string {
@@ -414,7 +411,6 @@ export class UserAvatar {
       document.removeEventListener('keydown', onDocKey)
     }
 
-    menu.addEventListener('mouseleave', () => this.closeMenu())
     menu.querySelector<HTMLButtonElement>('[data-action="settings"]')?.addEventListener('click', () => {
       this.openSettings()
     })
