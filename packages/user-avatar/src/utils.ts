@@ -8,16 +8,46 @@
 const TOKEN_COOKIE = 'wxauth-token'
 const LEGACY_COOKIE = 'wxauth-openid'
 
-/** 读取当前微信登录 token（签名 Token 优先，兼容旧版 openid） */
+/**
+ * 读取当前微信登录 token。
+ *
+ * 为什么不用第一个匹配：
+ * 历史遗留的 mock/demo 可能在同一浏览器写过「主机域（无 domain）」的
+ * wxauth-token=demo-token，与 SDK 写入的「根域 .shenzjd.com」真实 token 同名共存。
+ * document.cookie 里同名不同域的 cookie 都会返回，顺序由浏览器决定（通常主机域在前）。
+ * 若直接取第一个，会拿到 demo-token 这类无效值。
+ *
+ * 因此：扫描全部同名 cookie，取「第一个疑似合法签名 token」。
+ * 签名 token 格式固定：{openid}.{秒级时间戳}.{64位hex签名}，demo-token 不符 → 被跳过。
+ * 注意：正则校验不等于后端验签，前端只是「从候选里挑最像真的」；
+ * 是否有效以服务端 /check 为准（无效则组件显示未登录，行为正确）。
+ */
+function looksLikeSignedToken(value: string): boolean {
+  if (!value || value.length < 20) return false
+  // {x}.{数字}.{64位hex} 三段结构（签名 token 特征）
+  return /^[^.]+\.[0-9]+\.[0-9a-f]{64}$/.test(value)
+}
+
 export function getAuthToken(): string {
   const cookies = document.cookie.split('; ')
+  const tokenCandidates: string[] = []
+  const legacyCandidates: string[] = []
   for (const row of cookies) {
-    if (row.startsWith(`${TOKEN_COOKIE}=`)) return row.slice(TOKEN_COOKIE.length + 1)
+    const eq = row.indexOf('=')
+    if (eq < 0) continue
+    const name = row.slice(0, eq).trim()
+    const value = row.slice(eq + 1)
+    if (name === TOKEN_COOKIE) tokenCandidates.push(value)
+    else if (name === LEGACY_COOKIE) legacyCandidates.push(value)
   }
-  for (const row of cookies) {
-    if (row.startsWith(`${LEGACY_COOKIE}=`)) return row.slice(LEGACY_COOKIE.length + 1)
-  }
-  return ''
+  // 优先：更像签名 token 的（真实 token 优先于 demo/mock、lexid 兜底）
+  const hit =
+    tokenCandidates.find(looksLikeSignedToken) ||
+    tokenCandidates[0] ||
+    legacyCandidates.find(looksLikeSignedToken) ||
+    legacyCandidates[0] ||
+    ''
+  return hit
 }
 
 /** 与 SDK setCookie 完全一致的根域推导（localhost / IP 不设 domain） */
@@ -28,14 +58,43 @@ function getRootDomain(): string {
   return parts.length >= 2 ? '.' + parts.slice(-2).join('.') : ''
 }
 
-/** 显式删除登录 Cookie（兜底：SDK clearToken 之外再删一遍） */
+/**
+ * 显式删除登录 Cookie（兜底：SDK clearToken 之外再删一遍）
+ * 同时删「根域」与「主机域（无 domain）」两份：
+ * 历史 mock 可能写过无 domain 的 demo-token（主机域 cookie），
+ * 若只删根域会残留，导致 getAuthToken 仍能读到它。
+ */
 export function deleteAuthCookies(): void {
-  cleanupCookie(TOKEN_COOKIE)
-  cleanupCookie(LEGACY_COOKIE)
+  cleanupCookie(TOKEN_COOKIE, false)
+  cleanupCookie(TOKEN_COOKIE, true)
+  cleanupCookie(LEGACY_COOKIE, false)
+  cleanupCookie(LEGACY_COOKIE, true)
 }
 
-function cleanupCookie(name: string): void {
-  const domainStr = getRootDomain() ? `;domain=${getRootDomain()}` : ''
+/**
+ * 自愈：清掉「不是签名 token」的残留脏数据（如早期 mock 写的 demo-token）。
+ * 页面初始化时调用一次——把历史遗留的 demo-token 这类无效 cookie 删掉，
+ * 避免它和真实 token 同名共存、干扰读取（getAuthToken 已优先签名格式，
+ * 这里再做最后的物理清理，防止脏 token 一直挂在浏览器里）。
+ */
+export function cleanupJunkTokens(): void {
+  const cookies = document.cookie.split('; ')
+  for (const row of cookies) {
+    const eq = row.indexOf('=')
+    if (eq < 0) continue
+    const name = row.slice(0, eq).trim()
+    if (name !== TOKEN_COOKIE && name !== LEGACY_COOKIE) continue
+    const value = row.slice(eq + 1)
+    // 合法签名 token 三段式 {x}.{ts}.{hex}；其他（demo-token/明文 openid）都算脏数据
+    if (!/^[^.]+\.[0-9]+\.[0-9a-f]{64}$/.test(value)) {
+      cleanupCookie(name, false)
+      cleanupCookie(name, true)
+    }
+  }
+}
+
+function cleanupCookie(name: string, withDomain: boolean): void {
+  const domainStr = withDomain && getRootDomain() ? `;domain=${getRootDomain()}` : ''
   const secureStr = window.location.protocol === 'https:' ? ';Secure' : ''
   document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/${domainStr}${secureStr};SameSite=Strict`
 }

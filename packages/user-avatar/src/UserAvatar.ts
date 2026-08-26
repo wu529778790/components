@@ -16,6 +16,7 @@ import type { WxUserInfo } from './types'
 import {
   getAuthToken,
   deleteAuthCookies,
+  cleanupJunkTokens,
   escapeHtml,
   escapeAttr,
   USER_ICON_SVG,
@@ -119,6 +120,10 @@ export class UserAvatar {
   constructor(options: UserAvatarOptions = {}, container: HTMLElement | ShadowRoot = document.body) {
     this.container = container
     this.opts = this.resolve(options)
+    // 挂载前清理一次「格式非法的残留脏 token」（如早期 mock 写的 demo-token）。
+    // 这类 cookie 连签名格式都不满足，服务端永远判无效，无需等网络往返，直接物理清掉。
+    // 真实 token 的「服务端判失效（过期/吊销/解绑）→ 自动清本地」由 fetchUser 负责。
+    cleanupJunkTokens()
     this.root = document.createElement('div')
     this.root.className = 'ua-root'
   }
@@ -261,8 +266,21 @@ export class UserAvatar {
     try {
       const base = this.opts.apiBase || window.location.origin
       const res = await fetch(`${base}/api/auth/userinfo?token=${encodeURIComponent(token)}`)
-      const data = (await res.json()) as { authenticated: boolean; user?: WxUserInfo }
-      this.user = data.authenticated && data.user ? data.user : null
+      const data = (await res.json()) as {
+        authenticated: boolean
+        error?: string
+        user?: WxUserInfo
+      }
+      if (!data.authenticated) {
+        // 服务端判定 token 失效（过期 / 被吊销 / 已解绑 / 非法）：
+        // 本地这份 token 已经没用了，主动清掉，避免每次刷新都带着旧 token 白请求。
+        console.warn('[UserAvatar] token 已失效，自动清理本地凭证', data.error ?? '')
+        deleteAuthCookies()
+        this.user = null
+        this.render()
+        return
+      }
+      this.user = data.user ? data.user : null
     } catch (e) {
       console.error('[UserAvatar] 拉取用户详情失败', e)
       this.user = null
