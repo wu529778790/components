@@ -13,18 +13,6 @@
     color: #1f2328;
   }
 
-  /* 复现真实场景：sticky + backdrop-blur 的 Header（导航组件挂在里面） */
-  /* 底部分隔线由导航组件（.sn-root）自带，这里不再画 border-bottom，避免双线 */
-  .demo-header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    padding: 0.75rem 1.5rem;
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-
   .page {
     max-width: 760px;
     margin: 0 auto;
@@ -61,9 +49,6 @@
     background: linear-gradient(135deg, #0f1115, #171a20);
     color: #e6edf3;
   }
-  html.dark .demo-header {
-    background: rgba(28, 31, 36, 0.55);
-  }
   html.dark code { background: rgba(255, 255, 255, 0.08); }
   html.dark .sub { color: #8b949e; }
   html.dark #theme-toggle {
@@ -75,10 +60,8 @@
 </head>
 <body>
 
-<!-- ===== sticky + backdrop-blur Header：导航组件挂在这里 ===== -->
-<header class="demo-header">
-  <site-navbar></site-navbar>
-</header>
+<!-- ===== 导航组件直接挂页面顶部（与真实使用一致，无需额外包一层 header） ===== -->
+<site-navbar></site-navbar>
 
 <button id="theme-toggle" type="button">深色预览</button>
 

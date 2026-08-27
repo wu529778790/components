@@ -146,7 +146,7 @@ nav.unmount()
 | --- | --- | --- |
 | `icon` | `string` | 品牌图标（emoji / SVG / 任意 HTML），可选 |
 | `text` | `string` | 品牌名称 |
-| `href` | `string` | 点击跳转地址（默认取第一个链接） |
+| `href` | `string` | 点击跳转地址（默认跳**当前站首页**；同站 `_self` 跳转，跨站自动 `_blank`） |
 
 ### 实例方法
 

@@ -26,11 +26,14 @@ export const DEFAULT_LINKS: SiteNavbarLink[] = [
   { href: 'https://bing.shenzjd.com', label: '必应壁纸', icon: '🖼️' }
 ]
 
-/** 内置默认品牌（图片 logo + 名称，指向首页） */
+/**
+ * 内置默认品牌（图片 logo + 名称）。
+ * 未指定 href 时，点击 logo 跳「当前站首页」（window.location.origin），
+ * 符合「点 logo = 回首页」的用户心智；引流交给导航链接，不劫持 logo。
+ */
 export const DEFAULT_BRAND: SiteNavbarBrand = {
   icon: '<img class="sn-brand-img" src="https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260701-180125-c1ub.webp" alt="神族九帝" />',
-  text: '神族九帝',
-  href: 'https://shenzjd.com'
+  text: '神族九帝'
 }
 
 export interface SiteNavbarOptions {
@@ -84,7 +87,7 @@ const DEFAULT_THEME: Required<SiteNavbarTheme> = {
   accent: 'light-dark(#1a6dff, #4d9fff)',
   hoverBg: 'light-dark(rgba(31, 35, 40, 0.06), rgba(255, 255, 255, 0.08))',
   bg: 'light-dark(rgba(255, 255, 255, 0.55), rgba(28, 31, 36, 0.55))',
-  border: 'light-dark(rgba(27, 31, 36, 0.08), rgba(255, 255, 255, 0.1))',
+  border: 'light-dark(rgba(27, 31, 36, 0.14), rgba(255, 255, 255, 0.14))',
   radius: '12px',
   fontFamily:
     '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif'
@@ -276,9 +279,22 @@ export class SiteNavbar {
   private renderBrand(brand: SiteNavbarBrand): HTMLElement {
     const a = document.createElement('a')
     a.className = 'sn-brand'
-    a.href = escapeAttr(brand.href ?? this.opts.links[0]?.href ?? '#')
-    a.target = '_blank'
-    a.rel = 'noopener noreferrer'
+    // 未配置 href 时默认跳当前站首页（点 logo 回当前站）；
+    // 显式配置则跳指定地址（如主站引流）
+    const href = brand.href ?? window.location.origin
+    a.href = escapeAttr(href)
+    // 同站（当前 origin）跳转用 _self，跨站引流用 _blank 新标签
+    try {
+      if (new URL(href, window.location.href).origin === window.location.origin) {
+        a.target = '_self'
+      } else {
+        a.target = '_blank'
+        a.rel = 'noopener noreferrer'
+      }
+    } catch {
+      a.target = '_blank'
+      a.rel = 'noopener noreferrer'
+    }
     if (brand.icon) {
       const icon = document.createElement('span')
       icon.className = 'sn-brand-icon'

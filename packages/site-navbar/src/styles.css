@@ -21,10 +21,11 @@
   --sn-accent: light-dark(#1a6dff, #4d9fff); /* 当前站高亮 */
   --sn-hover-bg: light-dark(rgba(31, 35, 40, 0.06), rgba(255, 255, 255, 0.08)); /* 链接 hover 背景 */
   --sn-bg: light-dark(rgba(255, 255, 255, 0.55), rgba(28, 31, 36, 0.55)); /* 当前站高亮 / 移动菜单玻璃背景 */
-  --sn-border: light-dark(rgba(27, 31, 36, 0.08), rgba(255, 255, 255, 0.1)); /* 边框 / 分隔线 */
+  --sn-border: light-dark(rgba(27, 31, 36, 0.14), rgba(255, 255, 255, 0.14)); /* 边框 / 底部分隔线 */
   --sn-radius: 12px; /* 链接圆角 */
   --sn-font-size: 0.875rem; /* 链接字号（14px） */
   --sn-gap: 0.125rem; /* 链接间距 */
+  --sn-pad-x: 1rem; /* 导航内容左右内边距（logo / 头像不贴视口边缘） */
   --sn-avatar-size: 2.2rem; /* 头像容器尺寸，约束 user-avatar 不超出导航栏 */
   --sn-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
@@ -40,8 +41,15 @@
     --sn-accent: #4d9fff;
     --sn-hover-bg: rgba(255, 255, 255, 0.08);
     --sn-bg: rgba(28, 31, 36, 0.55);
-    --sn-border: rgba(255, 255, 255, 0.1);
+    --sn-border: rgba(255, 255, 255, 0.14);
   }
+}
+
+/* Web Component host：自定义元素默认 display: inline（类似 span），
+   会被父级行框 / baseline / line-height 影响，在不同宿主布局里可能
+   产生微妙垂直偏移。这里强制 block，让 host 高度=内容高度、布局更可控。 */
+:host {
+  display: block;
 }
 
 .sn-root {
@@ -81,6 +89,9 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  /* 左右留白：logo / 头像不贴视口边缘；底部分隔线是 ::after 伪元素，
+     不受此 padding 影响，依然撑满整页 */
+  padding: 0 var(--sn-pad-x);
 }
 
 /* 品牌区 */
@@ -103,11 +114,13 @@
   line-height: 1;
 }
 
-/* 品牌图片 logo（圆形、固定尺寸、防止拉变形） */
+/* 品牌图片 logo（圆角方形、固定尺寸、防止拉变形）：
+ * 用圆角方形而非圆形，与右侧圆形头像形成「方 vs 圆」的对比，
+ * 避免左右两个圆对称重复 */
 .sn-brand-img {
   width: 1.8em;
   height: 1.8em;
-  border-radius: 50%;
+  border-radius: 25%;
   object-fit: cover;
   display: block;
 }
