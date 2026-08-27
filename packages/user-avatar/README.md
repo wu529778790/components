@@ -8,6 +8,7 @@
 
 - 🧩 Web Component 封装，一行 `<script>` 注入即可用
 - 🎨 头像组件零样式依赖：CSS 变量驱动（`--ua-*`），可整套换肤
+- 🌗 默认**深浅色自动适配**（`light-dark()`）：宿主页面声明 `color-scheme: light / dark` 时跟随宿主配色，未声明时跟随系统，无需任何配置
 - 🔐 与 wx-auth 微信登录无缝衔接：未登录点击 → 弹扫码/验证码；登录后自动识别人头
 - 🐙 设置弹窗内绑定 / 解绑 GitHub（子窗口授权，`postMessage` 自动刷新）
 - ✏️ 修改昵称（复用后端 nickname 配置），openid 一键复制

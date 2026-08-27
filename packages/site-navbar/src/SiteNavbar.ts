@@ -14,7 +14,7 @@ import { UserAvatar, type UserAvatarOptions } from '@wu529778790/user-avatar'
 import uaStyles from '@wu529778790/user-avatar/style.css'
 import styles from './styles.css'
 import type { SiteNavbarBrand, SiteNavbarLink, SiteNavbarTheme } from './types'
-import { CLOSE_ICON, HAMBURGER_ICON, escapeAttr, isCurrentHost } from './utils'
+import { CLOSE_ICON, HAMBURGER_ICON, escapeAttr, matchCurrentHost } from './utils'
 
 /** 内置默认子站链接（shenzjd.com 系列） */
 export const DEFAULT_LINKS: SiteNavbarLink[] = [
@@ -72,13 +72,19 @@ interface ResolvedOptions {
 /** 头像默认尺寸（与 avatarOptions 默认 size 保持同步） */
 const AVATAR_DEFAULT_SIZE = '2.2rem'
 
+/**
+ * 默认主题（颜色均用 light-dark(浅色, 深色) 包裹，颜色随宿主页面声明的
+ * color-scheme 切换：宿主声明 light / dark 时组件对应浅色 / 深色主题，
+ * 宿主未声明时继承 UA 默认跟随系统；用户显式传入的 theme 值会覆盖默认值，
+ * 固定使用用户指定的颜色，不再随系统切换）。
+ */
 const DEFAULT_THEME: Required<SiteNavbarTheme> = {
-  primary: '#1f2328',
-  secondary: '#656d76',
-  accent: '#1a6dff',
-  hoverBg: 'rgba(31, 35, 40, 0.06)',
-  bg: 'rgba(255, 255, 255, 0.55)',
-  border: 'rgba(27, 31, 36, 0.08)',
+  primary: 'light-dark(#1f2328, #e6edf3)',
+  secondary: 'light-dark(#656d76, #8b949e)',
+  accent: 'light-dark(#1a6dff, #4d9fff)',
+  hoverBg: 'light-dark(rgba(31, 35, 40, 0.06), rgba(255, 255, 255, 0.08))',
+  bg: 'light-dark(rgba(255, 255, 255, 0.55), rgba(28, 31, 36, 0.55))',
+  border: 'light-dark(rgba(27, 31, 36, 0.08), rgba(255, 255, 255, 0.1))',
   radius: '12px',
   fontFamily:
     '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif'
@@ -196,6 +202,9 @@ export class SiteNavbar {
   private render(): void {
     this.root.innerHTML = ''
 
+    // 计算当前应高亮的链接（整体匹配：精确优先、子域取最长，避免多链接同时高亮）
+    const activeHref = this.computeActiveHref()
+
     // ---- 导航栏 ----
     const bar = document.createElement('div')
     bar.className = 'sn-bar'
@@ -207,7 +216,7 @@ export class SiteNavbar {
     const nav = document.createElement('nav')
     nav.className = 'sn-links'
     for (const link of this.opts.links) {
-      nav.appendChild(this.renderLink(link))
+      nav.appendChild(this.renderLink(link, link.href === activeHref))
     }
     bar.appendChild(nav)
 
@@ -244,7 +253,7 @@ export class SiteNavbar {
 
     // 链接列表
     for (const link of this.opts.links) {
-      mobile.appendChild(this.renderLink(link))
+      mobile.appendChild(this.renderLink(link, link.href === activeHref))
     }
 
     // portal 出去的 mobile 脱离了 shadow，shadow 内样式不再生效——
@@ -282,13 +291,12 @@ export class SiteNavbar {
     return a
   }
 
-  private renderLink(link: SiteNavbarLink): HTMLElement {
+  private renderLink(link: SiteNavbarLink, active: boolean): HTMLElement {
     const a = document.createElement('a')
     a.className = 'sn-link'
     a.href = escapeAttr(link.href)
     a.target = '_blank'
     a.rel = 'noopener noreferrer'
-    const active = link.active === true || (link.active !== false && isCurrentHost(link.href))
     if (active) a.classList.add('sn-active')
     a.setAttribute('aria-current', active ? 'page' : 'false')
     if (link.icon) {
@@ -300,6 +308,34 @@ export class SiteNavbar {
     a.appendChild(document.createTextNode(link.label))
     a.addEventListener('click', (e) => this.opts.onNavigate?.(link, e))
     return a
+  }
+
+  /**
+   * 计算当前应高亮的链接（整体匹配，避免多个链接同时高亮）：
+   * 1. 精确匹配优先：当前 hostname 与链接 hostname 完全相等（www 互通）；
+   * 2. 无精确匹配时，在子域命中中取 host 最长（最具体）的链接——
+   *    当前在 panhub.shenzjd.com 时，「网盘搜索」(panhub.shenzjd.com) 精确命中
+   *    优先于「AI情报局」(shenzjd.com) 的子域命中，只有前者高亮；
+   * 3. 链接显式 active: true 始终高亮，active: false 永不自动高亮。
+   */
+  private computeActiveHref(): string | null {
+    let exact: string | null = null
+    let sub: string | null = null
+    let subHostLen = 0
+    for (const link of this.opts.links) {
+      if (link.active === false) continue
+      const match = matchCurrentHost(link.href)
+      if (match === 'exact') {
+        if (exact === null) exact = link.href
+      } else if (match === 'sub') {
+        const hostLen = new URL(link.href, window.location.href).hostname.length
+        if (hostLen > subHostLen) {
+          subHostLen = hostLen
+          sub = link.href
+        }
+      }
+    }
+    return exact ?? sub
   }
 
   // ==================== 移动端菜单交互 ====================

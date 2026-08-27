@@ -10,7 +10,8 @@
 - 🎯 按 `location.hostname` **自动高亮当前站**，也可用 `active` 强制指定
 - 👤 **内置 user-avatar**（微信登录头像），已随构建打包，一行引入即带登录能力
 - 📱 移动端（<768px）折叠为 hamburger 下拉菜单，`position: fixed` portal 挂载，玻璃拟态
-- 🎨 CSS 变量主题化（`--sn-*`），一行覆盖主色 / 强调色 / 背景 / 圆角
+- 🌗 默认**深浅色自动适配**（`light-dark()`）：宿主页面声明 `color-scheme: light / dark` 时跟随宿主配色，未声明时跟随系统，无需任何配置
+- 🎨 CSS 变量主题化（`--sn-*`），一行覆盖主色 / 强调色 / 背景 / 圆角（显式指定后固定使用，不随系统切换）
 - 📦 NPM + CDN 双通道引入，TypeScript 类型齐全
 
 ## 安装
@@ -99,14 +100,16 @@ nav.unmount()
 | `brand-icon` | `string` | — | 品牌图标（emoji / SVG / 任意 HTML） |
 | `avatar` | `boolean` | `true` | 是否渲染头像（user-avatar） |
 | `links` | `string` | 内置默认 | JSON 数组字符串，如 `[{"href":"...","label":"..."}]` |
-| `theme-primary` | `string` | `#1f2328` | 主文字色（品牌 / hover 文字） |
-| `theme-secondary` | `string` | `#656d76` | 次要文字色（默认链接） |
-| `theme-accent` | `string` | `#1a6dff` | 强调色（当前站高亮） |
-| `theme-hover-bg` | `string` | `rgba(31,35,40,.06)` | 链接 hover 背景 |
-| `theme-bg` | `string` | `rgba(255,255,255,.55)` | 导航栏背景（玻璃拟态） |
-| `theme-border` | `string` | `rgba(27,31,36,.08)` | 边框 / 分隔线色 |
+| `theme-primary` | `string` | 随系统* | 主文字色（品牌 / hover 文字） |
+| `theme-secondary` | `string` | 随系统* | 次要文字色（默认链接） |
+| `theme-accent` | `string` | 随系统* | 强调色（当前站高亮） |
+| `theme-hover-bg` | `string` | 随系统* | 链接 hover 背景 |
+| `theme-bg` | `string` | 随系统* | 导航栏背景（玻璃拟态） |
+| `theme-border` | `string` | 随系统* | 边框 / 分隔线色 |
 | `theme-radius` | `string` | `12px` | 圆角 |
 | `theme-font-family` | `string` | 系统字体栈 | 字体族 |
+
+> \* 颜色类主题默认值自动适配深浅色：浅色 `#1f2328 / #656d76 / #1a6dff / rgba(255,255,255,.55) …`，深色 `#e6edf3 / #8b949e / #4d9fff / rgba(28,31,36,.55) …`。取色规则：宿主页面声明 `color-scheme: light / dark` 时跟随宿主，未声明时跟随系统。显式传入某个 `theme-*` 属性后该值固定使用，不再随系统切换。
 
 > 样式已隔离在 shadow DOM，外部可用 `--sn-*` 变量覆盖（见下文「自定义主题」）。
 
@@ -155,7 +158,7 @@ nav.unmount()
 
 ## 自定义主题
 
-组件通过 CSS 变量暴露主题，直接在宿主页面覆盖即可：
+组件通过 CSS 变量暴露主题，直接在宿主页面覆盖即可（默认值随系统深浅色自适应，覆盖后固定使用你的颜色）：
 
 ```css
 site-navbar {

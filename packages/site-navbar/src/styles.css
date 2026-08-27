@@ -1,16 +1,27 @@
 /* ============================================================
   site-navbar 组件样式
   全部主题通过 --sn-* CSS 变量驱动，直接覆盖变量即可换肤。
+
+  深浅色自适应：
+  - 默认值用 light-dark(浅色, 深色)，颜色随宿主页面声明的 color-scheme 切换：
+    宿主声明 color-scheme: light / dark 时组件对应使用浅色 / 深色主题；
+    宿主未声明时继承 UA 默认，跟随系统 prefers-color-scheme；
+  - 不支持 light-dark() 的老浏览器，由下方 @media (prefers-color-scheme: dark)
+    兜底为纯深色值；
+  - 用户显式传入 theme / 覆盖 --sn-* 变量时优先级最高，不随系统变化。
   ============================================================ */
 
-.sn-root {
+/* 变量默认值同时作用于 .sn-root（shadow/普通 DOM）与 .sn-mobile（portal 到
+   body，脱离 .sn-root 后无法继承其变量，须自身持有默认值） */
+.sn-root,
+.sn-mobile {
   /* ===== 主题变量（默认值，可在任意父级覆盖） ===== */
-  --sn-primary: #1f2328; /* 品牌 / hover 文字 */
-  --sn-secondary: #656d76; /* 默认链接文字 */
-  --sn-accent: #1a6dff; /* 当前站高亮 */
-  --sn-hover-bg: rgba(31, 35, 40, 0.06); /* 链接 hover 背景 */
-  --sn-bg: rgba(255, 255, 255, 0.55); /* 当前站高亮 / 移动菜单玻璃背景 */
-  --sn-border: rgba(27, 31, 36, 0.08); /* 边框 / 分隔线 */
+  --sn-primary: light-dark(#1f2328, #e6edf3); /* 品牌 / hover 文字 */
+  --sn-secondary: light-dark(#656d76, #8b949e); /* 默认链接文字 */
+  --sn-accent: light-dark(#1a6dff, #4d9fff); /* 当前站高亮 */
+  --sn-hover-bg: light-dark(rgba(31, 35, 40, 0.06), rgba(255, 255, 255, 0.08)); /* 链接 hover 背景 */
+  --sn-bg: light-dark(rgba(255, 255, 255, 0.55), rgba(28, 31, 36, 0.55)); /* 当前站高亮 / 移动菜单玻璃背景 */
+  --sn-border: light-dark(rgba(27, 31, 36, 0.08), rgba(255, 255, 255, 0.1)); /* 边框 / 分隔线 */
   --sn-radius: 12px; /* 链接圆角 */
   --sn-font-size: 0.875rem; /* 链接字号（14px） */
   --sn-gap: 0.125rem; /* 链接间距 */
@@ -18,10 +29,27 @@
   --sn-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
     sans-serif;
+}
 
+/* 不支持 light-dark() 的浏览器：深色系统下用纯深色值兜底 */
+@media (prefers-color-scheme: dark) {
+  .sn-root,
+  .sn-mobile {
+    --sn-primary: #e6edf3;
+    --sn-secondary: #8b949e;
+    --sn-accent: #4d9fff;
+    --sn-hover-bg: rgba(255, 255, 255, 0.08);
+    --sn-bg: rgba(28, 31, 36, 0.55);
+    --sn-border: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.sn-root {
   position: relative;
   font-family: var(--sn-font-family);
-  color-scheme: light dark;
+  /* 不硬编码 color-scheme：继承宿主页面声明的配色方案。
+     宿主声明 color-scheme: light / dark → 组件对应浅色 / 深色主题；
+     宿主未声明 → 继承 UA 默认，跟随系统 prefers-color-scheme。 */
   line-height: 1.5;
 }
 
@@ -177,7 +205,9 @@
   gap: 2px;
   padding: 0.5rem;
   width: auto;
-  background: rgba(255, 255, 255, 0.94);
+  /* portal 到 body 后继承 body 的 color-scheme（宿主声明 light/dark
+     或 UA 默认跟随系统），light-dark() 变量随之切换 */
+  background: light-dark(rgba(255, 255, 255, 0.94), rgba(24, 26, 32, 0.94));
   border: 1px solid var(--sn-border);
   border-radius: calc(var(--sn-radius) + 4px);
   /* 强化玻璃效果：
@@ -191,7 +221,7 @@
   box-shadow:
     0 16px 48px rgba(15, 23, 42, 0.18),
     0 4px 12px rgba(15, 23, 42, 0.08),
-    0 1px 0 rgba(255, 255, 255, 0.6) inset;
+    inset 0 1px 0 light-dark(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.08));
   isolation: isolate;
   transform: translateY(-8px) translateZ(0);
   z-index: 11000;

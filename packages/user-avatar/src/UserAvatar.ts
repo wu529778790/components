@@ -105,18 +105,24 @@ interface ResolvedOptions {
   onGithubBound?: (user: WxUserInfo) => void
 }
 
+/**
+ * 默认主题（颜色均用 light-dark(浅色, 深色) 包裹，颜色随宿主页面声明的
+ * color-scheme 切换：宿主声明 light / dark 时组件对应浅色 / 深色主题，
+ * 宿主未声明时继承 UA 默认跟随系统；用户显式传入的 theme 值会覆盖默认值，
+ * 固定使用用户指定的颜色，不再随系统切换）。
+ */
 const DEFAULT_THEME: Theme = {
-  btnBg: '#ffffff',
+  btnBg: 'light-dark(#ffffff, #262a30)',
   size: '2.5rem',
-  accent: '#1f2328',
-  btnBorder: 'rgba(27, 31, 36, 0.12)',
+  accent: 'light-dark(#1f2328, #e6edf3)',
+  btnBorder: 'light-dark(rgba(27, 31, 36, 0.12), rgba(255, 255, 255, 0.14))',
   radius: '16px',
-  bg: '#ffffff',
-  text: '#1f2328',
-  subText: '#656d76',
-  overlay: 'rgba(31, 35, 40, 0.45)',
-  danger: '#dc2626',
-  success: '#1a7f37'
+  bg: 'light-dark(#ffffff, #1c1e22)',
+  text: 'light-dark(#1f2328, #e6edf3)',
+  subText: 'light-dark(#656d76, #8b949e)',
+  overlay: 'light-dark(rgba(31, 35, 40, 0.45), rgba(0, 0, 0, 0.6))',
+  danger: 'light-dark(#dc2626, #f85149)',
+  success: 'light-dark(#1a7f37, #3fb950)'
 }
 
 export class UserAvatar {
