@@ -36,6 +36,23 @@ function numAttr(el: HTMLElement, name: string, fallback: number): number {
   return Number.isFinite(n) ? n : fallback
 }
 
+/** 解析 portal-el：接受 CSS 选择器 或 `#id` / 元素 id，解析不到返回 undefined（用 body） */
+function resolvePortalEl(value: string | HTMLElement | undefined): HTMLElement | undefined {
+  if (typeof value !== 'string' || value.trim() === '') return undefined
+  const v = value.trim()
+  // `#xxx` 或元素 id（无前缀）都按 id 解析
+  const id = v.startsWith('#') ? v.slice(1) : v
+  const byId = document.getElementById(id)
+  if (byId) return byId
+  // 否则按 CSS 选择器解析（querySelector 兜底）
+  try {
+    const found = document.querySelector<HTMLElement>(v)
+    return found ?? undefined
+  } catch {
+    return undefined
+  }
+}
+
 const THEME_ATTRS: ReadonlyArray<readonly [string, keyof UserAvatarTheme]> = [
   ['theme-btn-bg', 'btnBg'],
   ['theme-size', 'size'],
@@ -58,6 +75,8 @@ export class UserAvatarElement extends HTMLElement {
       'offset',
       'size',
       'z-index',
+      'portal',
+      'portal-el',
       ...THEME_ATTRS.map(([attr]) => attr)
     ]
   }
@@ -141,6 +160,8 @@ export class UserAvatarElement extends HTMLElement {
       offset: get('offset') ?? global.offset,
       size: get('size') ?? global.size,
       zIndex: numAttr(this, 'z-index', global.zIndex ?? 12000),
+      portal: boolAttr(this, 'portal', global.portal ?? true),
+      portalEl: resolvePortalEl(get('portal-el') ?? global.portalEl),
       theme: { ...(global.theme ?? {}), ...theme },
       onLogin: global.onLogin,
       onLogout: global.onLogout,

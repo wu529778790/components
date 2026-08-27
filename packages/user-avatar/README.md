@@ -80,6 +80,8 @@ avatar.unmount()              // 卸载
 | `offset` | `string` | `'1rem 1.5rem'` | 固定定位偏移（top right） |
 | `size` | `string` | `'2.5rem'` | 头像直径 |
 | `z-index` | `number` | `12000` | 弹窗层级 |
+| `portal` | `boolean` | true | 设置弹窗 / 下拉菜单是否挂到顶层（body）。开启后弹窗始终全屏居中，避免被 `backdrop-filter` / `transform` / `filter` / `contain` / `overflow` 祖先困住；关闭则内联到组件根节点（旧行为） |
+| `portal-el` | `string` | — | Portal 挂载容器。接受 CSS 选择器或元素 id（如 `#app` 或 `.overlay-root`），解析不到则回退到 `body` |
 | `theme-accent` | `string` | `#1f2328` | 主色（头像/按钮/toast，默认中性灰黑） |
 | `theme-size` | `string` | `2.5rem` | 头像尺寸（略同 size） |
 | `theme-radius` | `string` | `16px` | 卡片/弹窗圆角 |
@@ -100,6 +102,8 @@ const avatar = new UserAvatar({
   // apiBase 不传即默认 https://wx-auth.shenzjd.com（自家后端，一般无需配置）
   sdk: window.WxAuth,                // 可显式传 SDK，缺省自动取 window.WxAuth
   fixed: true, offset: '1rem 1.5rem',
+  portal: true,                      // 弹窗/菜单挂 body（默认 true）。若容器在 transform/overflow 祖先内，请保持 true
+  // portalEl: document.querySelector('#overlay-root'), // 可选：自定义 Portal 容器，缺省 document.body
   theme: { accent: '#1f2328' },
   onLogin: (user) => console.log('登录', user),
   onLogout: () => console.log('登出'),

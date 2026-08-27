@@ -12,21 +12,57 @@
     min-height: 100vh;
     color: #1f2328;
   }
-  .page { max-width: 760px; margin: 0 auto; padding: 4rem 1.5rem 3rem; }
+
+  /* ===== 复现 Bug 的场景：sticky + backdrop-blur 的 Header =====
+     祖先带 backdrop-filter 时，position:fixed 的 containing block 会变成
+     该祖先，导致设置弹窗被限制在顶部而非全屏居中。
+     修复后（portal 默认开启）弹窗仍应全屏居中。 */
+  .demo-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(27, 31, 36, 0.08);
+  }
+  .demo-header .brand {
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+
+  /* 加高页面制造滚动，验证「滚动时弹窗不随滚动（fixed 正常）」 */
+  .page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 3rem;
+  }
   h1 { font-size: 1.6rem; margin: 0 0 0.4rem; }
   .sub { color: #656d76; font-size: 0.9rem; margin-bottom: 2rem; }
   code { background: rgba(27,31,36,0.06); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.9em; }
+  .spacer { height: 140vh; }
 </style>
 </head>
 <body>
 
-<!-- ===== 组件挂载点：右上角头像（零配置，后端地址已默认写死） ===== -->
-<user-avatar></user-avatar>
+<!-- ===== sticky + backdrop-blur Header：弹窗在此场景下也须全屏居中 ===== -->
+<header class="demo-header">
+  <div class="brand">user-avatar</div>
+  <user-avatar></user-avatar>
+</header>
 
 <div class="page">
   <h1>用户头像 · 账号组件（<code>@wu529778790/user-avatar</code>）</h1>
+  <p class="sub">头像挂在 <code>sticky + backdrop-filter: blur()</code> 的 Header 内——正是会触发「设置弹窗跑到页面顶部」Bug 的容器。</p>
   <p class="sub">点右上角头像：未登录 → 微信登录；已登录 → 「设置 / 退出登录」→ 设置里可绑定 GitHub、改昵称。</p>
-  <p class="sub">本页接入真实后端（微信认证服务 <code>https://wx-auth.shenzjd.com</code>），无任何模拟数据——登录、头像、昵称、GitHub 绑定全部真实。</p>
+  <p class="sub">修复后（Portal 默认开启）：设置弹窗应始终覆盖整个视口并水平垂直居中，滚动页面时不随滚动。</p>
+
+  <!-- 加高页面以制造滚动 -->
+  <div class="spacer"></div>
 </div>
 
 <!-- ===== 真实 SDK：wx-auth-sdk（UMD） ===== -->
@@ -34,17 +70,15 @@
 <script>
   // 真初始化，按 SDK 官方的「延迟弹窗」模式（README「silent 模式」一节）：
   // - silent:true：先静默初始化，只校验现有 cookie，已登录静默通过、不弹窗
-  //   （这是关键——默认 silent:false 时 init 遇到未认证会立刻强制弹窗，且关不掉）
   // - required:false：可选认证语义，弹窗带 × 关闭按钮，用户可主动关闭
-  // - apiBase 用 SDK 内置默认（https://wx-auth.shenzjd.com），无需显式传
   window.WxAuth && window.WxAuth.init({
     silent: true,
     required: false
   })
 </script>
 
-<!-- ===== 组件（Web Component 单文件，CDN 正式版） ===== -->
-<script src="https://unpkg.com/@wu529778790/user-avatar@latest/dist/user-avatar.wc.js"></script>
+<!-- ===== 组件（Web Component 单文件，本地 dist 构建产物） ===== -->
+<script src="../dist/user-avatar.wc.js"></script>
 
 </body>
 </html>

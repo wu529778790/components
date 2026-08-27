@@ -64,6 +64,19 @@ export interface UserAvatarOptions {
   size?: string
   /** 弹窗 z-index，默认 12000（比 wx-auth 登录弹窗 9999 高） */
   zIndex?: number
+  /**
+   * 是否将设置弹窗 / 下拉菜单渲染到 body（Portal），默认 true。
+   * 开启后弹窗与菜单脱离 this.root，避免被带 backdrop-filter / transform /
+   * filter / contain / overflow 的祖先当作 containing block 或裁剪，
+   * 从而始终全屏居中、不被裁剪。
+   */
+  portal?: boolean
+  /**
+   * Portal 渲染容器（仅在 portal 为 true 时生效）。
+   * 缺省为 document.body。可传入自定义容器（须位于页面顶层，且自身不被
+   * transform / overflow 影响）。
+   */
+  portalEl?: HTMLElement
   /** 主题（映射 --ua-* CSS 变量） */
   theme?: UserAvatarTheme
   /** 登录成功回调 */
@@ -83,6 +96,8 @@ interface ResolvedOptions {
   offset: string
   size: string
   zIndex: number
+  portal: boolean
+  portalEl?: HTMLElement
   theme: Theme
   onLogin?: (user: WxUserInfo) => void
   onLogout?: () => void
@@ -197,6 +212,8 @@ export class UserAvatar {
       offset: options.offset ?? '1rem 1.5rem',
       size: options.size ?? DEFAULT_THEME.size,
       zIndex: options.zIndex ?? 12000,
+      portal: options.portal ?? true,
+      portalEl: options.portalEl,
       theme: { ...DEFAULT_THEME, ...(options.theme ?? {}) },
       onLogin: options.onLogin,
       onLogout: options.onLogout,
@@ -218,6 +235,49 @@ export class UserAvatar {
     s.setProperty('--ua-overlay', t.overlay)
     s.setProperty('--ua-danger', t.danger)
     s.setProperty('--ua-success', t.success)
+  }
+
+  // ==================== Portal（弹窗 / 菜单挂载到顶层） ====================
+
+  /**
+   * Portal 是否启用：默认开启。关闭时弹窗/菜单仍内联在 this.root（旧行为）。
+   * portalEl 仅在 portal 开启时生效，缺省 document.body。
+   */
+  private usePortal(): boolean {
+    return this.opts.portal
+  }
+
+  /** 获取 Portal 挂载容器（body 或自定义 portalEl） */
+  private getPortalRoot(): HTMLElement {
+    return this.opts.portalEl ?? document.body
+  }
+
+  /**
+   * 将子节点挂到对应容器：
+   * - portal 开启：挂到顶层容器（body / portalEl），脱离被 transform/overflow 困住的祖先；
+   * - portal 关闭：挂到 this.root，保持旧的内联行为。
+   * 由于挂到顶层后不再继承 .ua-root 的 --ua-* 主题变量，这里把主题变量一并复制过去。
+   */
+  private appendOverlay(el: HTMLElement): void {
+    if (this.usePortal()) {
+      // 主题变量迁移：portaled 节点脱离 .ua-root，需显式补齐 --ua-* 变量
+      const t = this.opts.theme
+      const s = el.style
+      s.setProperty('--ua-btn-bg', t.btnBg)
+      s.setProperty('--ua-size', t.size)
+      s.setProperty('--ua-accent', t.accent)
+      s.setProperty('--ua-btn-border', t.btnBorder)
+      s.setProperty('--ua-radius', t.radius)
+      s.setProperty('--ua-bg', t.bg)
+      s.setProperty('--ua-text', t.text)
+      s.setProperty('--ua-sub', t.subText)
+      s.setProperty('--ua-overlay', t.overlay)
+      s.setProperty('--ua-danger', t.danger)
+      s.setProperty('--ua-success', t.success)
+      this.getPortalRoot().appendChild(el)
+    } else {
+      this.root.appendChild(el)
+    }
   }
 
   // ==================== 登录 / 退出 ====================
@@ -424,11 +484,37 @@ export class UserAvatar {
       <button type="button" class="ua-menu-item ua-menu-item-danger" data-action="logout">${LOGOUT_ICON}<span>退出登录</span></button>
     `
 
+    // Portal 开启时菜单脱离 this.root 挂到顶层：原来的 absolute 相对 .ua-widget 定位失效，
+    // 改为根据头像按钮当前视口坐标用 fixed 定位，既不被 transform/overflow 祖先裁剪，
+    // 也始终紧贴按钮。portal 关闭时保留内联 absolute 定位（旧行为）。
+    if (this.usePortal()) {
+      const btn = this.root.querySelector<HTMLButtonElement>('.ua-avatar')
+      const rect = btn?.getBoundingClientRect()
+      if (rect && rect.width > 0) {
+        const gap = 0.5
+        const gapPx = gap * 16
+        menu.style.position = 'fixed'
+        menu.style.top = `${rect.bottom + gapPx}px`
+        // 与按钮右缘对齐（复刻内联 absolute 的 right:0 效果）
+        menu.style.left = 'auto'
+        menu.style.right = `${Math.max(window.innerWidth - rect.right, 0)}px`
+        menu.style.minWidth = '12rem'
+        menu.style.maxWidth = 'min(20rem, calc(100vw - 2rem))'
+        // 动画使用 transform，fixed 定位节点自身 transform 不会影响定位（transform 作用于自身盒模型）
+        menu.dataset.uaPortal = 'true'
+      } else {
+        // 头像按钮不可见/异常时退回内联，避免菜单悬空
+        this.usePortalMenuInlineFallback(menu)
+      }
+    }
+
     const onDocDown = (e: MouseEvent) => {
       // 组件可能挂在 shadow DOM（Web Component）。document 收到的事件在跨过
       // shadow 边界时 e.target 会被 retarget 成 host，contains 永远 false，
       // 导致"点菜单项即被误关"。composedPath() 含 shadow 内完整路径，用它判断。
-      if (!e.composedPath().includes(this.root)) this.closeMenu()
+      // 菜单 portal 到顶层后不再是 this.root 后代，需把菜单本身也计入"内部区域"。
+      const path = e.composedPath()
+      if (!path.includes(this.root) && !(this.menuEl && path.includes(this.menuEl))) this.closeMenu()
     }
     const onDocKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') this.closeMenu()
@@ -447,8 +533,20 @@ export class UserAvatar {
       void this.logout()
     })
 
-    this.root.appendChild(menu)
+    this.appendOverlay(menu)
     this.menuEl = menu
+  }
+
+  /** Portal 下头像按钮不可见时的兜底：退回内联挂载，避免菜单悬空/定位错乱 */
+  private usePortalMenuInlineFallback(menu: HTMLElement): void {
+    menu.style.position = 'absolute'
+    menu.style.top = ''
+    menu.style.left = ''
+    menu.style.right = '0'
+    menu.style.minWidth = '12rem'
+    menu.style.maxWidth = ''
+    // 内联时由 this.root 提供主题变量，无需复制
+    this.root.appendChild(menu)
   }
 
   private closeMenu(): void {
@@ -472,7 +570,9 @@ export class UserAvatar {
     settings.style.zIndex = String(this.opts.zIndex + 10)
     settings.innerHTML = this.buildSettingsHtml(u)
     this.settingsEl = settings
-    this.root.appendChild(settings)
+    // Portal 开启时挂到 body/portalEl（脱离 backdrop-filter/transform 祖先的 containing block），
+    // 遮罩始终覆盖整个视口并居中；关闭时内联到 this.root（旧行为）。
+    this.appendOverlay(settings)
 
     this.bindSettingsEvents(settings)
 
