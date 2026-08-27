@@ -26,6 +26,13 @@ export const DEFAULT_LINKS: SiteNavbarLink[] = [
   { href: 'https://bing.shenzjd.com', label: '必应壁纸', icon: '🖼️' }
 ]
 
+/** 内置默认品牌（图片 logo + 名称，指向首页） */
+export const DEFAULT_BRAND: SiteNavbarBrand = {
+  icon: '<img class="sn-brand-img" src="https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260701-180125-c1ub.webp" alt="神族九帝" />',
+  text: '神族九帝',
+  href: 'https://shenzjd.com'
+}
+
 export interface SiteNavbarOptions {
   /** 链接列表（缺省用内置默认） */
   links?: SiteNavbarLink[]
@@ -151,7 +158,7 @@ export class SiteNavbar {
   private resolve(options: SiteNavbarOptions): ResolvedOptions {
     return {
       links: options.links ?? DEFAULT_LINKS,
-      brand: options.brand ?? null,
+      brand: options.brand ?? DEFAULT_BRAND,
       avatar: options.avatar ?? true,
       // 头像内嵌导航栏：fixed 必须为 false；size 同步写入 theme，避免 user-avatar
       // 内 opts.theme.size 不与 options.size 同步时只取 DEFAULT 的坑
