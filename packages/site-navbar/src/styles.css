@@ -1,0 +1,195 @@
+/* ============================================================
+  site-navbar 组件样式
+  全部主题通过 --sn-* CSS 变量驱动，直接覆盖变量即可换肤。
+  ============================================================ */
+
+.sn-root {
+  /* ===== 主题变量（默认值，可在任意父级覆盖） ===== */
+  --sn-primary: #1f2328; /* 品牌 / hover 文字 */
+  --sn-secondary: #656d76; /* 默认链接文字 */
+  --sn-accent: #1a6dff; /* 当前站高亮 */
+  --sn-hover-bg: rgba(31, 35, 40, 0.06); /* 链接 hover 背景 */
+  --sn-bg: rgba(255, 255, 255, 0.55); /* 当前站高亮 / 移动菜单玻璃背景 */
+  --sn-border: rgba(27, 31, 36, 0.08); /* 边框 / 分隔线 */
+  --sn-radius: 12px; /* 链接圆角 */
+  --sn-font-size: 0.875rem; /* 链接字号（14px） */
+  --sn-gap: 0.125rem; /* 链接间距 */
+  --sn-avatar-size: 2.2rem; /* 头像容器尺寸，约束 user-avatar 不超出导航栏 */
+  --sn-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    sans-serif;
+
+  position: relative;
+  font-family: var(--sn-font-family);
+  color-scheme: light dark;
+  line-height: 1.5;
+}
+
+.sn-root * {
+  box-sizing: border-box;
+}
+
+.sn-root a {
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ==================== 导航栏 ==================== */
+
+.sn-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 品牌区 */
+.sn-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.5rem;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--sn-primary);
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+.sn-brand-icon {
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+.sn-brand:hover {
+  color: var(--sn-accent);
+}
+
+/* 链接组（居中，占满剩余空间） */
+.sn-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sn-gap);
+  flex: 1;
+  min-width: 0;
+}
+
+.sn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--sn-radius);
+  font-size: var(--sn-font-size);
+  font-weight: 500;
+  color: var(--sn-secondary);
+  white-space: nowrap;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sn-link-icon {
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+.sn-link:hover {
+  background: var(--sn-hover-bg);
+  color: var(--sn-primary);
+}
+
+/* 当前站高亮 */
+.sn-link.sn-active {
+  background: var(--sn-bg);
+  color: var(--sn-accent);
+  box-shadow: inset 0 0 0 1px var(--sn-border);
+}
+
+/* 头像区：固定尺寸容器，约束 user-avatar 的圆形头像与导航栏协调 */
+.sn-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--sn-avatar-size);
+  height: var(--sn-avatar-size);
+  max-width: var(--sn-avatar-size);
+  max-height: var(--sn-avatar-size);
+  margin-left: auto;
+}
+
+/* ==================== 移动端 hamburger ==================== */
+
+.sn-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--sn-border);
+  border-radius: var(--sn-radius);
+  background: transparent;
+  color: var(--sn-secondary);
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sn-toggle:hover {
+  background: var(--sn-hover-bg);
+  color: var(--sn-primary);
+}
+
+.sn-toggle svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* ==================== 移动端下拉菜单 ====================
+   Portal 模式下挂到 body（脱离 shadow DOM），由 JS 写入
+   position: fixed + top/left/width，紧贴导航栏下方。
+   CSS 只负责外观：玻璃背景、阴影、层叠上下文等。
+*/
+
+.sn-mobile {
+  display: none;
+  flex-direction: column;
+  gap: var(--sn-gap);
+  padding: 0.375rem;
+  /* 强化玻璃效果：
+   * 1. 高不透明背景（0.55 → 0.88）避免与浅色页面背景融合"隐形"
+   * 2. saturate(180%) 提升背景色彩饱和度，玻璃质感更明显
+   * 3. isolation: isolate 创建独立堆叠上下文，防止 backdrop-filter 在
+   *    transform / contain 祖先下渲染边界异常
+   * 4. translateZ(0) 触发独立 GPU 合成层 */
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--sn-border);
+  border-radius: var(--sn-radius);
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  box-shadow:
+    0 12px 32px rgba(15, 23, 42, 0.12),
+    0 2px 6px rgba(15, 23, 42, 0.06);
+  isolation: isolate;
+  transform: translateZ(0);
+  z-index: 11000;
+}
+
+.sn-mobile.sn-open {
+  display: flex;
+}
+
+.sn-mobile .sn-link {
+  padding: 0.625rem 0.75rem;
+}
+
+/* ==================== 响应式 ==================== */
+
+@media (max-width: 768px) {
+  .sn-links {
+    display: none;
+  }
+  .sn-toggle {
+    display: inline-flex;
+  }
+}

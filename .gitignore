@@ -6,3 +6,5 @@ dist/
 _tmp_*
 *.bundled_*.mjs
 .workbuddy/
+.playwright-mcp/
+*.png

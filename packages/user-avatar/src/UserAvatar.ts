@@ -222,7 +222,8 @@ export class UserAvatar {
       zIndex: options.zIndex ?? 12000,
       portal: options.portal ?? true,
       portalEl: options.portalEl,
-      theme: { ...DEFAULT_THEME, ...(options.theme ?? {}) },
+      // theme.size 与 size 同步：options.size 优先于 options.theme.size
+      theme: { ...DEFAULT_THEME, ...(options.theme ?? {}), size: options.size ?? (options.theme?.size ?? DEFAULT_THEME.size) },
       onLogin: options.onLogin,
       onLogout: options.onLogout,
       onGithubBound: options.onGithubBound

@@ -1,0 +1,55 @@
+{
+  "name": "@wu529778790/site-navbar",
+  "version": "0.1.0",
+  "description": "A zero-dependency site top navigation web component: glass sub-site links with auto current-host highlight, responsive hamburger menu, and built-in user avatar.",
+  "type": "module",
+  "main": "./dist/index.umd.cjs",
+  "module": "./dist/index.esm.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.umd.cjs"
+    },
+    "./style.css": "./dist/site-navbar.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "navbar",
+    "navigation",
+    "header",
+    "menu",
+    "avatar",
+    "web-component",
+    "glass",
+    "top-nav",
+    "子站导航",
+    "顶部导航",
+    "导航栏",
+    "响应式菜单"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wu529778790/components.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": [
+    "*.css"
+  ],
+  "scripts": {
+    "build": "tsup && node -e \"require('fs').copyFileSync('src/styles.css','dist/site-navbar.css')\"",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@wu529778790/user-avatar": "workspace:*",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
+  }
+}

@@ -8,7 +8,9 @@
 import { FloatingQRElement } from '../packages/floating-qr/src/web-component'
 import { FloatingModalElement } from '../packages/floating-modal/src/web-component'
 import { UserAvatarElement } from '../packages/user-avatar/src/web-component'
+import { SiteNavbarElement } from '../packages/site-navbar/src/web-component'
 
 void FloatingQRElement
 void FloatingModalElement
 void UserAvatarElement
+void SiteNavbarElement
