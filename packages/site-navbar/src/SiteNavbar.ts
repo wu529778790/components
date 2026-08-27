@@ -18,12 +18,11 @@ import { CLOSE_ICON, HAMBURGER_ICON, escapeAttr, isCurrentHost } from './utils'
 
 /** 内置默认子站链接（shenzjd.com 系列） */
 export const DEFAULT_LINKS: SiteNavbarLink[] = [
-  { href: 'https://shenzjd.com', label: '首页', icon: '🏠' },
-  { href: 'https://alist.shenzjd.com', label: 'Alist', icon: '📁' },
+  { href: 'https://shenzjd.com', label: 'AI情报局', icon: '🏠' },
   { href: 'https://panhub.shenzjd.com', label: '网盘搜索', icon: '🔍' },
   { href: 'https://parse.shenzjd.com', label: '视频解析', icon: '🎬' },
   { href: 'https://newshub.shenzjd.com', label: '热点聚合', icon: '📰' },
-  { href: 'https://navhub.shenzjd.com', label: '个人导航', icon: '🧭' },
+  { href: 'https://navhub.shenzjd.com', label: '导航森林', icon: '🧭' },
   { href: 'https://bing.shenzjd.com', label: '必应壁纸', icon: '🖼️' }
 ]
 

@@ -6,7 +6,7 @@
 
 ## 特性
 
-- 🧭 内置 shenzjd.com 系列子站链接（首页 / Alist / 网盘搜索 / 视频解析 / 热点聚合 / 个人导航 / 必应壁纸），可用 `links` 覆盖
+- 🧭 内置 shenzjd.com 系列子站链接（AI情报局 / 网盘搜索 / 视频解析 / 热点聚合 / 导航森林 / 必应壁纸），可用 `links` 覆盖
 - 🎯 按 `location.hostname` **自动高亮当前站**，也可用 `active` 强制指定
 - 👤 **内置 user-avatar**（微信登录头像），已随构建打包，一行引入即带登录能力
 - 📱 移动端（<768px）折叠为 hamburger 下拉菜单，`position: fixed` portal 挂载，玻璃拟态
@@ -60,8 +60,8 @@ pnpm add @wu529778790/site-navbar
 <script>
   window.__SITE_NAVBAR_OPTIONS__ = {
     links: [
-      { href: 'https://shenzjd.com', label: '首页', icon: '🏠' },
-      { href: 'https://alist.shenzjd.com', label: 'Alist', icon: '📁' }
+      { href: 'https://shenzjd.com', label: 'AI情报局', icon: '🏠' },
+      { href: 'https://panhub.shenzjd.com', label: '网盘搜索', icon: '🔍' }
     ],
     brand: { text: '我的导航', icon: '🧭' },
     theme: { accent: '#1a6dff' }
@@ -77,8 +77,8 @@ import { SiteNavbar } from '@wu529778790/site-navbar'
 
 const nav = new SiteNavbar({
   links: [
-    { href: 'https://shenzjd.com', label: '首页', icon: '🏠' },
-    { href: 'https://alist.shenzjd.com', label: 'Alist', icon: '📁' }
+    { href: 'https://shenzjd.com', label: 'AI情报局', icon: '🏠' },
+    { href: 'https://panhub.shenzjd.com', label: '网盘搜索', icon: '🔍' }
   ],
   brand: { text: '我的导航', icon: '🧭' },
   onNavigate: (link, e) => console.log('点击', link.label)
