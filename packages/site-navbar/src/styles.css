@@ -149,38 +149,130 @@
    Portal 模式下挂到 body（脱离 shadow DOM），由 JS 写入
    position: fixed + top/left/width，紧贴导航栏下方。
    CSS 只负责外观：玻璃背景、阴影、层叠上下文等。
+   链接颜色/去下划线必须显式设置，因为 .sn-root a 选择器
+   只对 shadow DOM 内的 <a> 生效，portal 出去后不生效。
 */
 
 .sn-mobile {
-  display: none;
+  display: flex;
   flex-direction: column;
-  gap: var(--sn-gap);
-  padding: 0.375rem;
+  gap: 2px;
+  padding: 0.5rem;
+  min-width: 220px;
+  max-width: 320px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--sn-border);
+  border-radius: calc(var(--sn-radius) + 4px);
   /* 强化玻璃效果：
-   * 1. 高不透明背景（0.55 → 0.88）避免与浅色页面背景融合"隐形"
+   * 1. 高不透明背景（0.94）避免与浅色页面背景融合"隐形"
    * 2. saturate(180%) 提升背景色彩饱和度，玻璃质感更明显
    * 3. isolation: isolate 创建独立堆叠上下文，防止 backdrop-filter 在
    *    transform / contain 祖先下渲染边界异常
    * 4. translateZ(0) 触发独立 GPU 合成层 */
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid var(--sn-border);
-  border-radius: var(--sn-radius);
-  backdrop-filter: saturate(180%) blur(16px);
-  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
   box-shadow:
-    0 12px 32px rgba(15, 23, 42, 0.12),
-    0 2px 6px rgba(15, 23, 42, 0.06);
+    0 16px 48px rgba(15, 23, 42, 0.18),
+    0 4px 12px rgba(15, 23, 42, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.6) inset;
   isolation: isolate;
-  transform: translateZ(0);
+  transform: translateY(-8px) translateZ(0);
   z-index: 11000;
+  /* 默认状态：透明 + 隐藏，为打开动画准备 */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform-origin: top right;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.18s ease;
 }
 
 .sn-mobile.sn-open {
-  display: flex;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) translateZ(0);
+  /* 注意：内联 top/left/width 由 JS 在 updateMobilePosition 中写入，
+     此处 transform 仅做位移，不覆盖 position */
+  pointer-events: auto;
 }
 
+/* 菜单标题 */
+.sn-mobile-header {
+  padding: 0.5rem 0.875rem 0.375rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--sn-secondary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  user-select: none;
+  opacity: 0.7;
+}
+
+/* 分隔线 */
+.sn-mobile-divider {
+  height: 1px;
+  margin: 0.375rem 0.5rem;
+  background: var(--sn-border);
+}
+
+/* portal 出去的链接必须独立设置颜色和去下划线，
+   因为 .sn-root a 选择器只对 shadow DOM 内的 <a> 生效 */
 .sn-mobile .sn-link {
-  padding: 0.625rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: calc(var(--sn-radius) - 2px);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--sn-secondary);
+  text-decoration: none;
+  white-space: nowrap;
+  position: relative;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    padding-left 0.2s ease;
+}
+
+.sn-mobile .sn-link-icon {
+  font-size: 1.05em;
+  line-height: 1;
+  width: 1.25em;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.sn-mobile .sn-link:hover {
+  background: var(--sn-hover-bg);
+  color: var(--sn-primary);
+}
+
+.sn-mobile .sn-link:active {
+  background: var(--sn-hover-bg);
+  transform: scale(0.98);
+}
+
+/* 当前站高亮：左侧 3px 色条 + 缩进 + 加粗 + 强调色 */
+.sn-mobile .sn-link.sn-active {
+  background: var(--sn-bg);
+  color: var(--sn-accent);
+  font-weight: 600;
+  padding-left: 1.5rem;
+}
+
+.sn-mobile .sn-link.sn-active::before {
+  content: "";
+  position: absolute;
+  left: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--sn-accent);
+  border-radius: 2px;
 }
 
 /* ==================== 响应式 ==================== */

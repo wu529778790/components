@@ -232,10 +232,28 @@ export class SiteNavbar {
     // ---- 移动端下拉菜单（portal 模式挂到 body，避开 shadow/backdrop-filter 祖先） ----
     const mobile = document.createElement('div')
     mobile.className = 'sn-mobile'
+    mobile.setAttribute('role', 'menu')
     mobile.setAttribute('aria-hidden', 'true')
+
+    // 菜单标题（让用户清楚这是什么菜单）
+    const header = document.createElement('div')
+    header.className = 'sn-mobile-header'
+    header.textContent = '导航菜单'
+    mobile.appendChild(header)
+
+    // 链接列表（前后加分隔线，形成独立分组）
+    mobile.appendChild(this.createDivider())
     for (const link of this.opts.links) {
       mobile.appendChild(this.renderLink(link))
     }
+    mobile.appendChild(this.createDivider())
+
+    // 底部提示
+    const footer = document.createElement('div')
+    footer.className = 'sn-mobile-footer'
+    footer.textContent = '点击访问对应站点'
+    mobile.appendChild(footer)
+
     // portal 出去的 mobile 脱离了 shadow，shadow 内样式不再生效——
     // 把 styles.css 作为 inline <style> 挂到 mobile 子树里，让 .sn-mobile / .sn-link
     // 等选择器在 portal 节点内也能匹配
@@ -251,6 +269,14 @@ export class SiteNavbar {
     document.addEventListener('keydown', this.onKeyDown)
     window.addEventListener('resize', this.onResize)
     window.addEventListener('scroll', this.onScroll, true) // 捕获阶段：sticky header 内滚动也要更新
+  }
+
+  /** 移动菜单内部分隔线（横线） */
+  private createDivider(): HTMLElement {
+    const d = document.createElement('div')
+    d.className = 'sn-mobile-divider'
+    d.setAttribute('aria-hidden', 'true')
+    return d
   }
 
   private renderBrand(brand: SiteNavbarBrand): HTMLElement {
