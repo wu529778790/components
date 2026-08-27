@@ -78,7 +78,10 @@
 
 .ua-widget {
   position: relative;
-  display: inline-block;
+  /* 用 block 而非 inline-block：inline-block 默认 vertical-align: baseline，
+     当按钮内是 block 的 <img>（已登录头像）时基线会取底部边缘，整个按钮
+     被行框基线「抬上去」导致垂直偏上；block 不参与行内基线对齐。 */
+  display: block;
 }
 
 .ua-avatar {
