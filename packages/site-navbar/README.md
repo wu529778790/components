@@ -170,6 +170,32 @@ site-navbar {
 }
 ```
 
+## 防闪烁（FOUC）与布局稳定
+
+**组件默认已处理**：
+
+1. **Web Component 未定义时的占位**：`<site-navbar>` 是未知元素时高度为 0，等 JS 加载、组件注册、渲染后才撑出高度，页面内容会被突然往下推（"闪一下"）。组件在注册时自动注入一条全局样式：
+
+   ```css
+   site-navbar:not(:defined) { display: block; height: var(--sn-navbar-height, 44px); }
+   ```
+
+   从页面首帧起 `<site-navbar>` 就占位 44px（与导航栏实际渲染高度 43.7px 对齐，加载后不会回跳），组件升级后由自身接管渲染，占位自动失效。
+
+2. **移动端菜单不占布局**：菜单以 `position: fixed` 挂到 `body`，**任何时刻都脱离文档流**（无论开/关），不会在页面底部撑出空白。
+
+**接入方可选（彻底消除 JS 下载期间的闪烁）**：
+
+如果希望 JS 下载期间页面也纹丝不动，可在 `<head>` 里直接写一条 CSS（不依赖 JS 加载）：
+
+```html
+<style>
+  site-navbar:not(:defined) { display: block; height: 44px; }
+</style>
+```
+
+> 导航栏实际高度默认 44px；若你自定义了导航栏高度（如增大内边距），请同步调整该值，或用变量 `--sn-navbar-height` 覆盖。
+
 ## 在线演示
 
 **https://blog.shenzjd.com/components/packages/site-navbar/demo/**

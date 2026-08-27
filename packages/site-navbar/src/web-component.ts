@@ -127,7 +127,36 @@ export class SiteNavbarElement extends HTMLElement {
   }
 }
 
+/**
+ * 防闪烁占位：<site-navbar> 升级为 custom element 前是"未知元素"，
+ * 高度为 0；等 JS 加载、组件注册、渲染后才撑出高度，页面下方内容会被
+ * 突然往下推（布局跳动/闪一下）。
+ *
+ * 在注册前向全局注入一条样式：未定义（:not(:defined)）的 <site-navbar>
+ * 也占一个与导航栏等高的空间。这样从页面首帧起布局就稳定，
+ * 组件升级后由自身接管渲染，占位样式自动失效（:defined 匹配不再命中）。
+ *
+ * 高度默认 44px（与导航栏实际渲染高度 43.7px 对齐，避免加载后回跳），
+ * 接入方可覆盖：
+ *   site-navbar { --sn-navbar-height: 64px; }
+ * 若要彻底消除 JS 下载期间的闪烁，接入方可在 <head> 里直接写：
+ *   site-navbar:not(:defined){ display:block; height:44px }
+ */
+function injectPlaceholder(): void {
+  const id = `data-sn-placeholder`
+  if (document.getElementById(id)) return
+  const style = document.createElement('style')
+  style.id = id
+  style.textContent = `${TAG}:not(:defined) {
+  display: block;
+  height: var(--sn-navbar-height, 44px);
+  box-sizing: border-box;
+}`
+  ;(document.head || document.documentElement).appendChild(style)
+}
+
 /** 有 <site-navbar> 标签才注册；无标签不自动注入 */
 if (!customElements.get(TAG)) {
+  injectPlaceholder()
   customElements.define(TAG, SiteNavbarElement)
 }
