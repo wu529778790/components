@@ -314,7 +314,9 @@ export class SiteNavbar {
 
   /**
    * 根据导航栏根节点（.sn-root）的视口位置更新 portal 菜单的 fixed 定位。
-   * position: fixed + top/left/width 三件套确保菜单紧贴导航栏下方，
+   * 菜单左右铺满视口（两侧各留 16px 边距），给人饱满、大气的观感，
+   * 比紧贴导航栏宽度的细长菜单更耐看。
+   * position: fixed + top/left/right 确保菜单紧贴导航栏下方并铺满左右，
    * 不受祖先 backdrop-filter / transform / sticky 等影响绘制边界。
    */
   private updateMobilePosition(): void {
@@ -323,8 +325,9 @@ export class SiteNavbar {
     const s = this.mobileEl.style
     s.position = 'fixed'
     s.top = `${Math.round(rect.bottom + 8)}px`
-    s.left = `${Math.round(rect.left)}px`
-    s.width = `${Math.round(rect.width)}px`
+    s.left = '16px'
+    s.right = '16px'
+    s.width = 'auto'
   }
 
   /** 点击导航栏外部关闭移动菜单 */
