@@ -86,6 +86,7 @@
 /* ==================== 导航栏 ==================== */
 
 .sn-bar {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -129,14 +130,16 @@
   color: var(--sn-accent);
 }
 
-/* 链接组（居中，占满剩余空间） */
+/* 链接组：用绝对定位居中于整个导航栏（视口中心），
+   不再受品牌 / 头像宽度不对称影响，与下方页面内容（如公告）中心线对齐 */
 .sn-links {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--sn-gap);
-  flex: 1;
-  min-width: 0;
 }
 
 .sn-link {
