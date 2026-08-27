@@ -636,25 +636,31 @@ export class UserAvatar {
           <button type="button" class="ua-close" data-action="close" aria-label="关闭">${CLOSE_ICON}</button>
         </div>
         <div class="ua-dialog-body">
-          <div class="ua-user-row">
-            ${bigAvatar}
-            <div class="ua-user-meta">
-              <div class="ua-user-name">${escapeHtml(u.nickname || (u.github ? `@${u.github.login}` : '微信用户'))}</div>
-              <div class="ua-user-sub">登录于 ${escapeHtml(new Date(u.authenticatedAt || Date.now()).toLocaleString())}</div>
+          <!-- 用户信息卡片 -->
+          <div class="ua-profile-card">
+            <div class="ua-profile-header">
+              ${bigAvatar}
+              <div class="ua-profile-info">
+                <div class="ua-user-name">${escapeHtml(u.nickname || (u.github ? `@${u.github.login}` : '微信用户'))}</div>
+                <div class="ua-user-sub">登录于 ${escapeHtml(new Date(u.authenticatedAt || Date.now()).toLocaleString())}</div>
+              </div>
             </div>
           </div>
 
-          <div class="ua-mono-row">
-            <div class="ua-mono-label">微信 ID（openid）</div>
+          <!-- 微信 ID -->
+          <div class="ua-field-group">
+            <label class="ua-field-label">微信 ID（openid）</label>
             <div class="ua-mono-value">${escapeHtml(u.openid || '-')}</div>
           </div>
 
-          <div class="ua-section">
+          <!-- GitHub 绑定 -->
+          <div class="ua-field-group">
             <div class="ua-section-title">${GITHUB_ICON}<span>GitHub</span></div>
             ${githubBlock}
           </div>
 
-          <div class="ua-section">
+          <!-- 设置名字 -->
+          <div class="ua-field-group">
             <div class="ua-section-title">${USER_ICON_SVG}<span>设置名字</span></div>
             <div class="ua-nickname-row">
               <input type="text" class="ua-input" maxlength="20" placeholder="2-20 个字符" value="${escapeAttr(this.nicknameDraft)}" />
