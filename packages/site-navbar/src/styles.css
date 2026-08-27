@@ -26,8 +26,6 @@
   --sn-font-size: 0.875rem; /* 链接字号（14px） */
   --sn-gap: 0.125rem; /* 链接间距 */
   --sn-pad-x: 1rem; /* 导航内容左右内边距（logo / 头像不贴视口边缘） */
-  /* 注意：--sn-content-width 不在 .sn-root 上定义默认值（否则会遮蔽宿主
-     :host 上的覆盖），由 .sn-links 用 var(--sn-content-width, 1200px) 回退 */
   --sn-avatar-size: 2.2rem; /* 头像容器尺寸，约束 user-avatar 不超出导航栏 */
   --sn-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
@@ -131,17 +129,13 @@
   color: var(--sn-accent);
 }
 
-/* 链接组：内容区限制在 --sn-content-width 并居中，菜单在内容区内左靠。
-   当 --sn-content-width 与页面正文容器同宽时，菜单左边缘与正文左边缘对齐，
-   既不贴品牌、也不在全宽正中间；右侧留给头像区。 */
+/* 链接组（居中，占满剩余空间） */
 .sn-links {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: var(--sn-gap);
-  flex: 1 1 0%;
-  max-width: var(--sn-content-width, 1200px);
-  margin: 0 auto;
+  flex: 1;
   min-width: 0;
 }
 
