@@ -125,6 +125,13 @@ export class UserAvatar {
   private readonly opts: ResolvedOptions
 
   private user: WxUserInfo | null = null
+  /**
+   * 头像按钮三态：
+   * - checking：有 token 正在服务端校验（骨架脉冲占位，点击忽略）
+   * - auth：已登录（真实头像；图片加载完成前继续骨架，onload 后淡入）
+   * - unauth：未登录（显示「登录」）
+   */
+  private status: 'checking' | 'auth' | 'unauth' = 'checking'
   private menuEl: HTMLElement | null = null
   private settingsEl: HTMLElement | null = null
   private menuCleanup: (() => void) | null = null
@@ -320,6 +327,7 @@ export class UserAvatar {
       deleteAuthCookies()
     }
     this.user = null
+    this.status = 'unauth'
     this.closeMenu()
     this.closeSettings()
     this.render()
@@ -331,10 +339,19 @@ export class UserAvatar {
   private async fetchUser(): Promise<void> {
     const token = getAuthToken()
     if (!token) {
+      // 本地无 token：同步确定未登录，直接展示「登录」，不经过骨架态
       this.user = null
+      this.status = 'unauth'
       this.render()
       return
     }
+    // 有 token 需服务端校验：仅在尚未展示头像时进入骨架态。
+    // focus / visibilitychange 触发的静默刷新（已是 auth）不重渲染，避免头像闪烁。
+    if (this.status !== 'auth') {
+      this.status = 'checking'
+      this.render()
+    }
+    const prev = this.user
     try {
       const base = this.opts.apiBase || window.location.origin
       const res = await fetch(`${base}/api/auth/userinfo?token=${encodeURIComponent(token)}`)
@@ -349,13 +366,23 @@ export class UserAvatar {
         console.warn('[UserAvatar] token 已失效，自动清理本地凭证', data.error ?? '')
         deleteAuthCookies()
         this.user = null
+        this.status = 'unauth'
         this.render()
         return
       }
       this.user = data.user ? data.user : null
+      this.status = this.user ? 'auth' : 'unauth'
+      // 静默刷新且数据无变化：跳过重渲染，避免头像图片重新加载导致闪烁
+      if (this.status === 'auth' && prev && JSON.stringify(prev) === JSON.stringify(this.user)) {
+        return
+      }
     } catch (e) {
       console.error('[UserAvatar] 拉取用户详情失败', e)
-      this.user = null
+      // 网络异常：已展示头像则保留（避免误踢下线），否则视为未登录
+      if (this.status !== 'auth') {
+        this.user = null
+        this.status = 'unauth'
+      }
     }
     this.render()
   }
@@ -439,16 +466,48 @@ export class UserAvatar {
       ? `position:fixed;top:${this.offsetTop()};right:${this.offsetRight()};z-index:${this.opts.zIndex}`
       : ''
 
+    const checking = this.status === 'checking'
+    const btnClass = checking
+      ? 'ua-avatar ua-avatar-checking'
+      : this.status === 'auth'
+        ? 'ua-avatar'
+        : 'ua-avatar ua-avatar-unauth'
+
     this.root.innerHTML = `
       <div class="ua-widget" style="${pos}">
-        <button type="button" class="ua-avatar" aria-haspopup="true" aria-label="${this.user ? '打开用户菜单' : '微信登录'}">
+        <button type="button" class="${btnClass}" aria-haspopup="true"${checking ? ' aria-busy="true"' : ''} aria-label="${this.status === 'auth' ? '打开用户菜单' : checking ? '正在检测登录状态' : '微信登录'}">
           ${this.buildAvatarInnerHtml()}
         </button>
       </div>
     `
 
     const btn = this.root.querySelector<HTMLButtonElement>('.ua-avatar')!
+
+    // 已登录且头像为图片：加载完成前按钮保持骨架脉冲，onload 后移除并淡入图片
+    const img = this.root.querySelector<HTMLImageElement>('.ua-avatar-img')
+    if (img) {
+      if (img.complete && img.naturalWidth > 0) {
+        img.classList.add('ua-img-loaded')
+      } else {
+        btn.classList.add('ua-avatar-loading-img')
+        img.addEventListener('load', () => {
+          img.classList.add('ua-img-loaded')
+          btn.classList.remove('ua-avatar-loading-img')
+        }, { once: true })
+        img.addEventListener('error', () => {
+          // 图片加载失败：退回首字母头像，避免空白圆
+          const name = this.user?.nickname || this.user?.github?.login || '微'
+          const span = document.createElement('span')
+          span.className = 'ua-avatar-fallback'
+          span.textContent = name.charAt(0).toUpperCase()
+          img.replaceWith(span)
+          btn.classList.remove('ua-avatar-loading-img')
+        }, { once: true })
+      }
+    }
+
     btn.addEventListener('click', () => {
+      if (this.status === 'checking') return
       if (this.user) this.toggleMenu()
       else void this.triggerLogin()
     })
@@ -467,7 +526,14 @@ export class UserAvatar {
   }
 
   private buildAvatarInnerHtml(): string {
-    if (!this.user) return USER_ICON_SVG
+    // 登录校验中：骨架脉冲占位，避免先闪「登录」再突变头像
+    if (this.status === 'checking') {
+      return '<span class="ua-avatar-skeleton" aria-hidden="true"></span>'
+    }
+    if (!this.user) {
+      // 未登录：圆形按钮内显示「登录」文字（字号自适应 --ua-size），比灰色人形图标更明确
+      return '<span class="ua-avatar-login">登录</span>'
+    }
     const src = this.user.headimgurl || this.user.github?.avatar || ''
     if (src) return `<img class="ua-avatar-img" src="${escapeAttr(src)}" alt="" referrerpolicy="no-referrer" />`
     const name = this.user.nickname || this.user.github?.login || '微信用户'
