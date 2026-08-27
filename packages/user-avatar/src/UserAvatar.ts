@@ -13,6 +13,7 @@
 import type { WxAuthApi } from './wx-auth'
 import { getWindowSdk } from './wx-auth'
 import type { WxUserInfo } from './types'
+import portalStyles from './styles.css'
 import {
   getAuthToken,
   deleteAuthCookies,
@@ -257,6 +258,10 @@ export class UserAvatar {
    * - portal 开启：挂到顶层容器（body / portalEl），脱离被 transform/overflow 困住的祖先；
    * - portal 关闭：挂到 this.root，保持旧的内联行为。
    * 由于挂到顶层后不再继承 .ua-root 的 --ua-* 主题变量，这里把主题变量一并复制过去。
+   * 同时 Portal 节点脱离了 Web Component 的 shadow DOM，原本在 shadow 内通过 `<style>`
+   * 注入的 .ua-* 选择器在 body 上找不到规则，因此把样式以 inline `<style>` 形式
+   * 追加到 portaled 节点子树内——选择器全是类名（.ua-menu / .ua-mask / .ua-dialog...），
+   * 在子树里照常匹配；--ua-* 变量也已在节点上设置，无需依赖 .ua-root 的 :root 规则。
    */
   private appendOverlay(el: HTMLElement): void {
     if (this.usePortal()) {
@@ -274,6 +279,13 @@ export class UserAvatar {
       s.setProperty('--ua-overlay', t.overlay)
       s.setProperty('--ua-danger', t.danger)
       s.setProperty('--ua-success', t.success)
+      // 样式注入：shadow DOM 外 portaled 节点找不到原 shadow 内 <style>，把
+      // 同样的 CSS 作为 <style> 子节点挂到 portaled 节点上。选择器全是 .ua-* 类名，
+      // 子树内匹配没问题；@keyframes / @media 也照常工作。
+      const style = document.createElement('style')
+      style.setAttribute('data-ua-portal-style', '')
+      style.textContent = portalStyles
+      el.appendChild(style)
       this.getPortalRoot().appendChild(el)
     } else {
       this.root.appendChild(el)

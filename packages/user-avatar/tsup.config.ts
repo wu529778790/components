@@ -12,6 +12,7 @@ export default defineConfig([
     sourcemap: true,
     clean: true,
     outDir: 'dist',
+    loader: { '.css': 'text' },
     outExtension({ format }) {
       return { js: format === 'esm' ? '.esm.js' : '.umd.cjs' }
     }
@@ -21,6 +22,7 @@ export default defineConfig([
     format: ['iife'],
     globalName: 'UserAvatar',
     outDir: 'dist',
+    loader: { '.css': 'text' },
     footer: {
       js: `
 if (typeof UserAvatar !== "undefined") {
