@@ -198,25 +198,6 @@
   pointer-events: auto;
 }
 
-/* 菜单标题 */
-.sn-mobile-header {
-  padding: 0.5rem 0.875rem 0.375rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--sn-secondary);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  user-select: none;
-  opacity: 0.7;
-}
-
-/* 分隔线 */
-.sn-mobile-divider {
-  height: 1px;
-  margin: 0.375rem 0.5rem;
-  background: var(--sn-border);
-}
-
 /* portal 出去的链接必须独立设置颜色和去下划线，
    因为 .sn-root a 选择器只对 shadow DOM 内的 <a> 生效 */
 .sn-mobile .sn-link {
