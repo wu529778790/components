@@ -1,6 +1,6 @@
 {
   "name": "@wu529778790/user-avatar",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "A zero-dependency avatar account widget: WeChat subscription login, user menu, settings panel with GitHub binding and nickname editing.",
   "type": "module",
   "main": "./dist/index.umd.cjs",
