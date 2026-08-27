@@ -14,6 +14,7 @@
   }
 
   /* 复现真实场景：sticky + backdrop-blur 的 Header（导航组件挂在里面） */
+  /* 底部分隔线由导航组件（.sn-root）自带，这里不再画 border-bottom，避免双线 */
   .demo-header {
     position: sticky;
     top: 0;
@@ -22,7 +23,6 @@
     background: rgba(255, 255, 255, 0.55);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(27, 31, 36, 0.08);
   }
 
   .page {
@@ -63,7 +63,6 @@
   }
   html.dark .demo-header {
     background: rgba(28, 31, 36, 0.55);
-    border-bottom-color: rgba(255, 255, 255, 0.1);
   }
   html.dark code { background: rgba(255, 255, 255, 0.08); }
   html.dark .sub { color: #8b949e; }

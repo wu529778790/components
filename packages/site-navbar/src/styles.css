@@ -53,6 +53,19 @@
   line-height: 1.5;
 }
 
+/* 底部分隔线：伪元素撑满整个视口宽度（组件可能嵌在带左右内边距的
+   容器里，直接用 border-bottom 会被容器宽度限制、到不了两边） */
+.sn-root::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: calc(50% - 50vw);
+  width: 100vw;
+  height: 1px;
+  background: var(--sn-border);
+  pointer-events: none;
+}
+
 .sn-root * {
   box-sizing: border-box;
 }

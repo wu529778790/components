@@ -11,6 +11,7 @@
 - 👤 **内置 user-avatar**（微信登录头像），已随构建打包，一行引入即带登录能力
 - 📱 移动端（<768px）折叠为 hamburger 下拉菜单，`position: fixed` portal 挂载，玻璃拟态
 - 🌗 默认**深浅色自动适配**（`light-dark()`）：宿主页面声明 `color-scheme: light / dark` 时跟随宿主配色，未声明时跟随系统，无需任何配置
+- 📏 导航栏自带**底部分隔线**（`--sn-border` 控制，随深浅色切换），无需宿主额外画线
 - 🎨 CSS 变量主题化（`--sn-*`），一行覆盖主色 / 强调色 / 背景 / 圆角（显式指定后固定使用，不随系统切换）
 - 📦 NPM + CDN 双通道引入，TypeScript 类型齐全
 
@@ -167,7 +168,7 @@ site-navbar {
   --sn-accent: #1a6dff;         /* 强调色（当前站高亮） */
   --sn-hover-bg: rgba(31,35,40,.06); /* hover 背景 */
   --sn-bg: rgba(255,255,255,.55);    /* 导航栏背景（玻璃拟态） */
-  --sn-border: rgba(27,31,36,.08);  /* 边框 */
+  --sn-border: rgba(27,31,36,.08);  /* 边框 / 底部分隔线 */
   --sn-radius: 12px;            /* 圆角 */
   --sn-font-family: -apple-system, ...; /* 字体族 */
 }
