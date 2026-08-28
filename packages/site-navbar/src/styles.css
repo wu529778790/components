@@ -19,7 +19,7 @@
   --sn-primary: light-dark(#1f2328, #e6edf3); /* 品牌 / hover 文字 */
   --sn-secondary: light-dark(#656d76, #8b949e); /* 默认链接文字 */
   --sn-accent: light-dark(#1a6dff, #4d9fff); /* 当前站高亮 */
-  --sn-hover-bg: light-dark(rgba(31, 35, 40, 0.06), rgba(255, 255, 255, 0.08)); /* 链接 hover 背景 */
+  --sn-hover-bg: light-dark(rgba(31, 35, 40, 0.06), rgba(255, 255, 255, 0.08)); /* hover 背景（链接 hover 已改为纯文字变色，现仅 hamburger 按钮使用） */
   --sn-bg: light-dark(rgba(255, 255, 255, 0.55), rgba(28, 31, 36, 0.55)); /* 保留变量：当前站高亮已改为纯文字变色，不再使用背景 */
   --sn-border: light-dark(rgba(27, 31, 36, 0.14), rgba(255, 255, 255, 0.14)); /* 边框 / 底部分隔线 */
   --sn-radius: 12px; /* 链接圆角 */
@@ -152,7 +152,7 @@
   font-weight: 500;
   color: var(--sn-secondary);
   white-space: nowrap;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: color 0.3s ease;
 }
 
 .sn-link-icon {
@@ -160,8 +160,8 @@
   line-height: 1;
 }
 
+/* hover 与当前站高亮一致：只做文字变色，不加背景 */
 .sn-link:hover {
-  background: var(--sn-hover-bg);
   color: var(--sn-primary);
 }
 
@@ -287,8 +287,8 @@
   text-decoration: none;
   white-space: nowrap;
   transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .sn-mobile .sn-link-icon {
@@ -299,13 +299,13 @@
   flex-shrink: 0;
 }
 
+/* hover 与当前站高亮一致：只做文字变色，不加背景 */
 .sn-mobile .sn-link:hover {
-  background: var(--sn-hover-bg);
   color: var(--sn-primary);
 }
 
+/* 按压反馈只保留轻微缩放，不加背景 */
 .sn-mobile .sn-link:active {
-  background: var(--sn-hover-bg);
   transform: scale(0.98);
 }
 

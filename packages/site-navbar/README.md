@@ -104,7 +104,7 @@ nav.unmount()
 | `theme-primary` | `string` | 随系统* | 主文字色（品牌 / hover 文字） |
 | `theme-secondary` | `string` | 随系统* | 次要文字色（默认链接） |
 | `theme-accent` | `string` | 随系统* | 强调色（当前站高亮） |
-| `theme-hover-bg` | `string` | 随系统* | 链接 hover 背景 |
+| `theme-hover-bg` | `string` | 随系统* | hover 背景（现仅 hamburger 按钮使用，链接 hover 已改为纯文字变色） |
 | `theme-bg` | `string` | 随系统* | 保留参数（当前站高亮已改为纯文字变色，不再使用背景，暂无样式作用） |
 | `theme-border` | `string` | 随系统* | 边框 / 分隔线色 |
 | `theme-radius` | `string` | `12px` | 圆角 |
@@ -166,7 +166,7 @@ site-navbar {
   --sn-primary: #1f2328;        /* 主文字色 */
   --sn-secondary: #656d76;      /* 次要文字色 */
   --sn-accent: #1a6dff;         /* 强调色（当前站高亮） */
-  --sn-hover-bg: rgba(31,35,40,.06); /* hover 背景 */
+  --sn-hover-bg: rgba(31,35,40,.06); /* hover 背景（现仅 hamburger 按钮使用） */
   --sn-bg: rgba(255,255,255,.55);    /* 保留变量（当前无样式作用） */
   --sn-border: rgba(27,31,36,.08);  /* 边框 / 底部分隔线 */
   --sn-radius: 12px;            /* 圆角 */

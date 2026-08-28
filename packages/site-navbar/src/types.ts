@@ -28,7 +28,7 @@ export interface SiteNavbarTheme {
   secondary?: string
   /** 强调色（当前站高亮） */
   accent?: string
-  /** 链接 hover 背景 */
+  /** hover 背景（链接 hover 已改为纯文字变色，现仅 hamburger 按钮使用） */
   hoverBg?: string
   /** 导航栏背景（玻璃拟态色，当前站高亮 / 移动菜单共用） */
   bg?: string
