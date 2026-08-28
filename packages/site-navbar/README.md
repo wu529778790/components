@@ -7,7 +7,7 @@
 ## 特性
 
 - 🧭 内置 shenzjd.com 系列子站链接（AI情报局 / 网盘搜索 / 视频解析 / 热点聚合 / 导航森林 / 必应壁纸），可用 `links` 覆盖
-- 🎯 按 `location.hostname` **自动高亮当前站**，也可用 `active` 强制指定
+- 🎯 按 `location.hostname` **自动高亮当前站**（host 精确匹配，匹配不上则不高亮任何链接），也可用 `active` 强制指定；高亮样式仅为文字变色
 - 👤 **内置 user-avatar**（微信登录头像），已随构建打包，一行引入即带登录能力
 - 📱 移动端（<768px）折叠为 hamburger 下拉菜单，`position: fixed` portal 挂载，玻璃拟态
 - 🌗 默认**深浅色自动适配**（`light-dark()`）：宿主页面声明 `color-scheme: light / dark` 时跟随宿主配色，未声明时跟随系统，无需任何配置
@@ -105,7 +105,7 @@ nav.unmount()
 | `theme-secondary` | `string` | 随系统* | 次要文字色（默认链接） |
 | `theme-accent` | `string` | 随系统* | 强调色（当前站高亮） |
 | `theme-hover-bg` | `string` | 随系统* | 链接 hover 背景 |
-| `theme-bg` | `string` | 随系统* | 导航栏背景（玻璃拟态） |
+| `theme-bg` | `string` | 随系统* | 保留参数（当前站高亮已改为纯文字变色，不再使用背景，暂无样式作用） |
 | `theme-border` | `string` | 随系统* | 边框 / 分隔线色 |
 | `theme-radius` | `string` | `12px` | 圆角 |
 | `theme-font-family` | `string` | 系统字体栈 | 字体族 |
@@ -167,7 +167,7 @@ site-navbar {
   --sn-secondary: #656d76;      /* 次要文字色 */
   --sn-accent: #1a6dff;         /* 强调色（当前站高亮） */
   --sn-hover-bg: rgba(31,35,40,.06); /* hover 背景 */
-  --sn-bg: rgba(255,255,255,.55);    /* 导航栏背景（玻璃拟态） */
+  --sn-bg: rgba(255,255,255,.55);    /* 保留变量（当前无样式作用） */
   --sn-border: rgba(27,31,36,.08);  /* 边框 / 底部分隔线 */
   --sn-radius: 12px;            /* 圆角 */
   --sn-font-family: -apple-system, ...; /* 字体族 */

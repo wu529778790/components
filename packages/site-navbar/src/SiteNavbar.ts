@@ -205,7 +205,7 @@ export class SiteNavbar {
   private render(): void {
     this.root.innerHTML = ''
 
-    // 计算当前应高亮的链接（整体匹配：精确优先、子域取最长，避免多链接同时高亮）
+    // 计算当前应高亮的链接（host 精确匹配；匹配不上则全部不高亮）
     const activeHref = this.computeActiveHref()
 
     // ---- 导航栏 ----
@@ -327,31 +327,21 @@ export class SiteNavbar {
   }
 
   /**
-   * 计算当前应高亮的链接（整体匹配，避免多个链接同时高亮）：
-   * 1. 精确匹配优先：当前 hostname 与链接 hostname 完全相等（www 互通）；
-   * 2. 无精确匹配时，在子域命中中取 host 最长（最具体）的链接——
-   *    当前在 panhub.shenzjd.com 时，「网盘搜索」(panhub.shenzjd.com) 精确命中
-   *    优先于「AI情报局」(shenzjd.com) 的子域命中，只有前者高亮；
-   * 3. 链接显式 active: true 始终高亮，active: false 永不自动高亮。
+   * 计算当前应高亮的链接：
+   * 1. 链接显式 active: true 强制高亮（优先于自动匹配，active: false 永不自动高亮）；
+   * 2. 否则按 host 精确匹配当前站（归一化 www 后完全相等）；
+   * 3. 匹配不上就都不高亮——不做「子域回退高亮主站」，避免访问未收录的
+   *    子域站时误亮主站链接。
    */
   private computeActiveHref(): string | null {
-    let exact: string | null = null
-    let sub: string | null = null
-    let subHostLen = 0
+    for (const link of this.opts.links) {
+      if (link.active === true) return link.href
+    }
     for (const link of this.opts.links) {
       if (link.active === false) continue
-      const match = matchCurrentHost(link.href)
-      if (match === 'exact') {
-        if (exact === null) exact = link.href
-      } else if (match === 'sub') {
-        const hostLen = new URL(link.href, window.location.href).hostname.length
-        if (hostLen > subHostLen) {
-          subHostLen = hostLen
-          sub = link.href
-        }
-      }
+      if (matchCurrentHost(link.href) === 'exact') return link.href
     }
-    return exact ?? sub
+    return null
   }
 
   // ==================== 移动端菜单交互 ====================
