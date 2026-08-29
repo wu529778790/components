@@ -808,3 +808,53 @@
     height: 3.5rem;
   }
 }
+/* ==================== 退出登录二次确认 ==================== */
+
+/* 小一号的对话框（相对设置弹窗的 28rem） */
+.ua-confirm {
+  max-width: 22rem;
+}
+
+.ua-confirm .ua-dialog-body {
+  padding: 1.25rem 1.5rem 0.5rem;
+}
+
+.ua-confirm-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--ua-text);
+}
+
+.ua-confirm-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0 1.5rem 1.5rem;
+}
+
+.ua-confirm-btn {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--ua-btn-border);
+  border-radius: 12px;
+  background: var(--ua-btn-bg);
+  color: var(--ua-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ua-confirm-btn:hover {
+  background: color-mix(in srgb, var(--ua-text) 8%, var(--ua-btn-bg));
+}
+
+.ua-confirm-btn-danger {
+  border-color: transparent;
+  background: var(--ua-danger);
+  color: #fff;
+}
+
+.ua-confirm-btn-danger:hover {
+  background: color-mix(in srgb, var(--ua-danger) 85%, #000);
+}

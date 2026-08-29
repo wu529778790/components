@@ -142,6 +142,8 @@ export class UserAvatar {
   private settingsEl: HTMLElement | null = null
   private menuCleanup: (() => void) | null = null
   private settingsCleanup: (() => void) | null = null
+  private confirmEl: HTMLElement | null = null
+  private confirmCleanup: (() => void) | null = null
   private githubMsgListener: ((e: MessageEvent) => void) | null = null
   private saving = false
   private saveBtnTimer: number | null = null
@@ -623,7 +625,8 @@ export class UserAvatar {
       this.openSettings()
     })
     menu.querySelector<HTMLButtonElement>('[data-action="logout"]')?.addEventListener('click', () => {
-      void this.logout()
+      // 二次确认：菜单里点「退出登录」先弹确认框，确认后才真正登出
+      this.openLogoutConfirm()
     })
 
     this.appendOverlay(menu)
@@ -647,6 +650,65 @@ export class UserAvatar {
     this.menuEl = null
     this.menuCleanup?.()
     this.menuCleanup = null
+  }
+
+  // ==================== 退出登录二次确认 ====================
+
+  private openLogoutConfirm(): void {
+    this.closeMenu()
+    this.closeConfirm()
+
+    const confirm = document.createElement('div')
+    confirm.className = 'ua-mask'
+    confirm.style.zIndex = String(this.opts.zIndex + 10)
+    confirm.innerHTML = `
+      <div class="ua-dialog ua-confirm" role="alertdialog" aria-modal="true" aria-label="退出登录">
+        <div class="ua-dialog-head">
+          <h3 class="ua-dialog-title">退出登录</h3>
+          <button type="button" class="ua-close" data-action="cancel" aria-label="关闭">${CLOSE_ICON}</button>
+        </div>
+        <div class="ua-dialog-body">
+          <p class="ua-confirm-text">确定要退出登录吗？退出后需要重新验证才能继续使用。</p>
+        </div>
+        <div class="ua-confirm-actions">
+          <button type="button" class="ua-confirm-btn" data-action="cancel">取消</button>
+          <button type="button" class="ua-confirm-btn ua-confirm-btn-danger" data-action="confirm">退出登录</button>
+        </div>
+      </div>
+    `
+    this.confirmEl = confirm
+    // 与设置弹窗同一 overlay 通道：portal 开启时挂顶层，避免被 transform/overflow 祖先裁剪
+    this.appendOverlay(confirm)
+
+    const close = () => this.closeConfirm()
+    confirm.querySelector<HTMLButtonElement>('[data-action="confirm"]')?.addEventListener('click', () => {
+      close()
+      void this.logout()
+    })
+    confirm.querySelectorAll<HTMLButtonElement>('[data-action="cancel"]').forEach((btn) => {
+      btn.addEventListener('click', close)
+    })
+
+    const onMaskDown = (e: MouseEvent) => {
+      // 同 openSettings：shadow DOM 下用 composedPath[0] 取真实点击目标
+      if (e.composedPath()[0] === confirm) close()
+    }
+    const onDocKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close()
+    }
+    document.addEventListener('mousedown', onMaskDown)
+    document.addEventListener('keydown', onDocKey)
+    this.confirmCleanup = () => {
+      document.removeEventListener('mousedown', onMaskDown)
+      document.removeEventListener('keydown', onDocKey)
+    }
+  }
+
+  private closeConfirm(): void {
+    this.confirmEl?.remove()
+    this.confirmEl = null
+    this.confirmCleanup?.()
+    this.confirmCleanup = null
   }
 
   // ==================== 设置弹窗 ====================
