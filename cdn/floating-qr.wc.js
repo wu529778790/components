@@ -8,6 +8,7 @@
       title: "\u516C\u4F17\u53F7",
       desc: ""
     },
+    // 赞赏码默认不展示（仅在显式传入 donate 时使用这套默认图；后续可能整体换成小程序码）
     donate: {
       src: "https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260817-165134-105w.png",
       title: "\u8D5E\u8D4F\u7801",
@@ -125,7 +126,7 @@
       };
       return {
         wechat: block(options.wechat, "wechat"),
-        donate: block(options.donate, "donate"),
+        donate: options.donate ? block(options.donate, "donate") : null,
         position: (_a = options.position) != null ? _a : "right-center",
         closePersistence: (_b = options.closePersistence) != null ? _b : false,
         hideOnMobile: (_c = options.hideOnMobile) != null ? _c : true,
@@ -160,14 +161,14 @@
         <p class="fq-label">${escapeHtml(wechat.title)}</p>
         ${wechat.desc ? `<p class="fq-desc">${escapeHtml(wechat.desc)}</p>` : ""}
       </div>
-      <div class="fq-divider" role="separator"></div>
+      ${donate ? `<div class="fq-divider" role="separator"></div>
       <div class="fq-section">
         <div class="fq-qr">
           <img class="fq-img" src="${escapeAttr(donate.src)}" alt="${escapeAttr(donate.title)}" loading="lazy" />
         </div>
         <p class="fq-label">${escapeHtml(donate.title)}</p>
         ${donate.desc ? `<p class="fq-desc">${escapeHtml(donate.desc)}</p>` : ""}
-      </div>
+      </div>` : ""}
       ${links.length ? `<div class="fq-links">${links.map(
         (link) => {
           var _a2;
