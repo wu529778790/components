@@ -48,7 +48,7 @@ export interface UserAvatarTheme {
   overlay?: string
   /** 危险色（退出登录/解绑） */
   danger?: string
-  /** 成功色（已保存提示） */
+  /** 成功色 */
   success?: string
 }
 
@@ -144,6 +144,7 @@ export class UserAvatar {
   private settingsCleanup: (() => void) | null = null
   private githubMsgListener: ((e: MessageEvent) => void) | null = null
   private saving = false
+  private saveBtnTimer: number | null = null
   private nicknameDraft = ''
 
   constructor(options: UserAvatarOptions = {}, container: HTMLElement | ShadowRoot = document.body) {
@@ -374,6 +375,8 @@ export class UserAvatar {
         deleteAuthCookies()
         this.user = null
         this.status = 'unauth'
+        // 登录态已失效，开着的设置弹窗不能留着（弹窗 portal 在 body 上，render 清不掉）
+        this.closeSettings()
         this.render()
         return
       }
@@ -416,6 +419,7 @@ export class UserAvatar {
     this.saving = true
     this.updateSaveBtn()
     this.setMsg('')
+    let ok = false
     try {
       const base = this.opts.apiBase || window.location.origin
       const res = await fetch(`${base}/api/auth/profile`, {
@@ -425,8 +429,9 @@ export class UserAvatar {
       })
       const data = (await res.json()) as { success: boolean; message?: string }
       if (data.success) {
-        this.setMsg('已保存')
+        ok = true
         this.nicknameDraft = nickname
+        // 先等用户信息刷新完再报成功，避免「保存中…」与「已保存」同屏
         await this.fetchUser()
       } else {
         this.setMsg(data.message || '保存失败')
@@ -436,7 +441,7 @@ export class UserAvatar {
       this.setMsg('保存失败，请重试')
     } finally {
       this.saving = false
-      this.updateSaveBtn()
+      this.updateSaveBtn(ok)
     }
   }
 
@@ -466,8 +471,11 @@ export class UserAvatar {
 
   private render(): void {
     this.root.innerHTML = ''
-    this.menuEl = null
-    this.settingsEl = null
+    // 重渲染只影响头像按钮本体：菜单贴头像定位已失效，真正移除；设置弹窗
+    // portal 在顶层、内容自包含，跨重渲染保留——若在这里把 settingsEl 置空，
+    // 弹窗会留在 DOM 上却再也关不掉（closeSettings 变成空操作），保存成功后
+    // fetchUser → render 正好触发过这条路径。
+    this.closeMenu()
 
     const pos = this.opts.fixed
       ? `position:fixed;top:${this.offsetTop()};right:${this.offsetRight()};z-index:${this.opts.zIndex}`
@@ -770,22 +778,44 @@ export class UserAvatar {
   }
 
   private closeSettings(): void {
+    if (this.saveBtnTimer !== null) {
+      clearTimeout(this.saveBtnTimer)
+      this.saveBtnTimer = null
+    }
     this.settingsEl?.remove()
     this.settingsEl = null
     this.settingsCleanup?.()
     this.settingsCleanup = null
   }
 
+  /** 提示行只用于错误信息；成功反馈由保存按钮自身展示（见 updateSaveBtn） */
   private setMsg(text: string): void {
     const el = this.settingsEl?.querySelector<HTMLElement>('[data-role="msg"]')
     if (!el) return
     el.textContent = text
-    el.className = text === '已保存' ? 'ua-msg ua-msg-ok' : text ? 'ua-msg ua-msg-err' : 'ua-msg'
+    el.className = text ? 'ua-msg ua-msg-err' : 'ua-msg'
   }
 
-  private updateSaveBtn(): void {
+  /**
+   * 保存按钮状态机：保存 → 保存中…（禁用）→ 已保存 ✓（约 2s 后自动回到保存）。
+   * 定时器回调持有按钮元素本身的引用：即使期间弹窗被关闭/重建，也只会写到
+   * 已脱离 DOM 的旧节点上，不会误改新弹窗的按钮。
+   */
+  private updateSaveBtn(success = false): void {
     const btn = this.settingsEl?.querySelector<HTMLButtonElement>('[data-action="save"]')
-    if (btn) btn.textContent = this.saving ? '保存中…' : '保存'
+    if (!btn) return
+    if (this.saveBtnTimer !== null) {
+      clearTimeout(this.saveBtnTimer)
+      this.saveBtnTimer = null
+    }
+    btn.disabled = this.saving
+    btn.textContent = this.saving ? '保存中…' : success ? '已保存 ✓' : '保存'
+    if (success) {
+      this.saveBtnTimer = window.setTimeout(() => {
+        btn.textContent = '保存'
+        this.saveBtnTimer = null
+      }, 2000)
+    }
   }
 
   // ==================== GitHub 绑定 ====================

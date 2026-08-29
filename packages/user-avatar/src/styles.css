@@ -715,6 +715,8 @@
 
 .ua-save {
   flex-shrink: 0;
+  /* 与最长文案（保存中… / 已保存 ✓）等宽：三态切换不带动整行抖动 */
+  min-width: 6.5rem;
   padding: 0.75rem 1.4rem;
   border: none;
   border-radius: 12px;
@@ -764,25 +766,9 @@
   font-weight: 500;
 }
 
-.ua-msg-ok {
-  color: var(--ua-success);
-  animation: ua-msg-in 0.3s ease;
-}
-
 .ua-msg-err {
   color: var(--ua-danger);
   animation: ua-shake 0.4s ease;
-}
-
-@keyframes ua-msg-in {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
 }
 
 @keyframes ua-shake {
