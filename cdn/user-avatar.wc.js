@@ -819,7 +819,58 @@
     width: 3.5rem;
     height: 3.5rem;
   }
-}`;
+}
+/* ==================== \u9000\u51FA\u767B\u5F55\u4E8C\u6B21\u786E\u8BA4 ==================== */
+
+/* \u5C0F\u4E00\u53F7\u7684\u5BF9\u8BDD\u6846\uFF08\u76F8\u5BF9\u8BBE\u7F6E\u5F39\u7A97\u7684 28rem\uFF09 */
+.ua-confirm {
+  max-width: 22rem;
+}
+
+.ua-confirm .ua-dialog-body {
+  padding: 1.25rem 1.5rem 0.5rem;
+}
+
+.ua-confirm-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--ua-text);
+}
+
+.ua-confirm-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0 1.5rem 1.5rem;
+}
+
+.ua-confirm-btn {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--ua-btn-border);
+  border-radius: 12px;
+  background: var(--ua-btn-bg);
+  color: var(--ua-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ua-confirm-btn:hover {
+  background: color-mix(in srgb, var(--ua-text) 8%, var(--ua-btn-bg));
+}
+
+.ua-confirm-btn-danger {
+  border-color: transparent;
+  background: var(--ua-danger);
+  color: #fff;
+}
+
+.ua-confirm-btn-danger:hover {
+  background: color-mix(in srgb, var(--ua-danger) 85%, #000);
+}
+`;
 
   // src/utils.ts
   var TOKEN_COOKIE = "wxauth-token";
@@ -914,6 +965,8 @@
       this.settingsEl = null;
       this.menuCleanup = null;
       this.settingsCleanup = null;
+      this.confirmEl = null;
+      this.confirmCleanup = null;
       this.githubMsgListener = null;
       this.saving = false;
       this.saveBtnTimer = null;
@@ -1310,7 +1363,7 @@
         this.openSettings();
       });
       (_b = menu.querySelector('[data-action="logout"]')) == null ? void 0 : _b.addEventListener("click", () => {
-        void this.logout();
+        this.openLogoutConfirm();
       });
       this.appendOverlay(menu);
       this.menuEl = menu;
@@ -1331,6 +1384,59 @@
       this.menuEl = null;
       (_b = this.menuCleanup) == null ? void 0 : _b.call(this);
       this.menuCleanup = null;
+    }
+    // ==================== 退出登录二次确认 ====================
+    openLogoutConfirm() {
+      var _a;
+      this.closeMenu();
+      this.closeConfirm();
+      const confirm = document.createElement("div");
+      confirm.className = "ua-mask";
+      confirm.style.zIndex = String(this.opts.zIndex + 10);
+      confirm.innerHTML = `
+      <div class="ua-dialog ua-confirm" role="alertdialog" aria-modal="true" aria-label="\u9000\u51FA\u767B\u5F55">
+        <div class="ua-dialog-head">
+          <h3 class="ua-dialog-title">\u9000\u51FA\u767B\u5F55</h3>
+          <button type="button" class="ua-close" data-action="cancel" aria-label="\u5173\u95ED">${CLOSE_ICON}</button>
+        </div>
+        <div class="ua-dialog-body">
+          <p class="ua-confirm-text">\u786E\u5B9A\u8981\u9000\u51FA\u767B\u5F55\u5417\uFF1F\u9000\u51FA\u540E\u9700\u8981\u91CD\u65B0\u9A8C\u8BC1\u624D\u80FD\u7EE7\u7EED\u4F7F\u7528\u3002</p>
+        </div>
+        <div class="ua-confirm-actions">
+          <button type="button" class="ua-confirm-btn" data-action="cancel">\u53D6\u6D88</button>
+          <button type="button" class="ua-confirm-btn ua-confirm-btn-danger" data-action="confirm">\u9000\u51FA\u767B\u5F55</button>
+        </div>
+      </div>
+    `;
+      this.confirmEl = confirm;
+      this.appendOverlay(confirm);
+      const close = () => this.closeConfirm();
+      (_a = confirm.querySelector('[data-action="confirm"]')) == null ? void 0 : _a.addEventListener("click", () => {
+        close();
+        void this.logout();
+      });
+      confirm.querySelectorAll('[data-action="cancel"]').forEach((btn) => {
+        btn.addEventListener("click", close);
+      });
+      const onMaskDown = (e) => {
+        if (e.composedPath()[0] === confirm) close();
+      };
+      const onDocKey = (e) => {
+        if (e.key === "Escape") close();
+      };
+      document.addEventListener("mousedown", onMaskDown);
+      document.addEventListener("keydown", onDocKey);
+      this.confirmCleanup = () => {
+        document.removeEventListener("mousedown", onMaskDown);
+        document.removeEventListener("keydown", onDocKey);
+      };
+    }
+    closeConfirm() {
+      var _a, _b;
+      (_a = this.confirmEl) == null ? void 0 : _a.remove();
+      this.confirmEl = null;
+      (_b = this.confirmCleanup) == null ? void 0 : _b.call(this);
+      this.confirmCleanup = null;
     }
     // ==================== 设置弹窗 ====================
     openSettings() {
