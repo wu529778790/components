@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build": "pnpm -r --filter \"./packages/*\" build",
-    "dev": "pnpm -r --filter \"./packages/*\" dev --parallel",
+    "dev": "node scripts/dev.mjs",
     "typecheck": "pnpm -r --filter \"./packages/*\" typecheck",
     "preview": "python3 -m http.server 8317",
     "cdn": "node scripts/cdn.mjs"

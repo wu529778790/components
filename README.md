@@ -30,11 +30,11 @@ components/
 ```bash
 pnpm install          # 安装全部依赖
 pnpm build            # 构建所有包（产出 dist/）
-pnpm dev              # 监听模式构建
+pnpm dev              # 监听模式构建 + 启动 demo 预览（http://localhost:8317）
 pnpm typecheck        # 类型检查全部包
 ```
 
-演示站：每个包的 demo 在包内（如 `packages/floating-qr/demo/index.html`）。在线预览：[components 组件库演示](https://wu529778790.github.io/components/)；本地 `npm run preview` 后访问对应 URL。
+演示站：每个包的 demo 在包内（如 `packages/floating-qr/demo/index.html`）。`pnpm dev` 启动后日志会打印全部 demo 地址（如 `http://localhost:8317/packages/floating-qr/demo/index.html`）；在线预览：[components 组件库演示](https://wu529778790.github.io/components/)。
 
 ## 发布新包
 
