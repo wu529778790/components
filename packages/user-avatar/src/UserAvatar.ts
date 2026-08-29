@@ -668,7 +668,7 @@ export class UserAvatar {
           <button type="button" class="ua-close" data-action="cancel" aria-label="关闭">${CLOSE_ICON}</button>
         </div>
         <div class="ua-dialog-body">
-          <p class="ua-confirm-text">确定要退出登录吗？退出后需要重新验证才能继续使用。</p>
+          <p class="ua-confirm-text">确定要退出登录吗？退出后需要重新登录才能继续使用。</p>
         </div>
         <div class="ua-confirm-actions">
           <button type="button" class="ua-confirm-btn" data-action="cancel">取消</button>
