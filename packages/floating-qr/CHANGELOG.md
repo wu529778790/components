@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- 赞赏码区块默认不再渲染（零配置/CDN 引入只显示公众号），显式传入 `donate` 配置或任一 `donate-*` 属性后恢复显示
+- 后续计划将该位置替换为小程序码
+
 ## 0.1.9 - 2026-08-25
 
 ### Features

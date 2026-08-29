@@ -114,7 +114,7 @@
 <body>
   <header>
     <h1>floating-qr 演示站 <span class="badge">&lt;floating-qr&gt; Web Component</span></h1>
-    <p>极简 · 零依赖 · 公众号 + 赞赏码浮窗。右侧悬浮卡片即组件实例，面板改参数即时热更新。</p>
+    <p>极简 · 零依赖 · 公众号 + 赞赏码（可选）浮窗。右侧悬浮卡片即组件实例，面板改参数即时热更新。</p>
   </header>
 
   <main>
@@ -168,15 +168,16 @@
       </div>
       <div class="field">
         <label for="donateTitle">赞赏码标题</label>
-        <input type="text" id="donateTitle" value="赞赏码" />
+        <input type="text" id="donateTitle" value="" placeholder="赞赏码" />
+        <div class="hint">赞赏码默认不展示：赞赏码 URL / 标题都留空时整个区块不渲染</div>
       </div>
       <div class="field">
         <label for="wechatSrc">公众号二维码 URL（留空用默认图）</label>
         <input type="text" id="wechatSrc" placeholder="留空使用内置默认图" />
       </div>
       <div class="field">
-        <label for="donateSrc">赞赏码 URL（留空用默认图）</label>
-        <input type="text" id="donateSrc" placeholder="留空使用内置默认图" />
+        <label for="donateSrc">赞赏码 URL（填了才显示赞赏码区块）</label>
+        <input type="text" id="donateSrc" placeholder="留空则不显示赞赏码" />
       </div>
       <div class="field">
         <label style="font-weight:400; font-size:13px;">
@@ -192,7 +193,7 @@
 
       <h3>方式一：CDN 一行引入（零配置，自动出现默认浮窗）</h3>
       <pre><code>&lt;script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/floating-qr.wc.js"&gt;&lt;/script&gt;
-&lt;!-- 无需任何标签/JS，自动注入默认公众号 + 赞赏码浮窗 --&gt;</code></pre>
+&lt;!-- 无需任何标签/JS，自动注入默认公众号浮窗（赞赏码通过 donate-* 配置开启） --&gt;</code></pre>
 
       <h3>方式二：声明式标签（按需定制，属性即时热更新）</h3>
       <pre><code>&lt;floating-qr

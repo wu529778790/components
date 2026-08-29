@@ -1,8 +1,8 @@
 # @wu529778790/floating-qr
 
-极简、零依赖的浮窗组件：在网站右侧展示「公众号二维码 + 赞赏码」，关闭后刷新页面自动重新出现。
+极简、零依赖的浮窗组件：在网站右侧展示「公众号二维码」（赞赏码可选），关闭后刷新页面自动重新出现。
 
-适用于博客、文档站、个人网站等任何需要「涨粉 + 打赏」双驱动的页面。
+适用于博客、文档站、个人网站等任何需要「涨粉 + 打赏」双驱动的页面。赞赏码区块默认不渲染，显式传入 `donate` 配置（或 `donate-*` 属性）后显示。
 
 ## 特性
 
@@ -26,7 +26,7 @@ pnpm add @wu529778790/floating-qr
 
 ```html
 <script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/floating-qr.wc.js"></script>
-<!-- 无需任何标签/JS，自动注入默认公众号 + 赞赏码浮窗 -->
+<!-- 无需任何标签/JS，自动注入默认公众号浮窗（赞赏码通过 donate-* 配置开启） -->
 ```
 
 ### 方式二：声明式标签（按需定制，属性即时热更新）
@@ -65,7 +65,7 @@ pnpm add @wu529778790/floating-qr
 import FloatingQR from '@wu529778790/floating-qr'
 import '@wu529778790/floating-qr/style.css'
 
-new FloatingQR() // 直接使用内置公众号 + 赞赏码二维码
+new FloatingQR() // 直接使用内置公众号二维码（赞赏码可选，见下）
 ```
 
 ## Web Component 属性
@@ -81,7 +81,7 @@ new FloatingQR() // 直接使用内置公众号 + 赞赏码二维码
 | `wechat-src` | `string` | 内置公众号二维码图 | 公众号二维码图片 URL |
 | `wechat-title` | `string` | `'公众号'` | 公众号区块标题 |
 | `wechat-desc` | `string` | `''` | 副文案，不传不显示 |
-| `donate-src` | `string` | 内置赞赏码图 | 赞赏码图片 URL |
+| `donate-src` | `string` | 不渲染（设置后用内置赞赏码图） | 赞赏码图片 URL |
 | `donate-title` | `string` | `'赞赏码'` | 赞赏码区块标题 |
 | `donate-desc` | `string` | `''` | 副文案，不传不显示 |
 | `link-hrefs` | `string` | - | 社交链接 URL 列表，逗号分隔；自动按域名匹配内置图标 |
@@ -91,6 +91,7 @@ new FloatingQR() // 直接使用内置公众号 + 赞赏码二维码
 | `theme-border` | `string` | `rgba(0,0,0,.1)` | 边框色 |
 
 > 样式已隔离在 shadow DOM，外部可用 `--fq-*` 变量覆盖（见下文「自定义主题」）。
+> 赞赏码区块默认不渲染：设置任一 `donate-*` 属性后显示（图片留空用内置赞赏码图）。
 
 ## JS API（NPM 双轨）
 
@@ -104,7 +105,7 @@ new FloatingQR() // 直接使用内置公众号 + 赞赏码二维码
 | `wechat.src` | `string` | 内置公众号二维码图 | 公众号二维码图片 URL |
 | `wechat.title` | `string` | `'公众号'` | 公众号区块标题 |
 | `wechat.desc` | `string` | `''` | 副文案，不传不显示 |
-| `donate` | `FloatingQRBlock` | 内置赞赏码 | 赞赏码区块 |
+| `donate` | `FloatingQRBlock` | 默认不渲染 | 赞赏码区块，传入后显示 |
 | `donate.src` | `string` | 内置赞赏码图 | 赞赏码图片 URL |
 | `donate.title` | `string` | `'赞赏码'` | 赞赏码区块标题 |
 | `donate.desc` | `string` | `''` | 副文案，不传不显示 |
@@ -120,7 +121,7 @@ new FloatingQR() // 直接使用内置公众号 + 赞赏码二维码
 
 #### 链接 `links`
 
-在公众号/赞赏码下方渲染一排社交图标链接：
+在二维码下方渲染一排社交图标链接：
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |

@@ -39,7 +39,7 @@ export interface FloatingQRLink {
 export interface FloatingQROptions {
   /** 公众号区块（可选，缺省使用默认公众号二维码） */
   wechat?: FloatingQRBlock
-  /** 赞赏码区块（可选，缺省使用默认赞赏码） */
+  /** 赞赏码区块（可选，默认不渲染；显式传入后显示在公众号下方） */
   donate?: FloatingQRBlock
   /** 浮窗位置，默认 right-center */
   position?: Position
@@ -57,7 +57,8 @@ export interface FloatingQROptions {
 
 interface ResolvedOptions {
   wechat: Required<FloatingQRBlock>
-  donate: Required<FloatingQRBlock>
+  /** null = 不渲染赞赏区块 */
+  donate: Required<FloatingQRBlock> | null
   position: Position
   closePersistence: boolean
   hideOnMobile: boolean
@@ -74,6 +75,7 @@ const DEFAULT_BLOCKS: Record<'wechat' | 'donate', Required<FloatingQRBlock>> = {
     title: '公众号',
     desc: ''
   },
+  // 赞赏码默认不展示（仅在显式传入 donate 时使用这套默认图；后续可能整体换成小程序码）
   donate: {
     src: 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260817-165134-105w.png',
     title: '赞赏码',
@@ -141,7 +143,7 @@ function setCloseMark(): void {
 }
 
 /**
- * A minimal floating widget that shows a WeChat QR and a donation QR.
+ * A minimal floating widget that shows a WeChat QR (and optionally a donation QR).
  * Zero dependencies. Framework-agnostic. Styleable via --fq-* CSS variables.
  *
  * @param container 渲染容器，默认 document.body；Web Component 场景传入 shadow root
@@ -220,7 +222,7 @@ export class FloatingQR {
 
     return {
       wechat: block(options.wechat, 'wechat'),
-      donate: block(options.donate, 'donate'),
+      donate: options.donate ? block(options.donate, 'donate') : null,
       position: options.position ?? 'right-center',
       closePersistence: options.closePersistence ?? false,
       hideOnMobile: options.hideOnMobile ?? true,
@@ -259,14 +261,16 @@ export class FloatingQR {
         <p class="fq-label">${escapeHtml(wechat.title)}</p>
         ${wechat.desc ? `<p class="fq-desc">${escapeHtml(wechat.desc)}</p>` : ''}
       </div>
-      <div class="fq-divider" role="separator"></div>
+      ${donate
+        ? `<div class="fq-divider" role="separator"></div>
       <div class="fq-section">
         <div class="fq-qr">
           <img class="fq-img" src="${escapeAttr(donate.src)}" alt="${escapeAttr(donate.title)}" loading="lazy" />
         </div>
         <p class="fq-label">${escapeHtml(donate.title)}</p>
         ${donate.desc ? `<p class="fq-desc">${escapeHtml(donate.desc)}</p>` : ''}
-      </div>
+      </div>`
+        : ''}
       ${links.length
         ? `<div class="fq-links">${links
             .map(
