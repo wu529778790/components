@@ -1,6 +1,6 @@
 # @wu529778790/site-navbar
 
-**顶部站点导航组件**：内置 shenzjd.com 系列子站链接，按当前 host 自动高亮当前站；桌面端居中链接 + 右侧头像，移动端（<768px）折叠为 hamburger 下拉菜单。头像（user-avatar）已内置打包，无需额外引入。
+**顶部站点导航组件**：内置 shenzjd.com 系列子站链接，按当前 host 自动高亮当前站；桌面端居中链接 + 右侧头像，移动端（<768px）折叠为 hamburger 下拉菜单。头像运行时动态加载 `<user-avatar>` Web Component（默认 unpkg `@latest`），user-avatar 发版后自动跟上，无需重新发布本组件。
 
 适用于个人站群、博客、文档站等需要「统一导航 + 账号登录」的页面。
 
@@ -8,7 +8,7 @@
 
 - 🧭 内置 shenzjd.com 系列子站链接（AI情报局 / 网盘搜索 / 视频解析 / 热点聚合 / 导航森林 / 必应壁纸），可用 `links` 覆盖
 - 🎯 按 `location.hostname` **自动高亮当前站**（host 精确匹配，匹配不上则不高亮任何链接），也可用 `active` 强制指定；高亮样式仅为文字变色
-- 👤 **内置 user-avatar**（微信登录头像），已随构建打包，一行引入即带登录能力
+- 👤 **内置 user-avatar**（微信登录头像）：运行时动态加载最新版 Web Component，头像组件发版即自动生效，导航栏无需跟随发版
 - 📱 移动端（<768px）折叠为 hamburger 下拉菜单，`position: fixed` portal 挂载，玻璃拟态
 - 🌗 默认**深浅色自动适配**（`light-dark()`）：宿主页面声明 `color-scheme: light / dark` 时跟随宿主配色，未声明时跟随系统，无需任何配置
 - 📏 导航栏自带**底部分隔线**（`--sn-border` 控制，随深浅色切换），无需宿主额外画线
@@ -35,7 +35,7 @@ pnpm add @wu529778790/site-navbar
   WxAuth.init({ silent: true, required: false })
 </script>
 
-<!-- 2. 再引入本组件（头像已内置，无需再引 user-avatar） -->
+<!-- 2. 再引入本组件（头像由本组件运行时自动加载最新版，无需再引 user-avatar） -->
 <script src="https://unpkg.com/@wu529778790/site-navbar@latest/dist/site-navbar.wc.js"></script>
 
 <!-- 3. 页面放一个标签即出现整条导航 -->
@@ -100,6 +100,7 @@ nav.unmount()
 | `brand` | `string` | — | 品牌文本（显示在导航左侧） |
 | `brand-icon` | `string` | — | 品牌图标（emoji / SVG / 任意 HTML） |
 | `avatar` | `boolean` | `true` | 是否渲染头像（user-avatar） |
+| `avatar-src` | `string` | unpkg `@latest` | 运行时加载的 `<user-avatar>` 脚本地址（如指向自身 CDN） |
 | `links` | `string` | 内置默认 | JSON 数组字符串，如 `[{"href":"...","label":"..."}]` |
 | `theme-primary` | `string` | 随系统* | 主文字色（品牌 / hover 文字） |
 | `theme-secondary` | `string` | 随系统* | 次要文字色（默认链接） |
@@ -125,7 +126,7 @@ nav.unmount()
 | `links` | `SiteNavbarLink[]` | 内置默认 | 链接列表 |
 | `brand` | `SiteNavbarBrand \| null` | `null` | 品牌区（不传不渲染，链接纯居中） |
 | `avatar` | `boolean` | `true` | 是否渲染头像 |
-| `avatarOptions` | `UserAvatarOptions` | — | 透传给 user-avatar（`fixed` 强制为 `false` 以嵌入导航栏） |
+| `avatarOptions` | `SiteNavbarAvatarOptions` | — | 透传给 user-avatar（`fixed` 强制为 `false` 以嵌入导航栏）；`src` 可覆盖头像脚本地址 |
 | `theme` | `SiteNavbarTheme` | 默认主题 | 主题（映射 `--sn-*` 变量） |
 | `breakpoint` | `number` | `768` | 移动端断点（px） |
 | `portalEl` | `HTMLElement` | `document.body` | 移动菜单 portal 挂载容器（通常无需配置） |
@@ -156,6 +157,21 @@ nav.unmount()
 | `unmount()` | 卸载并销毁（解绑事件、移除 portal 菜单） |
 | `destroy()` | 同 `unmount()` |
 | `static check()` | 环境检查：头像 SDK 缺失时返回提示（不影响导航本体渲染） |
+
+## 头像（user-avatar）：始终最新，无需联动发版
+
+右侧头像不再打包进本组件，而是运行时动态加载 `<user-avatar>` Web Component（默认 `https://unpkg.com/@wu529778790/user-avatar@latest/dist/user-avatar.wc.js`）：
+
+- **自动跟随最新版**：user-avatar 每次发版（push 到 main 后 CI 自动发布 npm），所有接入站点的导航栏头像即刻用上新版，site-navbar **无需重新构建/发布**；
+- **已加载则不重复加载**：页面已引入 `user-avatar.wc.js` 或聚合版 `widgets.js` 时，导航栏直接复用已注册的元素；
+- **失败不影响导航**：头像脚本加载失败（如内网无外网）只会在控制台告警并留空头像区，导航本体不受影响；
+- **可指定脚本地址**：国内直连 unpkg 慢、或希望锁定版本时，用 `avatarOptions.src`（JS API）或 `avatar-src` 属性覆盖：
+
+```html
+<site-navbar avatar-src="https://cdn.jsdmirror.com/gh/wu529778790/components@main/cdn/user-avatar.wc.js"></site-navbar>
+```
+
+前置条件不变：页面需自行引入 `wx-auth-sdk` 并 `WxAuth.init()`（登录能力依赖它）。
 
 ## 自定义主题
 

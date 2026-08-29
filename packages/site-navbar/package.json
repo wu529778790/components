@@ -1,7 +1,7 @@
 {
   "name": "@wu529778790/site-navbar",
   "version": "0.1.15",
-  "description": "A zero-dependency site top navigation web component: glass sub-site links with auto current-host highlight, responsive hamburger menu, and built-in user avatar.",
+  "description": "A zero-dependency site top navigation web component: glass sub-site links with auto current-host highlight, responsive hamburger menu, and a runtime-loaded always-latest user avatar.",
   "type": "module",
   "main": "./dist/index.umd.cjs",
   "module": "./dist/index.esm.js",

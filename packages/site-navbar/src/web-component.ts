@@ -7,10 +7,16 @@
  *   3. 全局配置：window.__SITE_NAVBAR_OPTIONS__ = { links: [...], avatarOptions: {...}, theme: {...} }
  *      （属性优先级高于全局配置）
  *
- * 注意：头像（user-avatar）已打包进本组件，无需再引入 user-avatar.wc.js。
+ * 注意：右侧头像运行时动态加载 <user-avatar> Web Component（默认 unpkg @latest），
+ * user-avatar 发版后自动跟上，无需重新发布本组件；页面需自行引入 wx-auth-sdk 并 init。
+ * 可用 avatar-src 属性 / avatarOptions.src 指定头像脚本地址（如自身 CDN）。
  * 样式内联进 shadow DOM，外部可通过 :host 上的 --sn-* 变量定制。
  */
-import { SiteNavbar, type SiteNavbarOptions } from './SiteNavbar'
+import {
+  SiteNavbar,
+  type SiteNavbarAvatarOptions,
+  type SiteNavbarOptions
+} from './SiteNavbar'
 import type { SiteNavbarBrand, SiteNavbarLink, SiteNavbarTheme } from './types'
 import styles from './styles.css'
 
@@ -46,6 +52,7 @@ export class SiteNavbarElement extends HTMLElement {
       'brand',
       'brand-icon',
       'avatar',
+      'avatar-src',
       'links',
       ...THEME_ATTRS.map(([attr]) => attr)
     ]
@@ -116,11 +123,19 @@ export class SiteNavbarElement extends HTMLElement {
       }
     }
 
+    // avatar-src 属性：覆盖运行时加载的 <user-avatar> 脚本地址（如指向自身 CDN）
+    let avatarOptions: SiteNavbarAvatarOptions | undefined = global.avatarOptions
+    const avatarSrc = get('avatar-src')
+    if (avatarSrc !== null) {
+      avatarOptions = { ...(avatarOptions ?? {}), src: avatarSrc }
+    }
+
     return {
       ...global,
       links,
       brand,
       avatar: boolAttr(this, 'avatar', global.avatar ?? true),
+      avatarOptions,
       theme: { ...(global.theme ?? {}), ...theme },
       onNavigate: global.onNavigate
     }

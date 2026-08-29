@@ -94,6 +94,22 @@ avatar.unmount()              // 卸载
 
 也可直接覆盖 CSS 变量：`--ua-btn-bg` `--ua-size` `--ua-accent` `--ua-btn-border` `--ua-radius` `--ua-bg` `--ua-text` `--ua-sub` `--ua-overlay` `--ua-danger` `--ua-success`。
 
+### 程序化传参：`el.props`（优先级最高）
+
+回调、SDK 实例等复杂对象无法走标签属性，可用 JS 属性 `props` 传入完整配置。优先级：`props` > 标签属性 > `window.__USER_AVATAR_OPTIONS__`：
+
+```html
+<user-avatar id="ua" fixed></user-avatar>
+<script>
+  document.getElementById('ua').props = {
+    apiBase: 'https://api.example.com',
+    onLogin: (user) => console.log('登录成功', user)
+  }
+</script>
+```
+
+宿主组件嵌入场景（如 site-navbar）即在脚本加载前/后设置 `props`，元素升级后自动生效。
+
 ## JS API（NPM 用法）
 
 ```ts

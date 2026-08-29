@@ -4,14 +4,14 @@
  * 功能：
  *   - 内置 shenzjd.com 系列子站链接（可用 links 覆盖），按当前 host 自动高亮当前站
  *   - 桌面端居中链接 + 右侧头像；移动端折叠为 hamburger 下拉菜单
- *   - 内置 user-avatar（微信登录头像，已随构建打包，无需额外引入）
+ *   - 右侧头像运行时动态加载 <user-avatar> Web Component（默认 unpkg @latest）：
+ *     user-avatar 发版后导航栏自动跟上，无需重新构建/发布本组件
  *
- * 零运行时依赖，原生 DOM。样式 --sn-* CSS 变量驱动（见 src/styles.css）。
+ * 零构建期依赖，原生 DOM。样式 --sn-* CSS 变量驱动（见 src/styles.css）。
  *
  * @param container 渲染容器（HTMLElement 或 Web Component 的 shadow root），默认 document.body
  */
-import { UserAvatar, type UserAvatarOptions } from '@wu529778790/user-avatar'
-import uaStyles from '@wu529778790/user-avatar/style.css'
+import type { UserAvatarOptions } from '@wu529778790/user-avatar'
 import styles from './styles.css'
 import type { SiteNavbarBrand, SiteNavbarLink, SiteNavbarTheme } from './types'
 import { CLOSE_ICON, HAMBURGER_ICON, escapeAttr, matchCurrentHost } from './utils'
@@ -36,6 +36,15 @@ export const DEFAULT_BRAND: SiteNavbarBrand = {
   text: '神族九帝'
 }
 
+export interface SiteNavbarAvatarOptions extends UserAvatarOptions {
+  /**
+   * <user-avatar> Web Component 脚本地址（运行时动态加载的头像实现）。
+   * 缺省 unpkg @latest——user-avatar 每次发版，导航栏头像自动更新，
+   * 无需重新发布 site-navbar。内网/国内直连 unpkg 慢时可指向自身 CDN。
+   */
+  src?: string
+}
+
 export interface SiteNavbarOptions {
   /** 链接列表（缺省用内置默认） */
   links?: SiteNavbarLink[]
@@ -43,8 +52,8 @@ export interface SiteNavbarOptions {
   brand?: SiteNavbarBrand | null
   /** 是否渲染头像，默认 true */
   avatar?: boolean
-  /** 头像配置（透传给 @wu529778790/user-avatar；fixed 强制为 false 以嵌入导航栏） */
-  avatarOptions?: UserAvatarOptions
+  /** 头像配置（透传给运行时加载的 <user-avatar>；fixed 强制为 false 以嵌入导航栏） */
+  avatarOptions?: SiteNavbarAvatarOptions
   /** 主题（映射 --sn-* CSS 变量） */
   theme?: SiteNavbarTheme
   /** 移动端断点（px），默认 768 */
@@ -65,7 +74,7 @@ interface ResolvedOptions {
   links: SiteNavbarLink[]
   brand: SiteNavbarBrand | null
   avatar: boolean
-  avatarOptions: UserAvatarOptions
+  avatarOptions: SiteNavbarAvatarOptions
   theme: Required<SiteNavbarTheme>
   breakpoint: number
   portalEl: HTMLElement
@@ -74,6 +83,47 @@ interface ResolvedOptions {
 
 /** 头像默认尺寸（与 avatarOptions 默认 size 保持同步） */
 const AVATAR_DEFAULT_SIZE = '2.2rem'
+
+const AVATAR_TAG = 'user-avatar'
+
+/** 运行时加载的 <user-avatar> 实现（@latest：user-avatar 发版即自动生效） */
+const AVATAR_WC_SRC = 'https://unpkg.com/@wu529778790/user-avatar@latest/dist/user-avatar.wc.js'
+
+/** 头像脚本加载超时（ms），超时视为失败（只影响头像区，不影响导航本体） */
+const AVATAR_LOAD_TIMEOUT = 15000
+
+/**
+ * 确保 <user-avatar> custom element 已就绪：
+ * 已定义（页面已引 user-avatar.wc.js / widgets.js）直接返回；
+ * 否则动态注入 <script src=...>（默认 unpkg @latest）。全页共享一次加载，
+ * 多实例导航栏不会重复注入。返回是否可用，失败允许下次重试。
+ */
+let avatarWcPromise: Promise<boolean> | null = null
+
+function ensureUserAvatarElement(src?: string): Promise<boolean> {
+  if (customElements.get(AVATAR_TAG)) return Promise.resolve(true)
+  if (!avatarWcPromise) {
+    avatarWcPromise = new Promise<boolean>((resolve) => {
+      const script = document.createElement('script')
+      script.src = src || AVATAR_WC_SRC
+      script.async = true
+      script.onload = () => {
+        const defined = customElements.whenDefined(AVATAR_TAG).then(
+          () => true,
+          () => false
+        )
+        const timeout = new Promise<false>((r) => setTimeout(() => r(false), AVATAR_LOAD_TIMEOUT))
+        void Promise.race([defined, timeout]).then(resolve)
+      }
+      script.onerror = () => resolve(false)
+      ;(document.head || document.documentElement).appendChild(script)
+    })
+  }
+  return avatarWcPromise.then((ok) => {
+    if (!ok) avatarWcPromise = null
+    return ok
+  })
+}
 
 /**
  * 默认主题（颜色均用 light-dark(浅色, 深色) 包裹，颜色随宿主页面声明的
@@ -98,7 +148,8 @@ export class SiteNavbar {
   private readonly container: HTMLElement | ShadowRoot
   private readonly opts: ResolvedOptions
 
-  private avatar: UserAvatar | null = null
+  /** <user-avatar> 元素（脚本就绪后自动升级渲染；卸载时直接 remove） */
+  private avatarEl: HTMLElement | null = null
   private toggleEl: HTMLElement | null = null
   private mobileEl: HTMLElement | null = null
   private mobileOpen = false
@@ -115,7 +166,11 @@ export class SiteNavbar {
 
   /** 环境检查：头像 SDK 缺失时返回提示（不影响导航本体渲染） */
   static check(): string | null {
-    return UserAvatar.check()
+    // 头像已解耦为运行时 Web Component：元素已定义时优先用它的实现
+    const Ctor = customElements.get(AVATAR_TAG) as unknown as { check?: () => string | null } | undefined
+    if (Ctor && typeof Ctor.check === 'function') return Ctor.check()
+    const sdk = (window as unknown as { WxAuth?: unknown }).WxAuth
+    return sdk ? null : '未检测到微信认证 SDK（window.WxAuth），请先引入 wx-auth-sdk 并调用 WxAuth.init()'
   }
 
   /** 挂载到页面 */
@@ -132,14 +187,6 @@ export class SiteNavbar {
     }
     this.applyTheme()
     this.render()
-    // user-avatar 以类方式（new UserAvatar）嵌入时不会自动注入自身样式
-    // （单独用 <user-avatar> custom element 才会注入）。这里把它的完整
-    // 样式一并注入本组件（render 之后再注入，避免被 render 的 innerHTML='' 清空），
-    // 保证头像、下拉菜单、设置弹窗样式正常。
-    const style = document.createElement('style')
-    style.setAttribute('data-ua-styles', '')
-    style.textContent = uaStyles
-    this.root.appendChild(style)
     return this
   }
 
@@ -149,8 +196,8 @@ export class SiteNavbar {
   }
 
   destroy(): void {
-    this.avatar?.unmount()
-    this.avatar = null
+    this.avatarEl?.remove()
+    this.avatarEl = null
     if (this.mobileEl && this.mobileEl.parentElement) {
       this.mobileEl.parentElement.removeChild(this.mobileEl)
     }
@@ -223,13 +270,23 @@ export class SiteNavbar {
     }
     bar.appendChild(nav)
 
-    // 头像（user-avatar 渲染到独立容器）
+    // 头像（<user-avatar> 运行时加载最新版，脚本就绪前先占位、升级后自动渲染）
     if (this.opts.avatar) {
       const host = document.createElement('div')
       host.className = 'sn-avatar'
       bar.appendChild(host)
-      this.avatar = new UserAvatar(this.opts.avatarOptions, host)
-      this.avatar.mount()
+      const el = document.createElement(AVATAR_TAG) as HTMLElement & { props?: UserAvatarOptions }
+      const { src, ...avatarOptions } = this.opts.avatarOptions
+      el.props = avatarOptions
+      host.appendChild(el)
+      this.avatarEl = el
+      void ensureUserAvatarElement(src).then((ok) => {
+        if (!ok) {
+          console.warn(
+            `[site-navbar] <user-avatar> 加载失败，头像未渲染：${src || AVATAR_WC_SRC}`
+          )
+        }
+      })
     }
 
     // 移动端 hamburger
