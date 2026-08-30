@@ -11,6 +11,8 @@ export interface WxUserInfo {
   unionid: string | null
   nickname: string | null
   headimgurl: string | null
+  /** 后端统一头像地址（/api/avatar/{openid}，后端代理/生成，恒可解析出图片） */
+  avatarUrl: string | null
   authenticatedAt: string
   status: string
   role: string

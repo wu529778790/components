@@ -3,7 +3,7 @@
  *
  * 交互流程：
  *   - 未登录：默认人形头像，点击 → 弹微信订阅号认证登录窗（走 sdk.requireAuth）
- *   - 已登录：真实头像（微信 > GitHub > 昵称首字母），Hover/点击 → 下拉菜单（设置 / 退出登录）
+ *   - 已登录：真实头像（后端 avatarUrl > 微信 headimgurl > GitHub > 昵称首字母），Hover/点击 → 下拉菜单（设置 / 退出登录）
  *   - 设置弹窗：头像昵称 + openid、绑定/解绑 GitHub、修改昵称
  *
  * 零运行时依赖，原生 DOM。样式 --ua-* CSS 变量驱动（见 src/styles.css）。
@@ -551,7 +551,7 @@ export class UserAvatar {
       // 未登录：圆形按钮内显示「登录」文字（字号自适应 --ua-size），比灰色人形图标更明确
       return '<span class="ua-avatar-login">登录</span>'
     }
-    const src = this.user.headimgurl || this.user.github?.avatar || ''
+    const src = this.user.avatarUrl || this.user.headimgurl || this.user.github?.avatar || ''
     if (src) return `<img class="ua-avatar-img" src="${escapeAttr(src)}" alt="" referrerpolicy="no-referrer" />`
     const name = this.user.nickname || this.user.github?.login || '微信用户'
     return `<span class="ua-avatar-fallback">${escapeHtml(name.charAt(0).toUpperCase())}</span>`
@@ -747,7 +747,7 @@ export class UserAvatar {
   }
 
   private buildSettingsHtml(u: WxUserInfo): string {
-    const avatarSrc = u.headimgurl || u.github?.avatar
+    const avatarSrc = u.avatarUrl || u.headimgurl || u.github?.avatar
     const bigAvatar = avatarSrc
       ? `<img class="ua-big-avatar" src="${escapeAttr(avatarSrc)}" alt="" referrerpolicy="no-referrer" />`
       : `<div class="ua-big-avatar ua-big-avatar-fallback">${escapeHtml((u.nickname || u.github?.login || '?').charAt(0).toUpperCase())}</div>`
