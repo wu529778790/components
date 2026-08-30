@@ -1,4 +1,4 @@
-/* @wu529778790/site-navbar v0.1.15 */
+/* @wu529778790/site-navbar v0.1.16 */
 "use strict";
 (() => {
   // src/styles.css

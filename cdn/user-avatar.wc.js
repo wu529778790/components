@@ -1,4 +1,4 @@
-/* @wu529778790/user-avatar v0.1.20 */
+/* @wu529778790/user-avatar v0.1.22 */
 "use strict";
 (() => {
   // src/wx-auth.ts
@@ -1305,7 +1305,7 @@
       if (!this.user) {
         return '<span class="ua-avatar-login">\u767B\u5F55</span>';
       }
-      const src = this.user.headimgurl || ((_a = this.user.github) == null ? void 0 : _a.avatar) || "";
+      const src = this.user.avatarUrl || this.user.headimgurl || ((_a = this.user.github) == null ? void 0 : _a.avatar) || "";
       if (src) return `<img class="ua-avatar-img" src="${escapeAttr(src)}" alt="" referrerpolicy="no-referrer" />`;
       const name = this.user.nickname || ((_b = this.user.github) == null ? void 0 : _b.login) || "\u5FAE\u4FE1\u7528\u6237";
       return `<span class="ua-avatar-fallback">${escapeHtml(name.charAt(0).toUpperCase())}</span>`;
@@ -1400,7 +1400,7 @@
           <button type="button" class="ua-close" data-action="cancel" aria-label="\u5173\u95ED">${CLOSE_ICON}</button>
         </div>
         <div class="ua-dialog-body">
-          <p class="ua-confirm-text">\u786E\u5B9A\u8981\u9000\u51FA\u767B\u5F55\u5417\uFF1F\u9000\u51FA\u540E\u9700\u8981\u91CD\u65B0\u9A8C\u8BC1\u624D\u80FD\u7EE7\u7EED\u4F7F\u7528\u3002</p>
+          <p class="ua-confirm-text">\u786E\u5B9A\u8981\u9000\u51FA\u767B\u5F55\u5417\uFF1F\u9000\u51FA\u540E\u9700\u8981\u91CD\u65B0\u767B\u5F55\u624D\u80FD\u7EE7\u7EED\u4F7F\u7528\u3002</p>
         </div>
         <div class="ua-confirm-actions">
           <button type="button" class="ua-confirm-btn" data-action="cancel">\u53D6\u6D88</button>
@@ -1467,7 +1467,7 @@
     }
     buildSettingsHtml(u) {
       var _a, _b;
-      const avatarSrc = u.headimgurl || ((_a = u.github) == null ? void 0 : _a.avatar);
+      const avatarSrc = u.avatarUrl || u.headimgurl || ((_a = u.github) == null ? void 0 : _a.avatar);
       const bigAvatar = avatarSrc ? `<img class="ua-big-avatar" src="${escapeAttr(avatarSrc)}" alt="" referrerpolicy="no-referrer" />` : `<div class="ua-big-avatar ua-big-avatar-fallback">${escapeHtml((u.nickname || ((_b = u.github) == null ? void 0 : _b.login) || "?").charAt(0).toUpperCase())}</div>`;
       const githubBlock = u.github ? `
         <div class="ua-github-bound">
