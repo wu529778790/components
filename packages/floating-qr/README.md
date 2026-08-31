@@ -1,8 +1,8 @@
 # @wu529778790/floating-qr
 
-极简、零依赖的浮窗组件：在网站右侧展示「公众号二维码」（赞赏码可选），关闭后刷新页面自动重新出现。
+极简、零依赖的浮窗组件：在网站右侧展示「公众号二维码」+「小程序」，关闭后刷新页面自动重新出现。
 
-适用于博客、文档站、个人网站等任何需要「涨粉 + 打赏」双驱动的页面。赞赏码区块默认不渲染，显式传入 `donate` 配置（或 `donate-*` 属性）后显示。
+适用于博客、文档站、个人网站等任何需要「涨粉 + 打赏」双驱动的页面。小程序区块默认渲染，可通过 `donate` 配置（或 `donate-*` 属性）自定义。
 
 ## 特性
 
@@ -26,7 +26,7 @@ pnpm add @wu529778790/floating-qr
 
 ```html
 <script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/floating-qr.wc.js"></script>
-<!-- 无需任何标签/JS，自动注入默认公众号浮窗（赞赏码通过 donate-* 配置开启） -->
+<!-- 无需任何标签/JS，自动注入默认公众号 + 小程序浮窗 -->
 ```
 
 ### 方式二：声明式标签（按需定制，属性即时热更新）
@@ -36,7 +36,7 @@ pnpm add @wu529778790/floating-qr
   position="left-bottom"
   theme-accent="#e04040"
   wechat-title="公众号"
-  donate-title="赞赏码">
+  donate-title="小程序">
 </floating-qr>
 <script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/floating-qr.wc.js"></script>
 ```
@@ -47,7 +47,7 @@ pnpm add @wu529778790/floating-qr
 <script>
   window.__FLOATING_QR_OPTIONS__ = {
     wechat: { src: 'https://.../wechat.jpg', title: '公众号' },
-    donate: { src: 'https://.../donate.png', title: '赞赏码' },
+    donate: { src: 'https://.../miniprogram.png', title: '小程序' },
     theme: { bg: '#fff', accent: '#333' }
   }
 </script>
@@ -65,7 +65,7 @@ pnpm add @wu529778790/floating-qr
 import FloatingQR from '@wu529778790/floating-qr'
 import '@wu529778790/floating-qr/style.css'
 
-new FloatingQR() // 直接使用内置公众号二维码（赞赏码可选，见下）
+new FloatingQR() // 直接使用内置公众号二维码 + 小程序
 ```
 
 ## Web Component 属性
@@ -81,8 +81,8 @@ new FloatingQR() // 直接使用内置公众号二维码（赞赏码可选，见
 | `wechat-src` | `string` | 内置公众号二维码图 | 公众号二维码图片 URL |
 | `wechat-title` | `string` | `'公众号'` | 公众号区块标题 |
 | `wechat-desc` | `string` | `''` | 副文案，不传不显示 |
-| `donate-src` | `string` | 不渲染（设置后用内置赞赏码图） | 赞赏码图片 URL |
-| `donate-title` | `string` | `'赞赏码'` | 赞赏码区块标题 |
+| `donate-src` | `string` | 内置小程序图 | 小程序图片 URL |
+| `donate-title` | `string` | `'小程序'` | 小程序区块标题 |
 | `donate-desc` | `string` | `''` | 副文案，不传不显示 |
 | `link-hrefs` | `string` | - | 社交链接 URL 列表，逗号分隔；自动按域名匹配内置图标 |
 | `theme-bg` | `string` | 半透明白 | 背景色 |
@@ -91,7 +91,7 @@ new FloatingQR() // 直接使用内置公众号二维码（赞赏码可选，见
 | `theme-border` | `string` | `rgba(0,0,0,.1)` | 边框色 |
 
 > 样式已隔离在 shadow DOM，外部可用 `--fq-*` 变量覆盖（见下文「自定义主题」）。
-> 赞赏码区块默认不渲染：设置任一 `donate-*` 属性后显示（图片留空用内置赞赏码图）。
+> 小程序区块默认渲染：设置任一 `donate-*` 属性可自定义（图片留空用内置小程序图）。
 
 ## JS API（NPM 双轨）
 
@@ -105,9 +105,9 @@ new FloatingQR() // 直接使用内置公众号二维码（赞赏码可选，见
 | `wechat.src` | `string` | 内置公众号二维码图 | 公众号二维码图片 URL |
 | `wechat.title` | `string` | `'公众号'` | 公众号区块标题 |
 | `wechat.desc` | `string` | `''` | 副文案，不传不显示 |
-| `donate` | `FloatingQRBlock` | 默认不渲染 | 赞赏码区块，传入后显示 |
-| `donate.src` | `string` | 内置赞赏码图 | 赞赏码图片 URL |
-| `donate.title` | `string` | `'赞赏码'` | 赞赏码区块标题 |
+| `donate` | `FloatingQRBlock` | 内置小程序 | 小程序区块，默认渲染 |
+| `donate.src` | `string` | 内置小程序图 | 小程序图片 URL |
+| `donate.title` | `string` | `'小程序'` | 小程序区块标题 |
 | `donate.desc` | `string` | `''` | 副文案，不传不显示 |
 | `position` | `Position` | `'right-center'` | `right-bottom` / `right-top` / `right-center` / `left-bottom` / `left-top` / `left-center` |
 | `closePersistence` | `boolean` | `false` | `true` 时关闭写入 localStorage，刷新不再出现 |

@@ -65,12 +65,12 @@ w.close()
 assert(w.isMounted() === false, 'close() unmounts')
 assert(localStorage.getItem('floating-qr:closed') === null, 'no persistence by default')
 
-// 4. zero-config uses default wechat image; donate section hidden unless opted in
+// 4. zero-config uses default wechat + mini-program (donate) images
 const wZero = new FQ()
 assert(wZero.isMounted(), 'zero-config mounts')
 assert(lastAppended.innerHTML.includes('1782738963299-5wrchz.jpg'), 'default wechat QR used')
-assert(lastAppended.innerHTML.includes('fq-divider') === false, 'donate section hidden by default')
-assert(lastAppended.innerHTML.includes('imgx-20260817-165134-105w.png') === false, 'default donate QR not rendered')
+assert(lastAppended.innerHTML.includes('fq-divider'), 'donate section rendered by default')
+assert(lastAppended.innerHTML.includes('imgx-20260828-153016-d3e9.jpg'), 'default mini-program QR used')
 
 // 5. custom src overrides defaults
 const wCustom = new FQ({ wechat: { src: 'custom-wx.png' }, donate: { src: 'custom-dz.png' } })

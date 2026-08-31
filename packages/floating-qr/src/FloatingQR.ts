@@ -7,7 +7,7 @@ export type Position =
   | 'left-center'
 
 export interface FloatingQRBlock {
-  /** 二维码图片 URL（可选，缺省使用组件内置的公众号/赞赏码默认图） */
+  /** 二维码图片 URL（可选，缺省使用组件内置的公众号/小程序默认图） */
   src?: string
   /** 区块标题文案 */
   title?: string
@@ -39,7 +39,7 @@ export interface FloatingQRLink {
 export interface FloatingQROptions {
   /** 公众号区块（可选，缺省使用默认公众号二维码） */
   wechat?: FloatingQRBlock
-  /** 赞赏码区块（可选，默认不渲染；显式传入后显示在公众号下方） */
+  /** 小程序区块（可选，默认渲染；显示在公众号下方） */
   donate?: FloatingQRBlock
   /** 浮窗位置，默认 right-center */
   position?: Position
@@ -51,14 +51,14 @@ export interface FloatingQROptions {
   zIndex?: number
   /** 主题（映射为 CSS 变量，也可直接覆盖 --fq-* 变量） */
   theme?: FloatingQRTheme
-  /** 底部社交链接（公众号/赞赏码下方），如 Telegram、GitHub、X */
+  /** 底部社交链接（公众号/小程序下方），如 Telegram、GitHub、X */
   links?: FloatingQRLink[]
 }
 
 interface ResolvedOptions {
   wechat: Required<FloatingQRBlock>
-  /** null = 不渲染赞赏区块 */
-  donate: Required<FloatingQRBlock> | null
+  /** 小程序区块（默认渲染） */
+  donate: Required<FloatingQRBlock>
   position: Position
   closePersistence: boolean
   hideOnMobile: boolean
@@ -75,10 +75,10 @@ const DEFAULT_BLOCKS: Record<'wechat' | 'donate', Required<FloatingQRBlock>> = {
     title: '公众号',
     desc: ''
   },
-  // 赞赏码默认不展示（仅在显式传入 donate 时使用这套默认图；后续可能整体换成小程序码）
+  // 小程序区块（默认渲染；已由赞赏码换成小程序）
   donate: {
-    src: 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260817-165134-105w.png',
-    title: '赞赏码',
+    src: 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260828-153016-d3e9.jpg',
+    title: '小程序',
     desc: ''
   }
 }
@@ -222,7 +222,7 @@ export class FloatingQR {
 
     return {
       wechat: block(options.wechat, 'wechat'),
-      donate: options.donate ? block(options.donate, 'donate') : null,
+      donate: block(options.donate, 'donate'),
       position: options.position ?? 'right-center',
       closePersistence: options.closePersistence ?? false,
       hideOnMobile: options.hideOnMobile ?? true,

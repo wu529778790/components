@@ -8,7 +8,7 @@
 
 | 包 | 说明 | 状态 |
 | --- | --- | --- |
-| [`@wu529778790/floating-qr`](./packages/floating-qr) | 公众号 + 赞赏码浮窗 | ✅ 已发布可用 |
+| [`@wu529778790/floating-qr`](./packages/floating-qr) | 公众号 + 小程序浮窗 | ✅ 已发布可用 |
 | [`@wu529778790/floating-modal`](./packages/floating-modal) | 赞助 / 公告弹窗 | ✅ 已发布可用 |
 | [`@wu529778790/user-avatar`](./packages/user-avatar) | 右上角头像账号组件（微信登录 / GitHub 绑定 / 设置面板） | ✅ 已发布可用 |
 | [`@wu529778790/site-navbar`](./packages/site-navbar) | 顶部站点导航（内置子站链接 + 头像登录） | ✅ 已发布可用 |

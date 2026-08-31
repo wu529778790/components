@@ -1,4 +1,4 @@
-/* @wu529778790/floating-qr v0.1.11 */
+/* @wu529778790/floating-qr v0.1.12 */
 "use strict";
 (() => {
   // src/FloatingQR.ts
@@ -8,10 +8,10 @@
       title: "\u516C\u4F17\u53F7",
       desc: ""
     },
-    // 赞赏码默认不展示（仅在显式传入 donate 时使用这套默认图；后续可能整体换成小程序码）
+    // 小程序区块（默认渲染；已由赞赏码换成小程序）
     donate: {
-      src: "https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260817-165134-105w.png",
-      title: "\u8D5E\u8D4F\u7801",
+      src: "https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260828-153016-d3e9.jpg",
+      title: "\u5C0F\u7A0B\u5E8F",
       desc: ""
     }
   };
@@ -126,7 +126,7 @@
       };
       return {
         wechat: block(options.wechat, "wechat"),
-        donate: options.donate ? block(options.donate, "donate") : null,
+        donate: block(options.donate, "donate"),
         position: (_a = options.position) != null ? _a : "right-center",
         closePersistence: (_b = options.closePersistence) != null ? _b : false,
         hideOnMobile: (_c = options.hideOnMobile) != null ? _c : true,

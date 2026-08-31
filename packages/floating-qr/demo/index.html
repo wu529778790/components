@@ -114,7 +114,7 @@
 <body>
   <header>
     <h1>floating-qr 演示站 <span class="badge">&lt;floating-qr&gt; Web Component</span></h1>
-    <p>极简 · 零依赖 · 公众号 + 赞赏码（可选）浮窗。右侧悬浮卡片即组件实例，面板改参数即时热更新。</p>
+    <p>极简 · 零依赖 · 公众号 + 小程序浮窗。右侧悬浮卡片即组件实例，面板改参数即时热更新。</p>
   </header>
 
   <main>
@@ -167,17 +167,17 @@
         <input type="text" id="wechatTitle" value="公众号" />
       </div>
       <div class="field">
-        <label for="donateTitle">赞赏码标题</label>
-        <input type="text" id="donateTitle" value="" placeholder="赞赏码" />
-        <div class="hint">赞赏码默认不展示：赞赏码 URL / 标题都留空时整个区块不渲染</div>
+        <label for="donateTitle">小程序标题</label>
+        <input type="text" id="donateTitle" value="" placeholder="小程序" />
+        <div class="hint">小程序默认展示：URL / 标题留空时使用内置默认小程序图</div>
       </div>
       <div class="field">
         <label for="wechatSrc">公众号二维码 URL（留空用默认图）</label>
         <input type="text" id="wechatSrc" placeholder="留空使用内置默认图" />
       </div>
       <div class="field">
-        <label for="donateSrc">赞赏码 URL（填了才显示赞赏码区块）</label>
-        <input type="text" id="donateSrc" placeholder="留空则不显示赞赏码" />
+        <label for="donateSrc">小程序 URL（留空用默认图）</label>
+        <input type="text" id="donateSrc" placeholder="留空使用内置默认小程序图" />
       </div>
       <div class="field">
         <label style="font-weight:400; font-size:13px;">
@@ -193,14 +193,14 @@
 
       <h3>方式一：CDN 一行引入（零配置，自动出现默认浮窗）</h3>
       <pre><code>&lt;script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/floating-qr.wc.js"&gt;&lt;/script&gt;
-&lt;!-- 无需任何标签/JS，自动注入默认公众号浮窗（赞赏码通过 donate-* 配置开启） --&gt;</code></pre>
+&lt;!-- 无需任何标签/JS，自动注入默认公众号 + 小程序浮窗 --&gt;</code></pre>
 
       <h3>方式二：声明式标签（按需定制，属性即时热更新）</h3>
       <pre><code>&lt;floating-qr
   position="left-bottom"
   theme-accent="#e04040"
   wechat-title="公众号"
-  donate-title="赞赏码"&gt;
+  donate-title="小程序"&gt;
 &lt;/floating-qr&gt;
 &lt;script src="https://unpkg.com/@wu529778790/floating-qr@latest/dist/floating-qr.wc.js"&gt;&lt;/script&gt;</code></pre>
 
@@ -208,7 +208,7 @@
       <pre><code>&lt;script&gt;
   window.__FLOATING_QR_OPTIONS__ = {
     wechat: { src: 'https://.../wechat.jpg', title: '公众号' },
-    donate: { src: 'https://.../donate.png', title: '赞赏码' },
+    donate: { src: 'https://.../miniprogram.png', title: '小程序' },
     theme: { bg: '#fff', accent: '#333' }
   }
 &lt;/script&gt;
