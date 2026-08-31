@@ -27,22 +27,15 @@ pnpm add @wu529778790/site-navbar
 ### 方式一：CDN 一行引入（零配置，自动出现整条导航）
 
 ```html
-<!-- 1. 先引入 wx-auth-sdk（头像登录依赖它） -->
-<script src="https://unpkg.com/wx-auth-sdk/dist/wx-auth.umd.js"></script>
-<script>
-  // silent:true = 加载时只静默校验登录态、绝不自动弹登录窗
-  // required:false = 可选认证：弹窗带 × 关闭按钮
-  WxAuth.init({ silent: true, required: false })
-</script>
-
-<!-- 2. 再引入本组件（头像由本组件运行时自动加载最新版，无需再引 user-avatar） -->
+<!-- 只需引入本组件一条 JS：wx-auth-sdk 由组件内部自动加载并静默 init，
+     无需手动引入 SDK、也无需写 WxAuth.init() -->
 <script src="https://unpkg.com/@wu529778790/site-navbar@latest/dist/site-navbar.wc.js"></script>
 
-<!-- 3. 页面放一个标签即出现整条导航 -->
+<!-- 页面放一个标签即出现整条导航 -->
 <site-navbar></site-navbar>
 ```
 
-> 备选 CDN（GitHub 直连，push 即生效）：`https://cdn.jsdmirror.com/gh/wu529778790/components@main/cdn/site-navbar.wc.js`
+> 备选 CDN（GitHub 镜像，push 即生效）：`https://cdn.jsdmirror.com/gh/wu529778790/components@main/cdn/site-navbar.wc.js`
 
 ### 方式二：声明式属性
 
@@ -102,6 +95,7 @@ nav.unmount()
 | `avatar` | `boolean` | `true` | 是否渲染头像（user-avatar） |
 | `avatar-src` | `string` | unpkg `@latest` | 运行时加载的 `<user-avatar>` 脚本地址（如指向自身 CDN） |
 | `links` | `string` | 内置默认 | JSON 数组字符串，如 `[{"href":"...","label":"..."}]` |
+| `wx-auth-enabled` | `boolean` | `true` | 是否自动加载并初始化 wx-auth-sdk（`false` 关闭，需自行引入 SDK 并 init） |
 | `theme-primary` | `string` | 随系统* | 主文字色（品牌 / hover 文字） |
 | `theme-secondary` | `string` | 随系统* | 次要文字色（默认链接） |
 | `theme-accent` | `string` | 随系统* | 强调色（当前站高亮） |
@@ -131,6 +125,7 @@ nav.unmount()
 | `breakpoint` | `number` | `768` | 移动端断点（px） |
 | `portalEl` | `HTMLElement` | `document.body` | 移动菜单 portal 挂载容器（通常无需配置） |
 | `onNavigate` | `(link, event) => void` | — | 点击导航链接回调 |
+| `wxAuth` | `WxAuthBootstrapOptions` | `{}` | wx-auth-sdk 自举配置（默认零配置即可用，见下文「wx-auth-sdk 自举」） |
 
 #### 链接 `links`
 
@@ -171,7 +166,59 @@ nav.unmount()
 <site-navbar avatar-src="https://cdn.jsdmirror.com/gh/wu529778790/components@main/cdn/user-avatar.wc.js"></site-navbar>
 ```
 
-前置条件不变：页面需自行引入 `wx-auth-sdk` 并 `WxAuth.init()`（登录能力依赖它）。
+登录能力依赖 `wx-auth-sdk`，已由组件内部自动加载并静默 init（见下文「wx-auth-sdk 自举」），使用方无需任何额外处理。
+
+## wx-auth-sdk 自举（一条 JS 全搞定）
+
+组件默认**自动加载并初始化 wx-auth-sdk**，使用方只需引入 `site-navbar.wc.js` 一条 JS，无需手动引入 SDK、也无需写 `WxAuth.init()`：
+
+- **自动加载**：若 `window.WxAuth` 尚不存在，组件动态注入 `wx-auth.umd.js`（默认 unpkg `@latest`）；
+- **就绪等待**：轮询等待 `window.WxAuth` 就绪（每 100ms，默认 10s 超时），彻底规避「SDK 用 `defer` 延迟加载、init 立即执行」导致的 `ReferenceError` 竞态；
+- **静默校验**：就绪后自动调用 `WxAuth.init({ silent: true, required: false })`——只静默校验登录态、绝不自动弹登录窗，弹窗可关闭；
+- **失败降级**：SDK 加载失败或超时仅 `console.warn`，导航栏照常渲染、绝不抛错、绝不阻塞页面；
+- **幂等**：全页共享一次加载，多实例导航栏不会重复注入脚本或重复 init；
+- **兼容已有 init**：若使用方已自行引入 SDK 并 `WxAuth.init()`，组件**不会重复 init**（SDK 文档建议只 init 一次），只确保 SDK 存在即可，绝不覆盖使用方的初始化、绝不阻塞。
+
+### 可配置入口（默认零配置即可用）
+
+```html
+<!-- 全局配置：自定义 SDK 地址 / init 参数 / 回调 -->
+<script>
+  window.__SITE_NAVBAR_OPTIONS__ = {
+    wxAuth: {
+      src: 'https://cdn.jsdmirror.com/gh/wu529778790/wx-auth-sdk@latest/dist/wx-auth.umd.js',
+      initOptions: { silent: true, required: false },
+      onReady: (sdk) => console.log('SDK 就绪'),
+      onError: (reason) => console.warn('SDK 加载失败', reason)
+    }
+  }
+</script>
+<script src="https://unpkg.com/@wu529778790/site-navbar@latest/dist/site-navbar.wc.js"></script>
+```
+
+```html
+<!-- 属性：关闭自动加载（此时需自行引入 SDK 并 init） -->
+<site-navbar wx-auth-enabled="false"></site-navbar>
+```
+
+```ts
+// JS API：自定义自举行为
+new SiteNavbar({
+  wxAuth: { enabled: true, timeout: 15000 }
+})
+```
+
+`WxAuthBootstrapOptions` 字段：
+
+| 字段 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `src` | `string` | unpkg `@latest` | SDK 脚本地址 |
+| `enabled` | `boolean` | `true` | 是否自动加载并初始化 SDK |
+| `initOptions` | `object` | `{ silent: true, required: false }` | 传给 `WxAuth.init` 的参数 |
+| `pollInterval` | `number` | `100` | 轮询间隔（ms） |
+| `timeout` | `number` | `10000` | 就绪等待超时（ms） |
+| `onReady` | `(sdk) => void` | — | SDK 就绪并 init 完成后的回调 |
+| `onError` | `(reason) => void` | — | 加载失败 / 超时后的回调 |
 
 ## 自定义主题
 

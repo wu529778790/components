@@ -8,9 +8,11 @@
  *      （属性优先级高于全局配置）
  *
  * 注意：右侧头像运行时动态加载 <user-avatar> Web Component（默认 unpkg @latest），
- * user-avatar 发版后自动跟上，无需重新发布本组件；页面需自行引入 wx-auth-sdk 并 init。
- * 可用 avatar-src 属性 / avatarOptions.src 指定头像脚本地址（如自身 CDN）。
- * 样式内联进 shadow DOM，外部可通过 :host 上的 --sn-* 变量定制。
+ * user-avatar 发版后自动跟上，无需重新发布本组件。
+ * wx-auth-sdk 由组件内部自动加载并静默 init（默认零配置即可用），
+ * 无需使用方手动引入 SDK 或写 WxAuth.init()；可用 wx-auth-enabled="false" 关闭。
+ * 可用 avatar-src 属性 / avatarOptions.src 指定头像脚本路径（如自身 CDN）。
+ * 样式内联在 Shadow DOM，外部可通过 :host 上的 --sn-* 变量定制。
  */
 import {
   SiteNavbar,
@@ -54,6 +56,7 @@ export class SiteNavbarElement extends HTMLElement {
       'avatar',
       'avatar-src',
       'links',
+      'wx-auth-enabled',
       ...THEME_ATTRS.map(([attr]) => attr)
     ]
   }
@@ -123,11 +126,18 @@ export class SiteNavbarElement extends HTMLElement {
       }
     }
 
-    // avatar-src 属性：覆盖运行时加载的 <user-avatar> 脚本地址（如指向自身 CDN）
+    // avatar-src 属性：覆盖全局配置的 <user-avatar> 脚本地址（如指向自身 CDN）
     let avatarOptions: SiteNavbarAvatarOptions | undefined = global.avatarOptions
     const avatarSrc = get('avatar-src')
     if (avatarSrc !== null) {
       avatarOptions = { ...(avatarOptions ?? {}), src: avatarSrc }
+    }
+
+    // wx-auth 自举：默认开启；wx-auth-enabled="false" 可关闭自动加载/初始化
+    let wxAuth: SiteNavbarOptions['wxAuth'] = global.wxAuth
+    const wxAuthEnabled = get('wx-auth-enabled')
+    if (wxAuthEnabled !== null) {
+      wxAuth = { ...(wxAuth ?? {}), enabled: boolAttr(this, 'wx-auth-enabled', true) }
     }
 
     return {
@@ -136,6 +146,7 @@ export class SiteNavbarElement extends HTMLElement {
       brand,
       avatar: boolAttr(this, 'avatar', global.avatar ?? true),
       avatarOptions,
+      wxAuth,
       theme: { ...(global.theme ?? {}), ...theme },
       onNavigate: global.onNavigate
     }

@@ -76,18 +76,9 @@
   <div class="spacer"></div>
 </div>
 
-<!-- ===== 真实 SDK：wx-auth-sdk（UMD），头像登录依赖它 ===== -->
-<script src="https://unpkg.com/wx-auth-sdk@latest/dist/wx-auth.umd.js"></script>
-<script>
-  // silent:true = 加载时只静默校验登录态、绝不自动弹登录窗
-  // required:false = 可选认证：弹窗带 × 关闭按钮
-  window.WxAuth && window.WxAuth.init({
-    silent: true,
-    required: false
-  })
-</script>
-
-<!-- ===== 组件（Web Component 单文件，本地 dist 构建产物） ===== -->
+<!-- ===== 组件（Web Component 单文件，本地 dist 构建产物） =====
+     一条 JS 全搞定：wx-auth-sdk 由组件内部自动加载并静默 init，
+     无需手动引入 SDK、也无需写 WxAuth.init()。 -->
 <script src="../dist/site-navbar.wc.js"></script>
 
 <!-- 深浅色预览切换 -->

@@ -15,6 +15,7 @@ import type { UserAvatarOptions } from '@wu529778790/user-avatar'
 import styles from './styles.css'
 import type { SiteNavbarBrand, SiteNavbarLink, SiteNavbarTheme } from './types'
 import { CLOSE_ICON, HAMBURGER_ICON, escapeAttr, matchCurrentHost } from './utils'
+import { ensureWxAuth, type WxAuthBootstrapOptions } from './wx-auth-bootstrap'
 
 /** 内置默认子站链接（shenzjd.com 系列） */
 export const DEFAULT_LINKS: SiteNavbarLink[] = [
@@ -68,6 +69,11 @@ export interface SiteNavbarOptions {
   portalEl?: HTMLElement
   /** 点击导航链接回调 */
   onNavigate?: (link: SiteNavbarLink, event: MouseEvent) => void
+  /**
+   * wx-auth-sdk 自举配置（默认零配置即可用：组件自动加载 SDK 并静默 init）。
+   * 传 { enabled: false } 可关闭自动加载（此时需使用方自行引入 SDK 并 init）。
+   */
+  wxAuth?: WxAuthBootstrapOptions
 }
 
 interface ResolvedOptions {
@@ -79,6 +85,7 @@ interface ResolvedOptions {
   breakpoint: number
   portalEl: HTMLElement
   onNavigate?: (link: SiteNavbarLink, event: MouseEvent) => void
+  wxAuth: WxAuthBootstrapOptions
 }
 
 /** 头像默认尺寸（与 avatarOptions 默认 size 保持同步） */
@@ -187,6 +194,8 @@ export class SiteNavbar {
     }
     this.applyTheme()
     this.render()
+    // 自举 wx-auth-sdk：自动加载 + 轮询就绪 + 静默 init，失败仅降级不阻塞
+    void ensureWxAuth(this.opts.wxAuth)
     return this
   }
 
@@ -230,7 +239,8 @@ export class SiteNavbar {
       theme: { ...DEFAULT_THEME, ...(options.theme ?? {}) },
       breakpoint: options.breakpoint ?? 768,
       portalEl: options.portalEl ?? document.body,
-      onNavigate: options.onNavigate
+      onNavigate: options.onNavigate,
+      wxAuth: options.wxAuth ?? {}
     }
   }
 
