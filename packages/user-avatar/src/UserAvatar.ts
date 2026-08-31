@@ -148,6 +148,23 @@ export class UserAvatar {
   private saving = false
   private saveBtnTimer: number | null = null
   private nicknameDraft = ''
+  /**
+   * 静默刷新节流：focus / visibilitychange 触发的刷新受最小间隔限制，
+   * 避免用户频繁切换标签页/窗口时对 userinfo 接口造成过多请求。
+   * 单位毫秒，默认 30s。
+   */
+  private readonly silentRefreshThrottle = 30_000
+  private lastSilentRefreshAt = 0
+  /**
+   * 用户数据缓存：记录上次「成功」拉取的用户信息与拉取时间。
+   * 静默刷新时若距上次成功拉取在缓存有效期内且 token 未变，直接复用缓存，
+   * 不再发请求，避免数据无变化时仍频繁请求 userinfo。
+   */
+  private cachedUser: WxUserInfo | null = null
+  private cachedAt = 0
+  private cachedToken = ''
+  /** 缓存有效期，单位毫秒，默认 60s */
+  private readonly userCacheTtl = 60_000
 
   constructor(options: UserAvatarOptions = {}, container: HTMLElement | ShadowRoot = document.body) {
     this.container = container
@@ -179,9 +196,11 @@ export class UserAvatar {
     }
     this.applyTheme()
     this.render()
-    void this.fetchUser()
+    void this.fetchUser(true)
     // 页面重新聚焦/显示时刷新用户信息：
-    // 微信登录弹窗关闭、GitHub OAuth 子窗口关闭、或他从别的窗口登录后切回，头像自动同步
+    // 微信登录弹窗关闭、GitHub OAuth 子窗口关闭、或他从其他窗口登录后切回，头像自动同步。
+    // focus 与 visibilitychange 常同时触发（切回页面时两者都会触发），合并为同一监听，
+    // 内部做节流，避免重复/频繁请求 userinfo。
     window.addEventListener('focus', this.onWindowFocus)
     document.addEventListener('visibilitychange', this.onVisibility)
     return this
@@ -197,9 +216,9 @@ export class UserAvatar {
     return this.triggerLogin()
   }
 
-  /** 刷新用户信息（登录/绑定后外部可调用） */
+  /** 刷新用户信息（登录/绑定后外部可调用），强制请求绕过缓存 */
   async refresh(): Promise<void> {
-    await this.fetchUser()
+    await this.fetchUser(true)
   }
 
   destroy(): void {
@@ -319,7 +338,7 @@ export class UserAvatar {
     }
     const ok = await sdk.requireAuth()
     if (ok) {
-      await this.fetchUser()
+      await this.fetchUser(true)
       if (this.user) this.opts.onLogin?.(this.user)
     }
     return ok
@@ -346,12 +365,25 @@ export class UserAvatar {
 
   // ==================== 数据 ====================
 
-  private async fetchUser(): Promise<void> {
+  /**
+   * 拉取用户信息。
+   * @param force 是否强制请求。默认 false：静默刷新时若缓存仍有效（数据无变化），
+   *              直接复用缓存不发请求；登录/改昵称/解绑/绑定等主动操作传 true 强制刷新。
+   */
+  private async fetchUser(force = false): Promise<void> {
     const token = getAuthToken()
     if (!token) {
       // 本地无 token：同步确定未登录，直接展示「登录」，不经过骨架态
       this.user = null
       this.status = 'unauth'
+      this.render()
+      return
+    }
+    // 静默刷新且缓存未过期、token 未变：直接复用缓存，不发请求。
+    // 数据没变化就没必要请求，避免频繁打 userinfo 接口。
+    if (!force && this.cachedUser && this.cachedToken === token && Date.now() - this.cachedAt < this.userCacheTtl) {
+      this.user = this.cachedUser
+      this.status = 'auth'
       this.render()
       return
     }
@@ -372,11 +404,15 @@ export class UserAvatar {
       }
       if (!data.authenticated) {
         // 服务端判定 token 失效（过期 / 被吊销 / 已解绑 / 非法）：
-        // 本地这份 token 已经没用了，主动清掉，避免每次刷新都带着旧 token 白请求。
-        console.warn('[UserAvatar] token 已失效，自动清理本地凭证', data.error ?? '')
+        // 本地这份 token 已经没用了，主动作废，避免每次刷新都带着旧 token 白请求。
+        console.warn('[UserAvatar] token 已失效，自动清除本地凭证', data.error ?? '')
         deleteAuthCookies()
         this.user = null
         this.status = 'unauth'
+        // 缓存一并作废，避免后续静默刷新复用已失效的旧数据
+        this.cachedUser = null
+        this.cachedAt = 0
+        this.cachedToken = ''
         // 登录态已失效，开着的设置弹窗不能留着（弹窗 portal 在 body 上，render 清不掉）
         this.closeSettings()
         this.render()
@@ -384,6 +420,10 @@ export class UserAvatar {
       }
       this.user = data.user ? data.user : null
       this.status = this.user ? 'auth' : 'unauth'
+      // 成功拉取后更新缓存（无论数据是否变化，都刷新缓存时间，保证静默刷新有新鲜数据可用）
+      this.cachedUser = this.user
+      this.cachedAt = Date.now()
+      this.cachedToken = token
       // 静默刷新且数据无变化：跳过重渲染，避免头像图片重新加载导致闪烁
       if (this.status === 'auth' && prev && JSON.stringify(prev) === JSON.stringify(this.user)) {
         return
@@ -399,14 +439,26 @@ export class UserAvatar {
     this.render()
   }
 
+  /**
+   * 静默刷新（focus / visibilitychange 触发）。
+   * 两个事件在切回页面时常同时触发，这里统一走同一入口并做节流：
+   * 距上次静默刷新不足 silentRefreshThrottle 时直接忽略，避免频繁请求 userinfo。
+   */
+  private readonly silentRefresh = (): void => {
+    const now = Date.now()
+    if (now - this.lastSilentRefreshAt < this.silentRefreshThrottle) return
+    this.lastSilentRefreshAt = now
+    void this.fetchUser()
+  }
+
   /** 窗口重新聚焦时刷新（登录弹窗 / OAuth 子窗关闭后切回自动同步头像） */
   private readonly onWindowFocus = (): void => {
-    void this.fetchUser()
+    this.silentRefresh()
   }
 
   /** 页面从隐藏切回可见时刷新 */
   private readonly onVisibility = (): void => {
-    if (document.visibilityState === 'visible') void this.fetchUser()
+    if (document.visibilityState === 'visible') this.silentRefresh()
   }
 
   private async saveNickname(): Promise<void> {
@@ -434,7 +486,7 @@ export class UserAvatar {
         ok = true
         this.nicknameDraft = nickname
         // 先等用户信息刷新完再报成功，避免「保存中…」与「已保存」同屏
-        await this.fetchUser()
+        await this.fetchUser(true)
       } else {
         this.setMsg(data.message || '保存失败')
       }
@@ -459,7 +511,7 @@ export class UserAvatar {
       })
       const data = (await res.json()) as { success: boolean; message?: string }
       if (data.success) {
-        await this.fetchUser()
+        await this.fetchUser(true)
       } else {
         window.alert(data.message || '解绑失败')
       }
@@ -898,7 +950,7 @@ export class UserAvatar {
       if (!d || d.type !== 'github-bound') return
       window.removeEventListener('message', this.githubMsgListener!)
       this.githubMsgListener = null
-      void this.fetchUser().then(() => {
+      void this.fetchUser(true).then(() => {
         if (this.user?.github) this.opts.onGithubBound?.(this.user)
       })
     }
