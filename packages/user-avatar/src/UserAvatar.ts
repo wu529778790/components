@@ -838,6 +838,7 @@ export class UserAvatar {
               <div class="ua-profile-info">
                 <div class="ua-user-name">${escapeHtml(u.nickname || (u.github ? `@${u.github.login}` : '微信用户'))}</div>
                 <div class="ua-user-sub">登录于 ${escapeHtml(new Date(u.authenticatedAt || Date.now()).toLocaleString())}</div>
+                ${typeof u.userSeq === 'number' && u.userSeq > 0 ? `<div class="ua-user-seq">你是本站第 ${u.userSeq} 位用户</div>` : ''}
               </div>
             </div>
           </div>

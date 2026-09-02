@@ -445,6 +445,21 @@
   margin-top: 0.35rem;
 }
 
+/* 本站第 N 位用户（userSeq）徽标 */
+.ua-user-seq {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ua-accent);
+  background: color-mix(in srgb, var(--ua-text) 6%, transparent);
+  border: 1px solid var(--ua-btn-border);
+  border-radius: 999px;
+  padding: 0.18rem 0.6rem;
+  margin-top: 0.45rem;
+  letter-spacing: 0.02em;
+}
+
 /* ===== 字段组 ===== */
 .ua-field-group {
   display: flex;
