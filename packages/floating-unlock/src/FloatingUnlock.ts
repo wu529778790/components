@@ -98,8 +98,7 @@ interface ResolvedOptions {
 }
 
 const DEFAULT_TITLE = '帮帮小水管服务器吧'
-const DEFAULT_CONTENT =
-  '服务器又快扛不住了，看个广告帮服务器续个命吧。\n\n扫码进小程序看完视频，本页立刻自动放行，感谢理解！'
+const DEFAULT_CONTENT = '服务器又快扛不住了，看个广告帮服务器续个命吧。'
 
 const DEFAULT_THEME: Required<FloatingUnlockTheme> = {
   bg: '#fff',
