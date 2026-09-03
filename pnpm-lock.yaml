@@ -33,6 +33,15 @@ importers:
         specifier: ^5.6.3
         version: 5.9.3
 
+  packages/floating-unlock:
+    devDependencies:
+      tsup:
+        specifier: ^8.3.5
+        version: 8.5.1(typescript@5.9.3)
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+
   packages/site-navbar:
     devDependencies:
       '@wu529778790/user-avatar':

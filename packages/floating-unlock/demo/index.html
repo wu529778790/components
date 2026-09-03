@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>floating-unlock · Web Component 演示站</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: #333;
+      background: #fafafa;
+      min-height: 100vh;
+    }
+    header {
+      padding: 40px 32px 24px;
+      border-bottom: 1px solid #eee;
+      background: #fff;
+      text-align: center;
+    }
+    header h1 { margin: 0 0 6px; font-size: 22px; }
+    header p { margin: 0; color: #888; font-size: 13px; }
+    main { display: grid; grid-template-columns: 320px 1fr; gap: 24px; max-width: 1080px; margin: 24px auto; padding: 0 24px; }
+    @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+    .panel {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 18px;
+      align-self: start;
+    }
+    .panel h2 { margin: 0 0 14px; font-size: 15px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 13px; margin-bottom: 6px; color: #555; }
+    .field input[type="text"] {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .field .hint { font-size: 11px; color: #aaa; margin-top: 4px; }
+    .demo-area {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 40px 24px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      min-height: 320px;
+    }
+    .btn {
+      padding: 14px 48px;
+      border: none;
+      border-radius: 10px;
+      background: #185fa5;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(24, 95, 165, 0.25);
+      transition: all 0.15s ease;
+    }
+    .btn:hover { background: #0c447c; transform: translateY(-1px); }
+    .status { font-size: 13px; color: #999; min-height: 20px; }
+    .status.success { color: #07c160; }
+    .status.error { color: #e04040; }
+    .status.doing { color: #185fa5; }
+    .docs { background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 18px; overflow: hidden; margin-top: 24px; }
+    .docs h2 { margin: 0 0 12px; font-size: 15px; }
+    .docs h3 { margin: 18px 0 8px; font-size: 13px; }
+    pre {
+      background: #f6f8fa;
+      border: 1px solid #e6e8eb;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 12px;
+      line-height: 1.7;
+      overflow-x: auto;
+      margin: 0 0 8px;
+    }
+    code { font-family: "SF Mono", Menlo, Consolas, monospace; }
+    .note {
+      font-size: 12px;
+      color: #888;
+      background: #fafafa;
+      border: 1px dashed #ddd;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-top: 12px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #eef3ff;
+      color: #4a6cf7;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .layout { max-width: 1080px; margin: 0 auto; padding: 0 24px 24px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>floating-unlock 演示站 <span class="badge">&lt;floating-unlock&gt; Web Component</span></h1>
+    <p>通用解锁弹窗：扫码看视频广告后放行业务。强制不可关，看完才能继续。点右侧按钮即可体验。</p>
+  </header>
+
+  <main>
+    <!-- 左侧：参数面板 -->
+    <section class="panel">
+      <h2>参数（可选，改完点「触发解锁」生效）</h2>
+      <div class="field">
+        <label for="apiBase">后端 API 地址</label>
+        <input type="text" id="apiBase" value="https://wx-auth.shenzjd.com" />
+      </div>
+      <div class="field">
+        <label for="siteId">站点 ID</label>
+        <input type="text" id="siteId" value="https://blog.shenzjd.com/components/" />
+        <div class="hint">用于小程序端展示来源 / 广告统计</div>
+      </div>
+      <div class="field">
+        <label for="title">弹窗标题</label>
+        <input type="text" id="title" value="帮帮小水管服务器吧" />
+      </div>
+      <div class="field">
+        <label for="content">正文（\n 换行）</label>
+        <input type="text" id="content" value="服务器又快扛不住了，看个广告帮服务器续个命吧。" />
+      </div>
+    </section>
+
+    <!-- 右侧：触发区 -->
+    <section class="demo-area">
+      <h2 style="margin: 0; font-size: 16px; color: #555;">点击下方按钮，体验强制解锁</h2>
+      <button class="btn" id="unlockBtn">触发解锁</button>
+      <div class="status" id="status">看完小程序视频后自动放行（这里演示解锁结果）。</div>
+    </section>
+  </main>
+
+  <div class="layout">
+    <section class="docs">
+      <h2>接入方式</h2>
+
+      <h3>方式一：声明式标签 + 业务方调用 unlock()（推荐）</h3>
+      <pre><code>&lt;floating-unlock api-base="https://wx-auth.shenzjd.com" site-id="panhub.shenzjd.com"&gt;&lt;/floating-unlock&gt;
+&lt;script src="https://unpkg.com/@wu529778790/floating-unlock@latest/dist/floating-unlock.wc.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  const unlockEl = document.querySelector('floating-unlock')
+
+  // 在需要解锁的动作处调用，resolve(true) 才放行业务
+  async function continueSearch() {
+    const ok = await unlockEl.unlock()
+    if (ok) { /* 继续搜索 */ }
+  }
+&lt;/script&gt;</code></pre>
+
+      <h3>方式二：NPM 双轨（React/Vue 项目照旧）</h3>
+      <pre><code>pnpm add @wu529778790/floating-unlock
+import FloatingUnlock from '@wu529778790/floating-unlock'
+import '@wu529778790/floating-unlock/style.css'
+
+const unlock = new FloatingUnlock({ apiBase: 'https://wx-auth.shenzjd.com', siteId: 'xxx' })
+const ok = await unlock.unlock()   // true=解锁成功，业务继续
+if (ok) { /* 继续业务 */ }</code></pre>
+
+      <div class="note">
+        全部支持属性：<code>api-base</code> <code>site-id</code> <code>title</code> <code>content</code>
+        <code>content-html</code> <code>width</code> <code>z-index</code>
+        <code>theme-bg/-accent/-radius/-border/-overlay/-title-color/-text-color</code>。
+        本组件为「强制解锁」场景，不自动弹出——由业务方在需要解锁的动作处调用 <code>el.unlock()</code> 触发。
+        样式已隔离在 shadow DOM，外部可用 <code>--fu-*</code> 变量覆盖。
+      </div>
+    </section>
+  </div>
+
+  <floating-unlock id="demo-unlock"></floating-unlock>
+
+  <script src="../dist/floating-unlock.wc.js"></script>
+  <script>
+    const unlockEl = document.getElementById('demo-unlock')
+    const statusEl = document.getElementById('status')
+    const btn = document.getElementById('unlockBtn')
+
+    function apply() {
+      unlockEl.setAttribute('api-base', document.getElementById('apiBase').value.trim() || 'https://wx-auth.shenzjd.com')
+      unlockEl.setAttribute('site-id', document.getElementById('siteId').value.trim())
+      unlockEl.setAttribute('title', document.getElementById('title').value || '帮帮小水管服务器吧')
+      unlockEl.setAttribute('content', document.getElementById('content').value)
+    }
+
+    btn.addEventListener('click', async () => {
+      apply()
+      btn.disabled = true
+      statusEl.className = 'status doing'
+      statusEl.textContent = '弹窗已打开，请微信扫码看视频…'
+      try {
+        const ok = await unlockEl.unlock()
+        if (ok) {
+          statusEl.className = 'status success'
+          statusEl.textContent = '解锁成功，业务已放行！'
+        } else {
+          statusEl.className = 'status error'
+          statusEl.textContent = '解锁失败或已过期，请重试。'
+        }
+      } finally {
+        btn.disabled = false
+      }
+    })
+  </script>
+</body>
+</html>
