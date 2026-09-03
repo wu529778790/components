@@ -1,4 +1,4 @@
-/* @wu529778790/user-avatar v0.1.22 */
+/* @wu529778790/user-avatar v0.1.25 */
 "use strict";
 (() => {
   // src/wx-auth.ts
@@ -314,10 +314,11 @@
 .ua-dialog {
   width: 100%;
   max-width: 28rem;
-  max-height: calc(100vh - 4rem);
+  /* \u9AD8\u5EA6\u8D34\u8FD1\u89C6\u53E3\uFF0C\u4E3B\u4F53\u5185\u90E8\u7559\u51FA\u53EF\u6EDA\u52A8\u4F59\u91CF\uFF1B\u540C\u65F6\u8BA9\u5F39\u7A97\u5728\u684C\u9762\u7AEF\u4E5F\u4E0D\u8D85\u51FA */
+  max-height: calc(100vh - 3rem);
   overflow-y: auto;
   background: var(--ua-bg);
-  border-radius: 20px;
+  border-radius: 18px;
   /* portal \u5230 body \u540E\u7EE7\u627F body \u7684 color-scheme */
   box-shadow:
     0 32px 64px rgba(0, 0, 0, 0.15),
@@ -341,7 +342,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem 1.75rem 1.25rem;
+  /* \u7D27\u51D1\uFF1A\u6807\u9898\u5934\u90E8\u4E0A\u4E0B\u95F4\u8DDD\u4ECE ~44px \u538B\u7F29\u5230 ~36px */
+  padding: 1.1rem 1.5rem 0.9rem;
   border-bottom: 1px solid var(--ua-btn-border);
 }
 
@@ -379,17 +381,19 @@
 }
 
 .ua-dialog-body {
-  padding: 1.75rem;
+  /* \u7D27\u51D1\uFF1A\u5DE6\u53F3\u4E0A\u4E0B padding \u51CF\u5C0F\u5230 1.1rem / 1.35rem\uFF1B\u533A\u5757\u95F4\u8DDD\u4ECE 1.5rem \u6536\u5230 1rem */
+  padding: 1.35rem 1.5rem 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 /* ===== \u7528\u6237\u4FE1\u606F\u5361\u7247 ===== */
 .ua-profile-card {
   background: var(--ua-bg);
-  border-radius: 16px;
-  padding: 1.5rem;
+  border-radius: 14px;
+  /* \u7D27\u51D1\uFF1A\u5185\u8FB9\u8DDD 1.5rem \u2192 0.95rem / 1.1rem */
+  padding: 0.95rem 1.1rem;
   border: 1px solid var(--ua-btn-border);
   position: relative;
   overflow: hidden;
@@ -408,12 +412,13 @@
 .ua-profile-header {
   display: flex;
   align-items: center;
-  gap: 1.1rem;
+  /* \u7D27\u51D1\uFF1A\u5934\u50CF\u4E0E\u53F3\u4FA7\u4FE1\u606F\u95F4\u8DDD 1.1rem \u2192 0.9rem */
+  gap: 0.9rem;
 }
 
 .ua-big-avatar {
-  width: 4rem;
-  height: 4rem;
+  width: 3.5rem;
+  height: 3.5rem;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
@@ -432,7 +437,7 @@
   justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #fff;
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-weight: 700;
 }
 
@@ -442,7 +447,7 @@
 }
 
 .ua-user-name {
-  font-size: 1.125rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--ua-text);
   overflow: hidden;
@@ -452,20 +457,36 @@
 }
 
 .ua-user-sub {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--ua-sub);
+  margin-top: 0.25rem;
+}
+
+/* \u672C\u7AD9\u7B2C N \u4F4D\u7528\u6237\uFF08userSeq\uFF09\u5FBD\u6807 */
+.ua-user-seq {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--ua-accent);
+  background: color-mix(in srgb, var(--ua-text) 6%, transparent);
+  border: 1px solid var(--ua-btn-border);
+  border-radius: 999px;
+  padding: 0.12rem 0.55rem;
   margin-top: 0.35rem;
+  letter-spacing: 0.02em;
 }
 
 /* ===== \u5B57\u6BB5\u7EC4 ===== */
 .ua-field-group {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  /* \u7D27\u51D1\uFF1A\u5B57\u6BB5\u7EC4\u5185\u90E8\u95F4\u8DDD 0.85rem \u2192 0.55rem */
+  gap: 0.55rem;
 }
 
 .ua-field-label {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--ua-sub);
   font-weight: 500;
   text-transform: uppercase;
@@ -477,7 +498,8 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.9rem 1.15rem;
+  /* \u7D27\u51D1\uFF1A\u4E0A\u4E0B padding 0.9rem \u2192 0.6rem */
+  padding: 0.6rem 0.9rem;
   background: color-mix(in srgb, var(--ua-text) 4%, var(--ua-bg));
   border-radius: 12px;
   border: 1px solid var(--ua-btn-border);
@@ -533,8 +555,9 @@
   justify-content: space-between;
   gap: 1rem;
   background: var(--ua-bg);
-  border-radius: 14px;
-  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  /* \u7D27\u51D1\uFF1A\u4E0A\u4E0B padding 1rem \u2192 0.7rem\uFF0C\u5DE6\u53F3 1.2rem \u2192 1rem */
+  padding: 0.7rem 1rem;
   border: 1px solid var(--ua-btn-border);
   transition: all 0.2s ease;
 }
@@ -633,18 +656,19 @@
 .ua-github-unbound {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
-  padding: 1.25rem;
+  /* \u7D27\u51D1\uFF1A\u5185\u95F4\u8DDD 0.85rem \u2192 0.6rem\uFF0Cpadding 1.25rem \u2192 0.85rem 1rem */
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
   background: var(--ua-bg);
-  border-radius: 14px;
+  border-radius: 12px;
   border: 1px dashed var(--ua-btn-border);
 }
 
 .ua-gh-tip {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: var(--ua-sub);
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 .ua-gh-bind {
@@ -653,12 +677,13 @@
   justify-content: center;
   gap: 0.55rem;
   width: 100%;
-  padding: 0.75rem;
+  /* \u7D27\u51D1\uFF1A\u6309\u94AE padding 0.75rem \u2192 0.6rem */
+  padding: 0.6rem;
   border: none;
   border-radius: 12px;
   background: linear-gradient(135deg, #24292f 0%, #1a1f24 100%);
   color: #fff;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -696,15 +721,16 @@
 /* \u6635\u79F0\u7F16\u8F91 */
 .ua-nickname-row {
   display: flex;
-  gap: 0.65rem;
+  gap: 0.6rem;
   align-items: stretch;
 }
 
 .ua-input {
   flex: 1;
   min-width: 0;
-  padding: 0.75rem 1rem;
-  font-size: 0.9rem;
+  /* \u7D27\u51D1\uFF1A\u8F93\u5165\u6846 padding 0.75rem 1rem \u2192 0.55rem 0.9rem */
+  padding: 0.55rem 0.9rem;
+  font-size: 0.88rem;
   color: var(--ua-text);
   background: var(--ua-bg);
   border: 1.5px solid var(--ua-btn-border);
@@ -728,13 +754,14 @@
 .ua-save {
   flex-shrink: 0;
   /* \u4E0E\u6700\u957F\u6587\u6848\uFF08\u4FDD\u5B58\u4E2D\u2026 / \u5DF2\u4FDD\u5B58 \u2713\uFF09\u7B49\u5BBD\uFF1A\u4E09\u6001\u5207\u6362\u4E0D\u5E26\u52A8\u6574\u884C\u6296\u52A8 */
-  min-width: 6.5rem;
-  padding: 0.75rem 1.4rem;
+  min-width: 6rem;
+  /* \u7D27\u51D1\uFF1A\u4FDD\u5B58\u6309\u94AE padding \u4E0E\u8F93\u5165\u6846\u5BF9\u9F50 */
+  padding: 0.55rem 1.2rem;
   border: none;
   border-radius: 12px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #fff;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -773,8 +800,8 @@
 }
 
 .ua-msg {
-  min-height: 1.2em;
-  font-size: 0.8rem;
+  min-height: 1em;
+  font-size: 0.78rem;
   font-weight: 500;
 }
 
@@ -795,29 +822,29 @@
   .ua-dialog {
     max-width: 100%;
     border-radius: 16px;
-    max-height: calc(100vh - 2rem);
+    max-height: calc(100vh - 1.5rem);
   }
 
   .ua-mask {
-    padding: 1rem;
+    padding: 0.75rem;
   }
 
   .ua-dialog-head {
-    padding: 1.25rem 1.4rem 1rem;
+    padding: 0.95rem 1.25rem 0.8rem;
   }
 
   .ua-dialog-body {
-    padding: 1.35rem;
-    gap: 1.25rem;
+    padding: 1.1rem 1.25rem 1rem;
+    gap: 0.85rem;
   }
 
   .ua-profile-card {
-    padding: 1.25rem;
+    padding: 0.85rem 1rem;
   }
 
   .ua-big-avatar {
-    width: 3.5rem;
-    height: 3.5rem;
+    width: 3.2rem;
+    height: 3.2rem;
   }
 }
 /* ==================== \u9000\u51FA\u767B\u5F55\u4E8C\u6B21\u786E\u8BA4 ==================== */
@@ -971,13 +998,41 @@
       this.saving = false;
       this.saveBtnTimer = null;
       this.nicknameDraft = "";
+      /**
+       * 静默刷新节流：focus / visibilitychange 触发的刷新受最小间隔限制，
+       * 避免用户频繁切换标签页/窗口时对 userinfo 接口造成过多请求。
+       * 单位毫秒，默认 30s。
+       */
+      this.silentRefreshThrottle = 3e4;
+      this.lastSilentRefreshAt = 0;
+      /**
+       * 用户数据缓存：记录上次「成功」拉取的用户信息与拉取时间。
+       * 静默刷新时若距上次成功拉取在缓存有效期内且 token 未变，直接复用缓存，
+       * 不再发请求，避免数据无变化时仍频繁请求 userinfo。
+       */
+      this.cachedUser = null;
+      this.cachedAt = 0;
+      this.cachedToken = "";
+      /** 缓存有效期，单位毫秒，默认 60s */
+      this.userCacheTtl = 6e4;
+      /**
+       * 静默刷新（focus / visibilitychange 触发）。
+       * 两个事件在切回页面时常同时触发，这里统一走同一入口并做节流：
+       * 距上次静默刷新不足 silentRefreshThrottle 时直接忽略，避免频繁请求 userinfo。
+       */
+      this.silentRefresh = () => {
+        const now = Date.now();
+        if (now - this.lastSilentRefreshAt < this.silentRefreshThrottle) return;
+        this.lastSilentRefreshAt = now;
+        void this.fetchUser();
+      };
       /** 窗口重新聚焦时刷新（登录弹窗 / OAuth 子窗关闭后切回自动同步头像） */
       this.onWindowFocus = () => {
-        void this.fetchUser();
+        this.silentRefresh();
       };
       /** 页面从隐藏切回可见时刷新 */
       this.onVisibility = () => {
-        if (document.visibilityState === "visible") void this.fetchUser();
+        if (document.visibilityState === "visible") this.silentRefresh();
       };
       this.container = container;
       this.opts = this.resolve(options);
@@ -1003,7 +1058,7 @@
       }
       this.applyTheme();
       this.render();
-      void this.fetchUser();
+      void this.fetchUser(true);
       window.addEventListener("focus", this.onWindowFocus);
       document.addEventListener("visibilitychange", this.onVisibility);
       return this;
@@ -1016,9 +1071,9 @@
     async login() {
       return this.triggerLogin();
     }
-    /** 刷新用户信息（登录/绑定后外部可调用） */
+    /** 刷新用户信息（登录/绑定后外部可调用），强制请求绕过缓存 */
     async refresh() {
-      await this.fetchUser();
+      await this.fetchUser(true);
     }
     destroy() {
       this.closeMenu();
@@ -1124,7 +1179,7 @@
       }
       const ok = await sdk.requireAuth();
       if (ok) {
-        await this.fetchUser();
+        await this.fetchUser(true);
         if (this.user) (_b = (_a = this.opts).onLogin) == null ? void 0 : _b.call(_a, this.user);
       }
       return ok;
@@ -1146,12 +1201,23 @@
       (_b = (_a = this.opts).onLogout) == null ? void 0 : _b.call(_a);
     }
     // ==================== 数据 ====================
-    async fetchUser() {
+    /**
+     * 拉取用户信息。
+     * @param force 是否强制请求。默认 false：静默刷新时若缓存仍有效（数据无变化），
+     *              直接复用缓存不发请求；登录/改昵称/解绑/绑定等主动操作传 true 强制刷新。
+     */
+    async fetchUser(force = false) {
       var _a;
       const token = getAuthToken();
       if (!token) {
         this.user = null;
         this.status = "unauth";
+        this.render();
+        return;
+      }
+      if (!force && this.cachedUser && this.cachedToken === token && Date.now() - this.cachedAt < this.userCacheTtl) {
+        this.user = this.cachedUser;
+        this.status = "auth";
         this.render();
         return;
       }
@@ -1165,16 +1231,22 @@
         const res = await fetch(`${base}/api/auth/userinfo?token=${encodeURIComponent(token)}`);
         const data = await res.json();
         if (!data.authenticated) {
-          console.warn("[UserAvatar] token \u5DF2\u5931\u6548\uFF0C\u81EA\u52A8\u6E05\u7406\u672C\u5730\u51ED\u8BC1", (_a = data.error) != null ? _a : "");
+          console.warn("[UserAvatar] token \u5DF2\u5931\u6548\uFF0C\u81EA\u52A8\u6E05\u9664\u672C\u5730\u51ED\u8BC1", (_a = data.error) != null ? _a : "");
           deleteAuthCookies();
           this.user = null;
           this.status = "unauth";
+          this.cachedUser = null;
+          this.cachedAt = 0;
+          this.cachedToken = "";
           this.closeSettings();
           this.render();
           return;
         }
         this.user = data.user ? data.user : null;
         this.status = this.user ? "auth" : "unauth";
+        this.cachedUser = this.user;
+        this.cachedAt = Date.now();
+        this.cachedToken = token;
         if (this.status === "auth" && prev && JSON.stringify(prev) === JSON.stringify(this.user)) {
           return;
         }
@@ -1211,7 +1283,7 @@
         if (data.success) {
           ok = true;
           this.nicknameDraft = nickname;
-          await this.fetchUser();
+          await this.fetchUser(true);
         } else {
           this.setMsg(data.message || "\u4FDD\u5B58\u5931\u8D25");
         }
@@ -1235,7 +1307,7 @@
         });
         const data = await res.json();
         if (data.success) {
-          await this.fetchUser();
+          await this.fetchUser(true);
         } else {
           window.alert(data.message || "\u89E3\u7ED1\u5931\u8D25");
         }
@@ -1498,6 +1570,7 @@
               <div class="ua-profile-info">
                 <div class="ua-user-name">${escapeHtml(u.nickname || (u.github ? `@${u.github.login}` : "\u5FAE\u4FE1\u7528\u6237"))}</div>
                 <div class="ua-user-sub">\u767B\u5F55\u4E8E ${escapeHtml(new Date(u.authenticatedAt || Date.now()).toLocaleString())}</div>
+                ${typeof u.userSeq === "number" && u.userSeq > 0 ? `<div class="ua-user-seq">\u4F60\u662F\u672C\u7AD9\u7B2C ${u.userSeq} \u4F4D\u7528\u6237</div>` : ""}
               </div>
             </div>
           </div>
@@ -1607,7 +1680,7 @@
         if (!d || d.type !== "github-bound") return;
         window.removeEventListener("message", this.githubMsgListener);
         this.githubMsgListener = null;
-        void this.fetchUser().then(() => {
+        void this.fetchUser(true).then(() => {
           var _a, _b, _c;
           if ((_a = this.user) == null ? void 0 : _a.github) (_c = (_b = this.opts).onGithubBound) == null ? void 0 : _c.call(_b, this.user);
         });

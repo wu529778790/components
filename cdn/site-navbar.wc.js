@@ -1,4 +1,4 @@
-/* @wu529778790/site-navbar v0.1.16 */
+/* @wu529778790/site-navbar v0.1.17 */
 "use strict";
 (() => {
   // src/styles.css
@@ -28,6 +28,74 @@
   }
   var HAMBURGER_ICON = '<svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M2 5a1 1 0 011-1h14a1 1 0 110 2H3a1 1 0 01-1-1zm0 5a1 1 0 011-1h14a1 1 0 110 2H3a1 1 0 01-1-1zm0 5a1 1 0 011-1h14a1 1 0 110 2H3a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>';
   var CLOSE_ICON = '<svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>';
+
+  // src/wx-auth-bootstrap.ts
+  var DEFAULT_SDK_SRC = "https://unpkg.com/wx-auth-sdk@latest/dist/wx-auth.umd.js";
+  var bootstrapPromise = null;
+  var initialized = false;
+  function getWindowSdk() {
+    if (typeof window === "undefined") return void 0;
+    return window.WxAuth;
+  }
+  function ensureWxAuth(options = {}) {
+    const {
+      src = DEFAULT_SDK_SRC,
+      enabled = true,
+      initOptions = { silent: true, required: false },
+      pollInterval = 100,
+      timeout = 1e4,
+      onReady,
+      onError
+    } = options;
+    if (!enabled) return Promise.resolve(false);
+    const existing = getWindowSdk();
+    if (existing) {
+      onReady == null ? void 0 : onReady(existing);
+      return Promise.resolve(true);
+    }
+    if (!bootstrapPromise) {
+      bootstrapPromise = new Promise((resolve) => {
+        injectSdkScript(src);
+        const started = Date.now();
+        const timer = setInterval(() => {
+          const sdk = getWindowSdk();
+          if (sdk) {
+            clearInterval(timer);
+            if (!initialized && typeof sdk.init === "function") {
+              try {
+                sdk.init(initOptions);
+                initialized = true;
+              } catch (e) {
+                console.warn("[site-navbar] WxAuth.init \u8C03\u7528\u5931\u8D25", e);
+              }
+            }
+            onReady == null ? void 0 : onReady(sdk);
+            resolve(true);
+          } else if (Date.now() - started > timeout) {
+            clearInterval(timer);
+            const reason = `wx-auth-sdk \u52A0\u8F7D\u8D85\u65F6\uFF08${timeout}ms\uFF09`;
+            console.warn(`[site-navbar] ${reason}\uFF0C\u5934\u50CF\u767B\u5F55\u529F\u80FD\u4E0D\u53EF\u7528\uFF0C\u5BFC\u822A\u680F\u7167\u5E38\u6E32\u67D3`);
+            onError == null ? void 0 : onError(reason);
+            resolve(false);
+          }
+        }, pollInterval);
+      });
+    }
+    return bootstrapPromise;
+  }
+  function injectSdkScript(src) {
+    if (typeof document === "undefined") return;
+    const existing = Array.from(document.querySelectorAll("script[data-wx-auth-sdk]"));
+    if (existing.some((s) => s.src === src)) return;
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+    script.setAttribute("data-wx-auth-sdk", "");
+    script.onerror = () => {
+      console.warn(`[site-navbar] wx-auth-sdk \u52A0\u8F7D\u5931\u8D25\uFF1A${src}\uFF0C\u5934\u50CF\u529F\u80FD\u4E0D\u53EF\u7528\uFF0C\u5BFC\u822A\u680F\u7167\u5E38\u6E32\u67D3`);
+    };
+    (document.head || document.documentElement).appendChild(script);
+  }
 
   // src/SiteNavbar.ts
   var DEFAULT_LINKS = [
@@ -140,6 +208,7 @@
       }
       this.applyTheme();
       this.render();
+      void ensureWxAuth(this.opts.wxAuth);
       return this;
     }
     /** 卸载并销毁 */
@@ -162,7 +231,7 @@
     }
     // ==================== 初始化 ====================
     resolve(options) {
-      var _a, _b, _c, _d, _e, _f, _g, _h, _i;
+      var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
       return {
         links: (_a = options.links) != null ? _a : DEFAULT_LINKS,
         brand: (_b = options.brand) != null ? _b : DEFAULT_BRAND,
@@ -181,7 +250,8 @@
         theme: { ...DEFAULT_THEME, ...(_g = options.theme) != null ? _g : {} },
         breakpoint: (_h = options.breakpoint) != null ? _h : 768,
         portalEl: (_i = options.portalEl) != null ? _i : document.body,
-        onNavigate: options.onNavigate
+        onNavigate: options.onNavigate,
+        wxAuth: (_j = options.wxAuth) != null ? _j : {}
       };
     }
     applyTheme() {
@@ -396,6 +466,7 @@
         "avatar",
         "avatar-src",
         "links",
+        "wx-auth-enabled",
         ...THEME_ATTRS.map(([attr]) => attr)
       ];
     }
@@ -450,12 +521,18 @@
       if (avatarSrc !== null) {
         avatarOptions = { ...avatarOptions != null ? avatarOptions : {}, src: avatarSrc };
       }
+      let wxAuth = global.wxAuth;
+      const wxAuthEnabled = get("wx-auth-enabled");
+      if (wxAuthEnabled !== null) {
+        wxAuth = { ...wxAuth != null ? wxAuth : {}, enabled: boolAttr(this, "wx-auth-enabled", true) };
+      }
       return {
         ...global,
         links,
         brand,
         avatar: boolAttr(this, "avatar", (_c = global.avatar) != null ? _c : true),
         avatarOptions,
+        wxAuth,
         theme: { ...(_d = global.theme) != null ? _d : {}, ...theme },
         onNavigate: global.onNavigate
       };
