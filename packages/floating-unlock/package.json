@@ -1,6 +1,6 @@
 {
   "name": "@wu529778790/floating-unlock",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A minimal, zero-dependency unlock modal that forces users to watch a rewarded video ad (via WeChat mini-program) before continuing their business.",
   "type": "module",
   "main": "./dist/index.umd.cjs",
