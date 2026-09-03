@@ -8,11 +8,15 @@
  *   1. POST /api/auth/mp-reward/create   → { ticket, qrDataUrl, expiresIn }（5 分钟有效）
  *   2. 用户微信扫码 → 小程序激励页看完整视频 → POST /api/auth/mp-reward/report
  *   3. GET  /api/auth/mp-reward/status?ticket=xxx → waiting | unlocked | expired
+ *      （unlocked 携带 grant —— HMAC 签名的一次性放行票据，wx-auth 防绕过加固后签发）
  *
  * 用法：
  *   const unlock = new FloatingUnlock({ apiBase: 'https://wx-auth.shenzjd.com', siteId: 'xxx' })
- *   const ok = await unlock.unlock()   // true=解锁成功，false=失败/过期
- *   if (ok) { /* 继续业务 *\/ }
+ *   const { ok, ticket, grant } = await unlock.unlock()
+ *   if (ok) {
+ *     // 解锁成功：必须把 ticket + grant 带到业务后端验票（verify）后才真正放行，
+ *     // 前端解锁结果不再代表放行 —— 见 README「业务后端必须验票」。
+ *   }
  *
  * 强制不可关：解锁前无关闭按钮、点遮罩/Esc 均无效，看完广告才能继续。
  * 零依赖、框架无关，样式通过 --fu-* CSS 变量定制。
@@ -24,6 +28,21 @@ export type FloatingUnlockStatus =
   | 'waiting' // 展示二维码，等待扫码/看视频
   | 'unlocked' // 解锁成功
   | 'expired' // 二维码过期
+
+/** unlock() 返回的解锁结果 */
+export interface FloatingUnlockResult {
+  /** 是否解锁成功：true=已看完广告拿到一次性票据；false=失败/过期/被取消 */
+  ok: boolean
+  /** 解锁会话票据（create 时生成，5 分钟有效）。失败时恒为 null */
+  ticket: string | null
+  /**
+   * 一次性 HMAC 放行票据（unlocked 时由 wx-auth 签发，绑定本 ticket、只能核销一次）。
+   * 成功时业务方必须把 ticket + grant 随业务请求带到自己后端，由后端调
+   * wx-auth verify 接口验票核销后才真正放行 —— 前端解锁不再代表放行。
+   * 失败/过期/取消时恒为 null。
+   */
+  grant: string | null
+}
 
 export interface FloatingUnlockTheme {
   /** 卡片背景色 */
@@ -59,8 +78,8 @@ export interface FloatingUnlockOptions {
   zIndex?: number
   /** 主题（映射为 CSS 变量，也可直接覆盖 --fu-* 变量） */
   theme?: FloatingUnlockTheme
-  /** 解锁成功回调（resolve 之外的通知） */
-  onUnlocked?: (result: { ticket: string; siteId?: string }) => void
+  /** 解锁成功回调（resolve 之外的通知），携带一次性放行票据 grant */
+  onUnlocked?: (result: { ticket: string; grant: string | null; siteId?: string }) => void
   /** 解锁失败/过期回调 */
   onError?: (error: { code: string; message: string }) => void
 }
@@ -74,7 +93,7 @@ interface ResolvedOptions {
   width: number
   zIndex: number
   theme: Required<FloatingUnlockTheme>
-  onUnlocked?: (result: { ticket: string; siteId?: string }) => void
+  onUnlocked?: (result: { ticket: string; grant: string | null; siteId?: string }) => void
   onError?: (error: { code: string; message: string }) => void
 }
 
@@ -102,11 +121,12 @@ export class FloatingUnlock {
   private readonly container: HTMLElement | ShadowRoot
   private mask: HTMLElement | null = null
   private ticket = ''
+  private grant = ''
   private qrDataUrl = ''
   private expiresAt = 0
   private status: FloatingUnlockStatus = 'idle'
-  private unlockPromise: Promise<boolean> | null = null
-  private resolveUnlock: ((value: boolean) => void) | null = null
+  private unlockPromise: Promise<FloatingUnlockResult> | null = null
+  private resolveUnlock: ((result: FloatingUnlockResult) => void) | null = null
   private pollTimer: ReturnType<typeof setInterval> | null = null
   private delayTimer: ReturnType<typeof setTimeout> | null = null
   private countdownTimer: ReturnType<typeof setInterval> | null = null
@@ -131,13 +151,13 @@ export class FloatingUnlock {
   }
 
   /**
-   * 发起解锁。返回 Promise：
-   *   resolve(true)  → 解锁成功，业务可继续
-   *   resolve(false) → 失败/过期/出码失败，业务应中断
+   * 发起解锁。返回 Promise<FloatingUnlockResult>：
+   *   { ok: true,  ticket, grant }  → 解锁成功；业务方须把 ticket+grant 带去业务后端验票
+   *   { ok: false, ticket: null, grant: null } → 失败/过期/被取消，业务应中断
    */
-  unlock(): Promise<boolean> {
+  unlock(): Promise<FloatingUnlockResult> {
     if (this.unlockPromise) return this.unlockPromise
-    this.unlockPromise = new Promise<boolean>((resolve) => {
+    this.unlockPromise = new Promise<FloatingUnlockResult>((resolve) => {
       this.resolveUnlock = resolve
       this.start()
     })
@@ -157,7 +177,17 @@ export class FloatingUnlock {
     this.mask?.remove()
     this.mask = null
     this.unlockPromise = null
-    this.resolveUnlock = null
+    // 结束仍未决的调用方，避免永远 await：
+    //   已解锁但尚在成功态展示窗口内被销毁 → 仍按成功结束（票据已拿到）；
+    //   其余（外部 close()/替换实例/元素移除）→ 按「取消」结束。
+    if (this.resolveUnlock) {
+      if (this.status === 'unlocked') {
+        this.resolveUnlock({ ok: true, ticket: this.ticket, grant: this.grant || null })
+      } else {
+        this.resolveUnlock({ ok: false, ticket: null, grant: null })
+      }
+      this.resolveUnlock = null
+    }
     unlockBodyScroll()
   }
 
@@ -196,6 +226,7 @@ export class FloatingUnlock {
       if (!data.ticket || !data.qrDataUrl) throw new Error('create 响应缺少 ticket/qrDataUrl')
 
       this.ticket = String(data.ticket)
+      this.grant = '' // 新会话的放行票据等 unlocked 后再从 status 取
       this.qrDataUrl = String(data.qrDataUrl)
       this.expiresAt = Date.now() + (Number(data.expiresIn) || 300) * 1000
 
@@ -235,6 +266,9 @@ export class FloatingUnlock {
       }
       const data = await res.json()
       if (data.status === 'unlocked') {
+        // wx-auth 加固后 unlocked 携带 grant（HMAC 一次性放行票据）。若上游
+        // 尚未返回（如旧版本/本地联调），grant 保持空串，交由业务后端验票兜底拒绝。
+        if (data.grant) this.grant = String(data.grant)
         this.succeed()
       } else if (data.status === 'expired') {
         this.setStatus('expired')
@@ -251,11 +285,12 @@ export class FloatingUnlock {
     this.stopPolling()
     this.stopCountdown()
     this.setStatus('unlocked')
-    this.opts.onUnlocked?.({ ticket: this.ticket, siteId: this.opts.siteId })
-    // 短暂展示成功态后自动关闭
+    const grant = this.grant || null
+    this.opts.onUnlocked?.({ ticket: this.ticket, grant, siteId: this.opts.siteId })
+    // 短暂展示成功态后按新结果结构 resolve
     setTimeout(() => {
       if (this.destroyed) return
-      this.resolveUnlock?.(true)
+      this.resolveUnlock?.({ ok: true, ticket: this.ticket, grant })
       this.resolveUnlock = null
       this.destroy()
     }, 600)
@@ -265,7 +300,7 @@ export class FloatingUnlock {
     this.stopPolling()
     this.stopCountdown()
     this.opts.onError?.({ code, message })
-    this.resolveUnlock?.(false)
+    this.resolveUnlock?.({ ok: false, ticket: null, grant: null })
     this.resolveUnlock = null
     this.destroy()
   }

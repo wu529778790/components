@@ -3,14 +3,20 @@
  *
  * 用法：
  * 1. 声明式标签 —— <floating-unlock api-base="https://wx-auth.shenzjd.com" site-id="xxx"></floating-unlock>
- *    业务在需要解锁时调用 el.unlock()，返回 Promise，resolve(true) 即解锁成功。
+ *    业务在需要解锁时调用 el.unlock()，返回 Promise<UnlockResult>，
+ *    { ok: true, ticket, grant } 才代表解锁成功。
  * 2. 全局配置 —— window.__FLOATING_UNLOCK_OPTIONS__ = {...}（属性优先级更高）
  *
  * 注意：本组件是「强制解锁」场景，不自动弹出——由业务方在需要解锁的动作处
  * （如「继续搜索」）调用 unlock() 触发。样式内联进 shadow DOM，外部可通过
  * :host 上的 --fu-* CSS 变量定制。
  */
-import { FloatingUnlock, type FloatingUnlockOptions, type FloatingUnlockTheme } from './FloatingUnlock'
+import {
+  FloatingUnlock,
+  type FloatingUnlockOptions,
+  type FloatingUnlockResult,
+  type FloatingUnlockTheme
+} from './FloatingUnlock'
 import styles from './styles.css'
 
 const TAG = 'floating-unlock'
@@ -70,11 +76,11 @@ export class FloatingUnlockElement extends HTMLElement {
   }
 
   /**
-   * 发起解锁。返回 Promise：
-   *   resolve(true)  → 解锁成功，业务可继续
-   *   resolve(false) → 失败/过期，业务应中断
+   * 发起解锁。返回 Promise<FloatingUnlockResult>：
+   *   { ok: true,  ticket, grant }  → 解锁成功；业务方须把 ticket+grant 带去业务后端验票
+   *   { ok: false, ticket: null, grant: null } → 失败/过期/被取消，业务应中断
    */
-  unlock(): Promise<boolean> {
+  unlock(): Promise<FloatingUnlockResult> {
     this.widget?.destroy()
     this.widget = new FloatingUnlock(this.buildOptions(), this.shadow)
     return this.widget.unlock()
