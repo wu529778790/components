@@ -804,24 +804,24 @@ export class UserAvatar {
       ? `<img class="ua-big-avatar" src="${escapeAttr(avatarSrc)}" alt="" referrerpolicy="no-referrer" />`
       : `<div class="ua-big-avatar ua-big-avatar-fallback">${escapeHtml((u.nickname || u.github?.login || '?').charAt(0).toUpperCase())}</div>`
 
+    // GitHub 绑定：单行左右结构
+    // - 左侧固定：GitHub 图标 +「GitHub」标题
+    // - 右侧状态区：未绑定 →「绑定 GitHub」按钮；已绑定 → GitHub 名字 + 解绑按钮
     const githubBlock = u.github
       ? `
-        <div class="ua-github-bound">
-          <div class="ua-github-info">
-            ${u.github.avatar
-              ? `<img class="ua-gh-avatar" src="${escapeAttr(u.github.avatar)}" alt="@${escapeAttr(u.github.login)}" referrerpolicy="no-referrer" />`
-              : `<div class="ua-gh-avatar ua-gh-avatar-fallback">${escapeHtml(u.github.login.charAt(0).toUpperCase())}</div>`}
-            <div class="ua-gh-meta">
-              <div class="ua-gh-login">@${escapeHtml(u.github.login)} <span class="ua-badge">已绑定</span></div>
-              <div class="ua-gh-date">绑定于 ${escapeHtml(new Date(u.github.boundAt).toLocaleDateString())}</div>
-            </div>
+        <div class="ua-gh-row">
+          <span class="ua-gh-title">${GITHUB_ICON}<b>GitHub</b></span>
+          <div class="ua-gh-status">
+            <span class="ua-gh-name">@${escapeHtml(u.github.login)}<span class="ua-badge">已绑定</span></span>
+            <button type="button" class="ua-gh-unbind" data-action="unbind">解绑</button>
           </div>
-          <button type="button" class="ua-gh-unbind" data-action="unbind">解绑</button>
         </div>`
       : `
-        <div class="ua-github-unbound">
-          <p class="ua-gh-tip">绑定 GitHub 账号，用于身份识别与后续业务对接</p>
-          <button type="button" class="ua-gh-bind" data-action="bind">${GITHUB_ICON}<span>绑定 GitHub</span></button>
+        <div class="ua-gh-row">
+          <span class="ua-gh-title">${GITHUB_ICON}<b>GitHub</b></span>
+          <div class="ua-gh-status">
+            <button type="button" class="ua-gh-bind" data-action="bind">${GITHUB_ICON}<span>绑定 GitHub</span></button>
+          </div>
         </div>`
 
     return `
@@ -831,29 +831,24 @@ export class UserAvatar {
           <button type="button" class="ua-close" data-action="close" aria-label="关闭">${CLOSE_ICON}</button>
         </div>
         <div class="ua-dialog-body">
-          <!-- 用户信息卡片 -->
+          <!-- 用户信息卡片（含明信片底部：站点品牌 + 用户 ID） -->
           <div class="ua-profile-card">
             <div class="ua-profile-header">
               ${bigAvatar}
               <div class="ua-profile-info">
                 <div class="ua-user-name">${escapeHtml(u.nickname || (u.github ? `@${u.github.login}` : '微信用户'))}</div>
-                <div class="ua-user-sub">登录于 ${escapeHtml(new Date(u.authenticatedAt || Date.now()).toLocaleString())}</div>
                 ${typeof u.userSeq === 'number' && u.userSeq > 0 ? `<div class="ua-user-seq">你是本站第 ${u.userSeq} 位用户</div>` : ''}
               </div>
             </div>
+            <!-- 明信片底部：左 = 网站品牌「神族九帝」；右 = 用户 OPENID -->
+            <div class="ua-profile-postcard">
+              <span class="ua-postcard-brand">神族九帝</span>
+              <span class="ua-postcard-id">${escapeHtml(u.openid || '-')}</span>
+            </div>
           </div>
 
-          <!-- 微信 ID -->
-          <div class="ua-field-group">
-            <label class="ua-field-label">微信 ID（openid）</label>
-            <div class="ua-mono-value">${escapeHtml(u.openid || '-')}</div>
-          </div>
-
-          <!-- GitHub 绑定 -->
-          <div class="ua-field-group">
-            <div class="ua-section-title">${GITHUB_ICON}<span>GitHub</span></div>
-            ${githubBlock}
-          </div>
+          <!-- GitHub 绑定：左右单行（左：图标+标题；右：绑定按钮 / 用户名+解绑） -->
+          ${githubBlock}
 
           <!-- 设置名字 -->
           <div class="ua-field-group">
