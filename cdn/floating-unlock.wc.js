@@ -6,6 +6,8 @@
   var DEFAULT_TITLE = "\u5E2E\u5E2E\u5C0F\u6C34\u7BA1\u670D\u52A1\u5668\u5427";
   var DEFAULT_CONTENT = "\u670D\u52A1\u5668\u6210\u672C\u4E0D\u5C0F\uFF0C\u5982\u679C\u89C9\u5F97\u597D\u7528\uFF0C\u5FAE\u4FE1\u626B\u7801\u770B\u4E2A\u89C6\u9891\u652F\u6301\u4E00\u4E0B\u5427\u3002";
   var DEFAULT_HINT = "\u5FAE\u4FE1\u626B\u7801\uFF0C\u5728\u5C0F\u7A0B\u5E8F\u5185\u89C2\u770B\u89C6\u9891\uFF08\u81EA\u613F\u652F\u6301\uFF0C\u968F\u65F6\u53EF\u5173\u95ED\uFF09";
+  var BTN_DISMISS = "\u7B97\u4E86\uFF0C\u4E0B\u6B21\u5427";
+  var BTN_SUPPORT = "\u6211\u5DF2\u7ECF\u770B\u89C6\u9891\uFF0C\u652F\u6301\u4F5C\u8005";
   var DEFAULT_THEME = {
     bg: "#fff",
     accent: "#185fa5",
@@ -69,7 +71,7 @@
       };
     }
     render() {
-      var _a;
+      var _a, _b, _c;
       const { width, zIndex, theme } = this.opts;
       const mask = document.createElement("div");
       mask.className = "fu-mask";
@@ -89,9 +91,15 @@
         <div class="fu-content">${this.buildContent()}</div>
         <div class="fu-qr"><img class="fu-qr-img" alt="\u652F\u6301\u4E8C\u7EF4\u7801" src="${escapeAttr(this.opts.qrSrc)}" /></div>
         <div class="fu-hint">${escapeHtml(DEFAULT_HINT)}</div>
+        <div class="fu-actions">
+          <button class="fu-btn fu-btn-ghost" type="button">${escapeHtml(BTN_DISMISS)}</button>
+          <button class="fu-btn fu-btn-primary" type="button">${escapeHtml(BTN_SUPPORT)}</button>
+        </div>
       </div>
     `;
       (_a = mask.querySelector(".fu-close")) == null ? void 0 : _a.addEventListener("click", () => this.close());
+      (_b = mask.querySelector(".fu-btn-ghost")) == null ? void 0 : _b.addEventListener("click", () => this.close());
+      (_c = mask.querySelector(".fu-btn-primary")) == null ? void 0 : _c.addEventListener("click", () => this.close());
       mask.addEventListener("click", (e) => {
         if (e.target === mask) this.close();
       });
@@ -162,7 +170,7 @@
   }
 
   // src/styles.css
-  var styles_default = '.fu-mask {\n  --fu-overlay: rgba(0, 0, 0, 0.4);\n  --fu-bg: #fff;\n  --fu-accent: #185fa5;\n  --fu-radius: 16px;\n  --fu-border: rgba(0, 0, 0, 0.1);\n  --fu-title-color: #1f1f1f;\n  --fu-text-color: #555;\n  --fu-width: 380px;\n\n  position: fixed;\n  inset: 0;\n  z-index: 10000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  box-sizing: border-box;\n  background: var(--fu-overlay);\n  animation: fu-fade-in 0.18s ease;\n}\n\n.fu-modal {\n  position: relative;\n  box-sizing: border-box;\n  width: var(--fu-width);\n  max-width: 92vw;\n  max-height: 88vh;\n  overflow-y: auto;\n  padding: 28px 28px 24px;\n  background: var(--fu-bg);\n  border: 1px solid var(--fu-border);\n  border-radius: var(--fu-radius);\n  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);\n  text-align: center;\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,\n    "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",\n    sans-serif;\n  line-height: 1.6;\n  animation: fu-rise-in 0.22s ease;\n}\n\n.fu-close {\n  position: absolute;\n  top: 10px;\n  right: 12px;\n  width: 32px;\n  height: 32px;\n  padding: 0;\n  border: none;\n  background: transparent;\n  color: #999;\n  font-size: 22px;\n  line-height: 1;\n  cursor: pointer;\n  border-radius: 8px;\n  transition: color 0.15s ease, background 0.15s ease;\n}\n\n.fu-close:hover {\n  color: var(--fu-accent);\n  background: rgba(0, 0, 0, 0.05);\n}\n\n.fu-title {\n  margin: 0 0 12px;\n  font-size: 17px;\n  font-weight: 500;\n  color: var(--fu-title-color);\n}\n\n.fu-content {\n  margin: 0 0 18px;\n  font-size: 13px;\n  color: var(--fu-text-color);\n}\n\n.fu-qr {\n  margin: 0 auto 14px;\n  width: 190px;\n  max-width: 100%;\n}\n\n.fu-qr-img {\n  display: block;\n  width: 100%;\n  height: auto;\n  border-radius: 8px;\n}\n\n.fu-hint {\n  display: block;\n  font-size: 12px;\n  color: var(--fu-text-color);\n}\n\n@keyframes fu-fade-in {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n\n@keyframes fu-rise-in {\n  from {\n    opacity: 0;\n    transform: translateY(12px);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n\n@media (max-width: 480px) {\n  .fu-modal {\n    padding: 24px 20px 20px;\n  }\n\n  .fu-qr {\n    width: 160px;\n  }\n}\n';
+  var styles_default = '.fu-mask {\n  --fu-overlay: rgba(0, 0, 0, 0.4);\n  --fu-bg: #fff;\n  --fu-accent: #185fa5;\n  --fu-radius: 16px;\n  --fu-border: rgba(0, 0, 0, 0.1);\n  --fu-title-color: #1f1f1f;\n  --fu-text-color: #555;\n  --fu-width: 380px;\n\n  position: fixed;\n  inset: 0;\n  z-index: 10000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  box-sizing: border-box;\n  background: var(--fu-overlay);\n  animation: fu-fade-in 0.18s ease;\n}\n\n.fu-modal {\n  position: relative;\n  box-sizing: border-box;\n  width: var(--fu-width);\n  max-width: 92vw;\n  max-height: 88vh;\n  overflow-y: auto;\n  padding: 28px 28px 24px;\n  background: var(--fu-bg);\n  border: 1px solid var(--fu-border);\n  border-radius: var(--fu-radius);\n  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);\n  text-align: center;\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,\n    "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",\n    sans-serif;\n  line-height: 1.6;\n  animation: fu-rise-in 0.22s ease;\n}\n\n.fu-close {\n  position: absolute;\n  top: 10px;\n  right: 12px;\n  width: 32px;\n  height: 32px;\n  padding: 0;\n  border: none;\n  background: transparent;\n  color: #999;\n  font-size: 22px;\n  line-height: 1;\n  cursor: pointer;\n  border-radius: 8px;\n  transition: color 0.15s ease, background 0.15s ease;\n}\n\n.fu-close:hover {\n  color: var(--fu-accent);\n  background: rgba(0, 0, 0, 0.05);\n}\n\n.fu-title {\n  margin: 0 0 12px;\n  font-size: 17px;\n  font-weight: 500;\n  color: var(--fu-title-color);\n}\n\n.fu-content {\n  margin: 0 0 18px;\n  font-size: 13px;\n  color: var(--fu-text-color);\n}\n\n.fu-qr {\n  margin: 0 auto 14px;\n  width: 190px;\n  max-width: 100%;\n}\n\n.fu-qr-img {\n  display: block;\n  width: 100%;\n  height: auto;\n  border-radius: 8px;\n}\n\n.fu-hint {\n  display: block;\n  font-size: 12px;\n  color: var(--fu-text-color);\n}\n\n.fu-actions {\n  display: flex;\n  gap: 10px;\n  margin-top: 16px;\n}\n\n.fu-btn {\n  flex: 1;\n  min-width: 0;\n  padding: 9px 8px;\n  border-radius: 8px;\n  font-size: 13px;\n  font-weight: 500;\n  line-height: 1.4;\n  cursor: pointer;\n  transition: opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease;\n  box-sizing: border-box;\n}\n\n.fu-btn-ghost {\n  border: 1px solid var(--fu-border);\n  background: transparent;\n  color: var(--fu-text-color);\n}\n\n.fu-btn-ghost:hover {\n  border-color: var(--fu-accent);\n  color: var(--fu-accent);\n}\n\n.fu-btn-primary {\n  border: none;\n  background: var(--fu-accent);\n  color: #fff;\n}\n\n.fu-btn-primary:hover {\n  opacity: 0.85;\n}\n\n@keyframes fu-fade-in {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n\n@keyframes fu-rise-in {\n  from {\n    opacity: 0;\n    transform: translateY(12px);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n\n@media (max-width: 480px) {\n  .fu-modal {\n    padding: 24px 20px 20px;\n  }\n\n  .fu-qr {\n    width: 160px;\n  }\n}\n';
 
   // src/web-component.ts
   var TAG = "floating-unlock";
