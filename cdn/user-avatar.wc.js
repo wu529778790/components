@@ -1,4 +1,4 @@
-/* @wu529778790/user-avatar v0.1.25 */
+/* @wu529778790/user-avatar v0.1.26 */
 "use strict";
 (() => {
   // src/wx-auth.ts
@@ -381,19 +381,19 @@
 }
 
 .ua-dialog-body {
-  /* \u7D27\u51D1\uFF1A\u5DE6\u53F3\u4E0A\u4E0B padding \u51CF\u5C0F\u5230 1.1rem / 1.35rem\uFF1B\u533A\u5757\u95F4\u8DDD\u4ECE 1.5rem \u6536\u5230 1rem */
-  padding: 1.35rem 1.5rem 1.25rem;
+  /* \u7D27\u51D1\uFF1A\u5DE6\u53F3\u4E0A\u4E0B padding \u51CF\u5C0F\u5230 1.1rem / 1.35rem\uFF1B\u533A\u5757\u95F4\u8DDD\u4ECE 1.5rem \u6536\u5230 0.85rem */
+  padding: 1.1rem 1.35rem 1.1rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.7rem;
 }
 
 /* ===== \u7528\u6237\u4FE1\u606F\u5361\u7247 ===== */
 .ua-profile-card {
   background: var(--ua-bg);
   border-radius: 14px;
-  /* \u7D27\u51D1\uFF1A\u5185\u8FB9\u8DDD 1.5rem \u2192 0.95rem / 1.1rem */
-  padding: 0.95rem 1.1rem;
+  /* \u7D27\u51D1\uFF1A\u5185\u8FB9\u8DDD 1.5rem \u2192 0.75rem / 0.9rem */
+  padding: 0.75rem 0.9rem;
   border: 1px solid var(--ua-btn-border);
   position: relative;
   overflow: hidden;
@@ -444,9 +444,14 @@
 .ua-profile-info {
   min-width: 0;
   flex: 1;
+  /* \u6587\u5B57\u6574\u7EC4\u9760\u53F3\uFF1A\u6635\u79F0\u4E0E\u5FBD\u6807\u53F3\u5BF9\u9F50\uFF0C\u4E0E\u660E\u4FE1\u7247\u533A\u53F3\u4FA7 OPENID \u547C\u5E94 */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .ua-user-name {
+  max-width: 100%;
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--ua-text);
@@ -477,12 +482,51 @@
   letter-spacing: 0.02em;
 }
 
+/* \u660E\u4FE1\u7247\u5E95\u90E8\uFF1A\u5DE6 = \u7F51\u7AD9\u54C1\u724C\u300C\u795E\u65CF\u4E5D\u5E1D\u300D\uFF0C\u53F3 = \u7528\u6237 OPENID
+   \u6574\u4F53\u5DE6\u53F3\u4E24\u7AEF\u5BF9\u9F50\uFF0C\u7528\u6D45\u8272\u5185\u5D4C\u5E95 + dashed \u9876\u7EBF \u8425\u9020\u660E\u4FE1\u7247"\u6295\u9012\u4FE1\u606F\u533A"\u5C42\u6B21 */
+.ua-profile-postcard {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.7rem;
+  /* \u8D1F margin \u8BA9\u6D45\u5E95\u5EF6\u4F38\u5230\u5361\u7247\u5DE6\u53F3\u8FB9\u7F18\uFF0C\u4E0E\u5361\u7247\u5E95\u90E8\u5706\u89D2\u5BF9\u9F50 */
+  margin: 0.7rem -0.9rem -0.75rem;
+  padding: 0.6rem 0.9rem;
+  /* \u660E\u663E\u53EF\u611F\u77E5\u7684\u6D45\u5E95\uFF1A\u4E0E\u4E0A\u65B9\u767D\u8272\u5934\u50CF\u533A\u660E\u786E\u5206\u5C42\uFF0C\u5F62\u6210\u300C\u660E\u4FE1\u7247\u6295\u9012\u680F\u300D */
+  background: color-mix(in srgb, var(--ua-text) 7%, var(--ua-bg));
+  border-top: 1px dashed var(--ua-btn-border);
+  border-radius: 0 0 14px 14px;
+  min-width: 0;
+}
+
+.ua-postcard-brand {
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ua-text);
+  letter-spacing: -0.01em;
+}
+
+.ua-postcard-id {
+  flex: 1;
+  min-width: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "SF Mono", monospace;
+  font-size: 0.74rem;
+  color: var(--ua-sub);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+  user-select: all;
+  letter-spacing: 0.01em;
+}
+
 /* ===== \u5B57\u6BB5\u7EC4 ===== */
 .ua-field-group {
   display: flex;
   flex-direction: column;
-  /* \u7D27\u51D1\uFF1A\u5B57\u6BB5\u7EC4\u5185\u90E8\u95F4\u8DDD 0.85rem \u2192 0.55rem */
-  gap: 0.55rem;
+  /* \u7D27\u51D1\uFF1A\u5B57\u6BB5\u7EC4\u5185\u90E8\u95F4\u8DDD 0.85rem \u2192 0.45rem */
+  gap: 0.45rem;
 }
 
 .ua-field-label {
@@ -493,244 +537,165 @@
   letter-spacing: 0.03em;
 }
 
-/* openid \u5C55\u793A */
-.ua-mono-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  /* \u7D27\u51D1\uFF1A\u4E0A\u4E0B padding 0.9rem \u2192 0.6rem */
-  padding: 0.6rem 0.9rem;
-  background: color-mix(in srgb, var(--ua-text) 4%, var(--ua-bg));
-  border-radius: 12px;
-  border: 1px solid var(--ua-btn-border);
-}
-
-.ua-mono-label {
-  font-size: 0.78rem;
-  color: var(--ua-sub);
-  font-weight: 600;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.ua-mono-value {
-  flex: 1;
-  min-width: 0;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "SF Mono", monospace;
-  font-size: 0.85rem;
-  color: var(--ua-text);
-  word-break: break-all;
-  user-select: all;
-  line-height: 1.5;
-  letter-spacing: 0.01em;
-}
-
 /* \u533A\u5757 */
 .ua-section {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 
 .ua-section-title {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.92rem;
+  gap: 0.45rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--ua-text);
   letter-spacing: -0.01em;
 }
 
 .ua-section-title .ua-icon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   color: #656d76;
 }
 
-/* GitHub \u5DF2\u7ED1\u5B9A */
-.ua-github-bound {
+/* GitHub \u7ED1\u5B9A\uFF1A\u5355\u884C\u5DE6\u53F3\u7ED3\u6784
+   \u5DE6\u4FA7\u56FA\u5B9A\uFF1AGitHub \u56FE\u6807 +\u300CGitHub\u300D\u6807\u9898\uFF1B
+   \u53F3\u4FA7\u72B6\u6001\u533A\uFF1A\u672A\u7ED1\u5B9A \u2192\u300C\u7ED1\u5B9A GitHub\u300D\u6309\u94AE\uFF1B\u5DF2\u7ED1\u5B9A \u2192 GitHub \u540D\u5B57 + \u89E3\u7ED1\u6309\u94AE */
+.ua-gh-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.8rem;
+  padding: 0.5rem 0.85rem;
   background: var(--ua-bg);
-  border-radius: 12px;
-  /* \u7D27\u51D1\uFF1A\u4E0A\u4E0B padding 1rem \u2192 0.7rem\uFF0C\u5DE6\u53F3 1.2rem \u2192 1rem */
-  padding: 0.7rem 1rem;
   border: 1px solid var(--ua-btn-border);
-  transition: all 0.2s ease;
+  border-radius: 12px;
 }
 
-.ua-github-bound:hover {
-  border-color: var(--ua-btn-border);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-}
-
-.ua-github-info {
-  display: flex;
+.ua-gh-title {
+  display: inline-flex;
   align-items: center;
-  gap: 0.85rem;
-  min-width: 0;
-}
-
-.ua-gh-avatar {
-  width: 2.6rem;
-  height: 2.6rem;
-  border-radius: 50%;
-  object-fit: cover;
+  gap: 0.4rem;
   flex-shrink: 0;
-  border: 2px solid var(--ua-bg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.ua-gh-avatar-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #24292f 0%, #1a1f24 100%);
-  color: #fff;
-  font-size: 0.95rem;
-  font-weight: 700;
-}
-
-.ua-gh-meta {
   min-width: 0;
-}
-
-.ua-gh-login {
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--ua-text);
+  letter-spacing: -0.01em;
+}
+
+.ua-gh-title .ua-icon {
+  width: 18px;
+  height: 18px;
+  color: #656d76;
+  flex-shrink: 0;
+}
+
+/* \u53F3\u4FA7\u72B6\u6001\u533A\uFF1A\u540D\u5B57 / \u6309\u94AE */
+.ua-gh-status {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.ua-gh-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--ua-text);
   overflow: hidden;
-  white-space: nowrap;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ua-badge {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 500;
   color: #16a34a;
   background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
   border: 1px solid #86efac;
   border-radius: 999px;
-  padding: 0.15rem 0.55rem;
+  padding: 0.1rem 0.5rem;
   flex-shrink: 0;
   letter-spacing: 0.02em;
 }
 
-.ua-gh-date {
-  font-size: 0.75rem;
-  color: var(--ua-sub);
-  margin-top: 0.2rem;
-}
-
+/* \u89E3\u7ED1\u5C0F\u6309\u94AE\uFF08\u5DF2\u7ED1\u5B9A\uFF09 */
 .ua-gh-unbind {
   flex-shrink: 0;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--ua-danger);
   background: transparent;
-  border: 1.5px solid light-dark(#fecaca, rgba(248, 81, 73, 0.45));
-  border-radius: 10px;
-  padding: 0.45rem 0.85rem;
+  border: 1px solid light-dark(#fecaca, rgba(248, 81, 73, 0.45));
+  border-radius: 8px;
+  padding: 0.3rem 0.6rem;
   cursor: pointer;
   transition: all 0.25s ease;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .ua-gh-unbind:hover {
   background: light-dark(#fef2f2, rgba(248, 81, 73, 0.14));
   border-color: light-dark(#fca5a5, #f85149);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.15);
 }
 
 .ua-gh-unbind:active {
-  transform: translateY(0) scale(0.98);
+  transform: scale(0.97);
 }
 
-/* GitHub \u672A\u7ED1\u5B9A */
-.ua-github-unbound {
-  display: flex;
-  flex-direction: column;
-  /* \u7D27\u51D1\uFF1A\u5185\u95F4\u8DDD 0.85rem \u2192 0.6rem\uFF0Cpadding 1.25rem \u2192 0.85rem 1rem */
-  gap: 0.6rem;
-  padding: 0.85rem 1rem;
-  background: var(--ua-bg);
-  border-radius: 12px;
-  border: 1px dashed var(--ua-btn-border);
-}
-
-.ua-gh-tip {
-  margin: 0;
-  font-size: 0.8rem;
-  color: var(--ua-sub);
-  line-height: 1.45;
-}
-
+/* \u7ED1\u5B9A\u6309\u94AE\uFF08\u672A\u7ED1\u5B9A\uFF09 */
 .ua-gh-bind {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.55rem;
-  width: 100%;
-  /* \u7D27\u51D1\uFF1A\u6309\u94AE padding 0.75rem \u2192 0.6rem */
-  padding: 0.6rem;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding: 0.32rem 0.75rem;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   background: linear-gradient(135deg, #24292f 0%, #1a1f24 100%);
   color: #fff;
-  font-size: 0.88rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
+  transition: all 0.2s ease;
 }
 
-.ua-gh-bind::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+.ua-gh-bind .ua-icon {
+  width: 15px;
+  height: 15px;
 }
 
 .ua-gh-bind:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(36, 41, 47, 0.35);
-}
-
-.ua-gh-bind:hover::before {
-  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(36, 41, 47, 0.3);
 }
 
 .ua-gh-bind:active {
   transform: translateY(0) scale(0.98);
 }
 
-.ua-gh-bind .ua-icon {
-  width: 20px;
-  height: 20px;
-}
-
 /* \u6635\u79F0\u7F16\u8F91 */
 .ua-nickname-row {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.55rem;
   align-items: stretch;
 }
 
 .ua-input {
   flex: 1;
   min-width: 0;
-  /* \u7D27\u51D1\uFF1A\u8F93\u5165\u6846 padding 0.75rem 1rem \u2192 0.55rem 0.9rem */
-  padding: 0.55rem 0.9rem;
-  font-size: 0.88rem;
+  /* \u7D27\u51D1\uFF1A\u8F93\u5165\u6846 padding 0.55rem 0.9rem \u2192 0.5rem 0.8rem */
+  padding: 0.5rem 0.8rem;
+  font-size: 0.86rem;
   color: var(--ua-text);
   background: var(--ua-bg);
   border: 1.5px solid var(--ua-btn-border);
@@ -754,14 +719,14 @@
 .ua-save {
   flex-shrink: 0;
   /* \u4E0E\u6700\u957F\u6587\u6848\uFF08\u4FDD\u5B58\u4E2D\u2026 / \u5DF2\u4FDD\u5B58 \u2713\uFF09\u7B49\u5BBD\uFF1A\u4E09\u6001\u5207\u6362\u4E0D\u5E26\u52A8\u6574\u884C\u6296\u52A8 */
-  min-width: 6rem;
-  /* \u7D27\u51D1\uFF1A\u4FDD\u5B58\u6309\u94AE padding \u4E0E\u8F93\u5165\u6846\u5BF9\u9F50 */
-  padding: 0.55rem 1.2rem;
+  min-width: 5.5rem;
+  /* \u7D27\u51D1\uFF1A\u4FDD\u5B58\u6309\u94AE padding 0.55rem 1.2rem \u2192 0.5rem 1rem */
+  padding: 0.5rem 1rem;
   border: none;
   border-radius: 12px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #fff;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -1542,19 +1507,18 @@
       const avatarSrc = u.avatarUrl || u.headimgurl || ((_a = u.github) == null ? void 0 : _a.avatar);
       const bigAvatar = avatarSrc ? `<img class="ua-big-avatar" src="${escapeAttr(avatarSrc)}" alt="" referrerpolicy="no-referrer" />` : `<div class="ua-big-avatar ua-big-avatar-fallback">${escapeHtml((u.nickname || ((_b = u.github) == null ? void 0 : _b.login) || "?").charAt(0).toUpperCase())}</div>`;
       const githubBlock = u.github ? `
-        <div class="ua-github-bound">
-          <div class="ua-github-info">
-            ${u.github.avatar ? `<img class="ua-gh-avatar" src="${escapeAttr(u.github.avatar)}" alt="@${escapeAttr(u.github.login)}" referrerpolicy="no-referrer" />` : `<div class="ua-gh-avatar ua-gh-avatar-fallback">${escapeHtml(u.github.login.charAt(0).toUpperCase())}</div>`}
-            <div class="ua-gh-meta">
-              <div class="ua-gh-login">@${escapeHtml(u.github.login)} <span class="ua-badge">\u5DF2\u7ED1\u5B9A</span></div>
-              <div class="ua-gh-date">\u7ED1\u5B9A\u4E8E ${escapeHtml(new Date(u.github.boundAt).toLocaleDateString())}</div>
-            </div>
+        <div class="ua-gh-row">
+          <span class="ua-gh-title">${GITHUB_ICON}<b>GitHub</b></span>
+          <div class="ua-gh-status">
+            <span class="ua-gh-name">@${escapeHtml(u.github.login)}<span class="ua-badge">\u5DF2\u7ED1\u5B9A</span></span>
+            <button type="button" class="ua-gh-unbind" data-action="unbind">\u89E3\u7ED1</button>
           </div>
-          <button type="button" class="ua-gh-unbind" data-action="unbind">\u89E3\u7ED1</button>
         </div>` : `
-        <div class="ua-github-unbound">
-          <p class="ua-gh-tip">\u7ED1\u5B9A GitHub \u8D26\u53F7\uFF0C\u7528\u4E8E\u8EAB\u4EFD\u8BC6\u522B\u4E0E\u540E\u7EED\u4E1A\u52A1\u5BF9\u63A5</p>
-          <button type="button" class="ua-gh-bind" data-action="bind">${GITHUB_ICON}<span>\u7ED1\u5B9A GitHub</span></button>
+        <div class="ua-gh-row">
+          <span class="ua-gh-title">${GITHUB_ICON}<b>GitHub</b></span>
+          <div class="ua-gh-status">
+            <button type="button" class="ua-gh-bind" data-action="bind">${GITHUB_ICON}<span>\u7ED1\u5B9A GitHub</span></button>
+          </div>
         </div>`;
       return `
       <div class="ua-dialog" role="dialog" aria-modal="true" aria-label="\u8BBE\u7F6E">
@@ -1563,29 +1527,24 @@
           <button type="button" class="ua-close" data-action="close" aria-label="\u5173\u95ED">${CLOSE_ICON}</button>
         </div>
         <div class="ua-dialog-body">
-          <!-- \u7528\u6237\u4FE1\u606F\u5361\u7247 -->
+          <!-- \u7528\u6237\u4FE1\u606F\u5361\u7247\uFF08\u542B\u660E\u4FE1\u7247\u5E95\u90E8\uFF1A\u7AD9\u70B9\u54C1\u724C + \u7528\u6237 ID\uFF09 -->
           <div class="ua-profile-card">
             <div class="ua-profile-header">
               ${bigAvatar}
               <div class="ua-profile-info">
                 <div class="ua-user-name">${escapeHtml(u.nickname || (u.github ? `@${u.github.login}` : "\u5FAE\u4FE1\u7528\u6237"))}</div>
-                <div class="ua-user-sub">\u767B\u5F55\u4E8E ${escapeHtml(new Date(u.authenticatedAt || Date.now()).toLocaleString())}</div>
                 ${typeof u.userSeq === "number" && u.userSeq > 0 ? `<div class="ua-user-seq">\u4F60\u662F\u672C\u7AD9\u7B2C ${u.userSeq} \u4F4D\u7528\u6237</div>` : ""}
               </div>
             </div>
+            <!-- \u660E\u4FE1\u7247\u5E95\u90E8\uFF1A\u5DE6 = \u7F51\u7AD9\u54C1\u724C\u300C\u795E\u65CF\u4E5D\u5E1D\u300D\uFF1B\u53F3 = \u7528\u6237 OPENID -->
+            <div class="ua-profile-postcard">
+              <span class="ua-postcard-brand">\u795E\u65CF\u4E5D\u5E1D</span>
+              <span class="ua-postcard-id">${escapeHtml(u.openid || "-")}</span>
+            </div>
           </div>
 
-          <!-- \u5FAE\u4FE1 ID -->
-          <div class="ua-field-group">
-            <label class="ua-field-label">\u5FAE\u4FE1 ID\uFF08openid\uFF09</label>
-            <div class="ua-mono-value">${escapeHtml(u.openid || "-")}</div>
-          </div>
-
-          <!-- GitHub \u7ED1\u5B9A -->
-          <div class="ua-field-group">
-            <div class="ua-section-title">${GITHUB_ICON}<span>GitHub</span></div>
-            ${githubBlock}
-          </div>
+          <!-- GitHub \u7ED1\u5B9A\uFF1A\u5DE6\u53F3\u5355\u884C\uFF08\u5DE6\uFF1A\u56FE\u6807+\u6807\u9898\uFF1B\u53F3\uFF1A\u7ED1\u5B9A\u6309\u94AE / \u7528\u6237\u540D+\u89E3\u7ED1\uFF09 -->
+          ${githubBlock}
 
           <!-- \u8BBE\u7F6E\u540D\u5B57 -->
           <div class="ua-field-group">
