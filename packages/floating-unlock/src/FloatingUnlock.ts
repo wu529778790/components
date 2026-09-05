@@ -81,6 +81,8 @@ const DEFAULT_QR_SRC =
 const DEFAULT_TITLE = '帮帮小水管服务器吧'
 const DEFAULT_CONTENT = '服务器成本不小，如果觉得好用，微信扫码看个视频支持一下吧。'
 const DEFAULT_HINT = '微信扫码，在小程序内观看视频（自愿支持，随时可关闭）'
+const BTN_DISMISS = '下次一定'
+const BTN_SUPPORT = '看完啦，支持作者'
 
 const DEFAULT_THEME: Required<FloatingUnlockTheme> = {
   bg: '#fff',
@@ -181,11 +183,17 @@ export class FloatingUnlock {
         <div class="fu-content">${this.buildContent()}</div>
         <div class="fu-qr"><img class="fu-qr-img" alt="支持二维码" src="${escapeAttr(this.opts.qrSrc)}" /></div>
         <div class="fu-hint">${escapeHtml(DEFAULT_HINT)}</div>
+        <div class="fu-actions">
+          <button class="fu-btn fu-btn-ghost" type="button">${escapeHtml(BTN_DISMISS)}</button>
+          <button class="fu-btn fu-btn-primary" type="button">${escapeHtml(BTN_SUPPORT)}</button>
+        </div>
       </div>
     `
 
-    // 自愿观看：关闭按钮 / 遮罩 / Esc 均可关闭
+    // 自愿观看：关闭按钮 / 底部两按钮 / 遮罩 / Esc 均可关闭（两按钮无差别，仅关闭）
     mask.querySelector('.fu-close')?.addEventListener('click', () => this.close())
+    mask.querySelector('.fu-btn-ghost')?.addEventListener('click', () => this.close())
+    mask.querySelector('.fu-btn-primary')?.addEventListener('click', () => this.close())
     mask.addEventListener('click', (e) => {
       if (e.target === mask) this.close()
     })

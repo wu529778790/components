@@ -94,6 +94,46 @@
   color: var(--fu-text-color);
 }
 
+.fu-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.fu-btn {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.fu-btn-ghost {
+  border: 1px solid var(--fu-border);
+  background: transparent;
+  color: var(--fu-text-color);
+}
+
+.fu-btn-ghost:hover {
+  border-color: var(--fu-accent);
+  color: var(--fu-accent);
+}
+
+.fu-btn-primary {
+  border: none;
+  background: var(--fu-accent);
+  color: #fff;
+}
+
+.fu-btn-primary:hover {
+  opacity: 0.85;
+}
+
 @keyframes fu-fade-in {
   from {
     opacity: 0;
