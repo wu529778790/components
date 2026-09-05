@@ -80,7 +80,7 @@ const DEFAULT_QR_SRC =
   'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/reward-unlock-qr.jpg'
 const DEFAULT_TITLE = '帮帮小水管服务器吧'
 const DEFAULT_CONTENT = '服务器成本不小，如果觉得好用，微信扫码看个视频支持一下吧。'
-const DEFAULT_HINT = '微信扫码，在小程序内观看视频（自愿支持，随时可关闭）'
+const DEFAULT_HINT = '微信扫码，在小程序内观看视频'
 const BTN_DISMISS = '下次一定'
 const BTN_SUPPORT = '看完啦，支持作者'
 
