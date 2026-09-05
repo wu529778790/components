@@ -40,6 +40,28 @@
   animation: fu-rise-in 0.22s ease;
 }
 
+.fu-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #999;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.fu-close:hover {
+  color: var(--fu-accent);
+  background: rgba(0, 0, 0, 0.05);
+}
+
 .fu-title {
   margin: 0 0 12px;
   font-size: 17px;
@@ -54,14 +76,9 @@
 }
 
 .fu-qr {
-  position: relative;
   margin: 0 auto 14px;
   width: 190px;
   max-width: 100%;
-  min-height: 190px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .fu-qr-img {
@@ -71,69 +88,10 @@
   border-radius: 8px;
 }
 
-.fu-loading {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.fu-spinner {
-  width: 28px;
-  height: 28px;
-  border: 3px solid rgba(0, 0, 0, 0.1);
-  border-top-color: var(--fu-accent);
-  border-radius: 50%;
-  animation: fu-spin 0.8s linear infinite;
-}
-
-.fu-status {
-  margin: 0 0 6px;
-  font-size: 12px;
-  color: var(--fu-text-color);
-}
-
-.fu-countdown {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 12px;
-  color: #999;
-}
-
 .fu-hint {
   display: block;
   font-size: 12px;
   color: var(--fu-text-color);
-}
-
-.fu-expired {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  margin-top: 4px;
-}
-
-.fu-expired-text {
-  font-size: 14px;
-  color: var(--fu-text-color);
-}
-
-.fu-btn {
-  padding: 8px 24px;
-  border: none;
-  border-radius: 8px;
-  background: var(--fu-accent);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: opacity 0.15s ease;
-}
-
-.fu-btn:hover {
-  opacity: 0.85;
 }
 
 @keyframes fu-fade-in {
@@ -156,12 +114,6 @@
   }
 }
 
-@keyframes fu-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 @media (max-width: 480px) {
   .fu-modal {
     padding: 24px 20px 20px;
@@ -169,6 +121,5 @@
 
   .fu-qr {
     width: 160px;
-    min-height: 160px;
   }
 }

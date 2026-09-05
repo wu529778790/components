@@ -70,9 +70,6 @@
     }
     .btn:hover { background: #0c447c; transform: translateY(-1px); }
     .status { font-size: 13px; color: #999; min-height: 20px; }
-    .status.success { color: #07c160; }
-    .status.error { color: #e04040; }
-    .status.doing { color: #185fa5; }
     .docs { background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 18px; overflow: hidden; margin-top: 24px; }
     .docs h2 { margin: 0 0 12px; font-size: 15px; }
     .docs h3 { margin: 18px 0 8px; font-size: 13px; }
@@ -112,37 +109,32 @@
 <body>
   <header>
     <h1>floating-unlock 演示站 <span class="badge">&lt;floating-unlock&gt; Web Component</span></h1>
-    <p>通用解锁弹窗：扫码看视频广告后放行业务。强制不可关，看完才能继续。点右侧按钮即可体验。</p>
+    <p>自愿支持弹窗：弹出固定小程序码，用户想看就看、想关随时关。纯静态，运行时零后端请求。</p>
   </header>
 
   <main>
     <!-- 左侧：参数面板 -->
     <section class="panel">
-      <h2>参数（可选，改完点「触发解锁」生效）</h2>
-      <div class="field">
-        <label for="apiBase">后端 API 地址</label>
-        <input type="text" id="apiBase" value="https://wx-auth.shenzjd.com" />
-      </div>
-      <div class="field">
-        <label for="siteId">站点 ID</label>
-        <input type="text" id="siteId" value="https://blog.shenzjd.com/components/" />
-        <div class="hint">用于小程序端展示来源 / 广告统计</div>
-      </div>
+      <h2>参数（可选，改完点「打开弹窗」生效）</h2>
       <div class="field">
         <label for="title">弹窗标题</label>
         <input type="text" id="title" value="帮帮小水管服务器吧" />
       </div>
       <div class="field">
         <label for="content">正文（\n 换行）</label>
-        <input type="text" id="content" value="服务器又快扛不住了，看个广告帮服务器续个命吧。" />
+        <input type="text" id="content" value="服务器成本不小，如果觉得好用，微信扫码看个视频支持一下吧。" />
+      </div>
+      <div class="field">
+        <label for="qrSrc">二维码图片 URL（留空用内置固定码）</label>
+        <input type="text" id="qrSrc" placeholder="内置：小程序激励页固定码（图床 CDN）" />
       </div>
     </section>
 
     <!-- 右侧：触发区 -->
     <section class="demo-area">
-      <h2 style="margin: 0; font-size: 16px; color: #555;">点击下方按钮，体验强制解锁</h2>
-      <button class="btn" id="unlockBtn">触发解锁</button>
-      <div class="status" id="status">看完小程序视频后自动放行（这里演示解锁结果）。</div>
+      <h2 style="margin: 0; font-size: 16px; color: #555;">点击下方按钮打开弹窗（可随时关闭）</h2>
+      <button class="btn" id="unlockBtn">打开弹窗</button>
+      <div class="status" id="status">弹窗纯静态展示：无接口调用、无校验，用户自愿扫码观看。</div>
     </section>
   </main>
 
@@ -150,51 +142,35 @@
     <section class="docs">
       <h2>接入方式</h2>
 
-      <h3>方式一：声明式标签 + 业务方调用 unlock()（推荐）</h3>
-      <pre><code>&lt;floating-unlock api-base="https://wx-auth.shenzjd.com" site-id="panhub.shenzjd.com"&gt;&lt;/floating-unlock&gt;
+      <h3>方式一：声明式标签（推荐）</h3>
+      <pre><code>&lt;floating-unlock&gt;&lt;/floating-unlock&gt;
 &lt;script src="https://unpkg.com/@wu529778790/floating-unlock@latest/dist/floating-unlock.wc.js"&gt;&lt;/script&gt;
 &lt;script&gt;
   const unlockEl = document.querySelector('floating-unlock')
 
-  // 在需要解锁的动作处调用；{ ok: true } 只代表看完了广告并拿到票据
-  async function continueSearch() {
-    const { ok, ticket, grant } = await unlockEl.unlock()
-    if (!ok) return
-
-    // 把票据带给业务后端验票（verify）后才真正放行
-    fetch('/api/search', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Unlock-Ticket': ticket,
-        'X-Unlock-Grant': grant
-      },
-      body: JSON.stringify({ keyword })
-    })
-  }
+  // 在合适的位置打开弹窗；用户可随时关闭（× / 遮罩 / Esc）
+  unlockEl.show()
 &lt;/script&gt;</code></pre>
 
-      <h3>方式二：NPM 双轨（React/Vue 项目照旧）</h3>
+      <h3>方式二：NPM</h3>
       <pre><code>pnpm add @wu529778790/floating-unlock
 import FloatingUnlock from '@wu529778790/floating-unlock'
 import '@wu529778790/floating-unlock/style.css'
 
-const unlock = new FloatingUnlock({ apiBase: 'https://wx-auth.shenzjd.com', siteId: 'xxx' })
-const { ok, ticket, grant } = await unlock.unlock()  // { ok: true } 才算解锁成功
-if (!ok) return
-// ticket + grant 随业务请求带给后端验票后再放行（X-Unlock-Ticket / X-Unlock-Grant）</code></pre>
+const unlock = new FloatingUnlock()
+unlock.show()   // 打开弹窗；close() 关闭</code></pre>
 
       <div class="note">
-        <strong>业务后端必须验票</strong>：<code>unlock()</code> 返回的 <code>{ ok: true, ticket, grant }</code>
-        不代表放行——<code>grant</code> 是一次性 HMAC 票据，业务后端放行前须用
-        <code>ticket + grant</code> 调 wx-auth <code>/api/auth/mp-reward/verify</code>
-        验票并核销（<code>valid: true</code> 才放行）。前端解锁不再代表放行，改前端代码无法绕过。
+        <strong>完全静态</strong>：组件不再调用任何后端接口（无出码/轮询/验票），二维码是写死的
+        固定小程序激励页码图片（<code>pages/reward-unlock/index</code>，release 版，无参数），
+        由 <code>scripts/generate-qr.mjs</code> 一次性生成并托管在图床。旧调用
+        <code>await el.unlock()</code> 仍可用，但只负责打开弹窗并立即返回，不再阻塞业务。
       </div>
       <div class="note">
-        全部支持属性：<code>api-base</code> <code>site-id</code> <code>title</code> <code>content</code>
+        全部支持属性：<code>qr-src</code> <code>title</code> <code>content</code>
         <code>content-html</code> <code>width</code> <code>z-index</code>
         <code>theme-bg/-accent/-radius/-border/-overlay/-title-color/-text-color</code>。
-        本组件为「强制解锁」场景，不自动弹出——由业务方在需要解锁的动作处调用 <code>el.unlock()</code> 触发。
+        本组件不自动弹出——由业务方在合适位置调用 <code>el.show()</code> 触发。
         样式已隔离在 shadow DOM，外部可用 <code>--fu-*</code> 变量覆盖。
       </div>
     </section>
@@ -205,34 +181,19 @@ if (!ok) return
   <script src="../dist/floating-unlock.wc.js"></script>
   <script>
     const unlockEl = document.getElementById('demo-unlock')
-    const statusEl = document.getElementById('status')
     const btn = document.getElementById('unlockBtn')
 
     function apply() {
-      unlockEl.setAttribute('api-base', document.getElementById('apiBase').value.trim() || 'https://wx-auth.shenzjd.com')
-      unlockEl.setAttribute('site-id', document.getElementById('siteId').value.trim())
       unlockEl.setAttribute('title', document.getElementById('title').value || '帮帮小水管服务器吧')
       unlockEl.setAttribute('content', document.getElementById('content').value)
+      const qrSrc = document.getElementById('qrSrc').value.trim()
+      if (qrSrc) unlockEl.setAttribute('qr-src', qrSrc)
+      else unlockEl.removeAttribute('qr-src')
     }
 
-    btn.addEventListener('click', async () => {
+    btn.addEventListener('click', () => {
       apply()
-      btn.disabled = true
-      statusEl.className = 'status doing'
-      statusEl.textContent = '弹窗已打开，请微信扫码看视频…'
-      try {
-        const { ok, ticket, grant } = await unlockEl.unlock()
-        if (ok) {
-          statusEl.className = 'status success'
-          statusEl.textContent = `解锁成功！已拿到票据（demo 仅展示，业务接入须将 ticket+grant 交后端 verify 验票）`
-          statusEl.title = `ticket=${ticket}\ngrant=${grant}`
-        } else {
-          statusEl.className = 'status error'
-          statusEl.textContent = '解锁失败/过期/被取消，请重试。'
-        }
-      } finally {
-        btn.disabled = false
-      }
+      unlockEl.show()
     })
   </script>
 </body>

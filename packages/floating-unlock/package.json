@@ -1,7 +1,7 @@
 {
   "name": "@wu529778790/floating-unlock",
   "version": "0.1.3",
-  "description": "A minimal, zero-dependency unlock modal that forces users to watch a rewarded video ad (via WeChat mini-program) before continuing their business.",
+  "description": "A minimal, zero-dependency modal that shows a fixed WeChat mini-program reward-page QR code. Users may voluntarily scan and watch; the modal is fully static and closable anytime.",
   "type": "module",
   "main": "./dist/index.umd.cjs",
   "module": "./dist/index.esm.js",
@@ -26,7 +26,8 @@
     "ad",
     "qrcode",
     "wechat",
-    "miniprogram"
+    "miniprogram",
+    "static"
   ],
   "license": "MIT",
   "repository": {
