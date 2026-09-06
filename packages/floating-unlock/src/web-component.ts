@@ -51,6 +51,11 @@ export class FloatingUnlockElement extends HTMLElement {
       'title',
       'content',
       'content-html',
+      'loading-text',
+      'hint',
+      'btn-dismiss',
+      'btn-confirm',
+      'hide-actions',
       'width',
       'z-index',
       ...THEME_ATTRS.map(([attr]) => attr)
@@ -114,6 +119,11 @@ export class FloatingUnlockElement extends HTMLElement {
       title: get('title') ?? global.title,
       content: get('content') ?? global.content,
       contentHtml: get('content-html') ?? global.contentHtml,
+      loadingText: get('loading-text') ?? global.loadingText,
+      hint: get('hint') ?? global.hint,
+      dismissText: get('btn-dismiss') ?? global.dismissText,
+      confirmText: get('btn-confirm') ?? global.confirmText,
+      hideActions: this.hasAttribute('hide-actions') || global.hideActions === true,
       width: numAttr(this, 'width', global.width ?? 380),
       zIndex: numAttr(this, 'z-index', global.zIndex ?? 10000),
       theme: { ...(global.theme ?? {}), ...theme }

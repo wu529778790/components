@@ -58,6 +58,16 @@ export interface FloatingUnlockOptions {
   content?: string
   /** 正文原始 HTML（自行确保安全），优先于 content */
   contentHtml?: string
+  /** 标题下方的 loading 提示（带转圈动画）。传非空字符串才渲染该区域 */
+  loadingText?: string
+  /** 二维码下方的提示小字，默认「微信扫码，在小程序内观看视频」 */
+  hint?: string
+  /** 次要按钮文案，默认「下次一定」 */
+  dismissText?: string
+  /** 主按钮文案，默认「看完啦，支持作者」 */
+  confirmText?: string
+  /** 隐藏底部操作按钮区（仅保留右上 × / 遮罩 / Esc 关闭），默认 false */
+  hideActions?: boolean
   /** 卡片宽度（px），默认 380 */
   width?: number
   /** 弹窗 z-index，默认 10000 */
@@ -71,6 +81,11 @@ interface ResolvedOptions {
   title: string
   content: string
   contentHtml: string
+  loadingText: string
+  hint: string
+  dismissText: string
+  confirmText: string
+  hideActions: boolean
   width: number
   zIndex: number
   theme: Required<FloatingUnlockTheme>
@@ -80,6 +95,7 @@ const DEFAULT_QR_SRC =
   'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/reward-unlock-qr.jpg'
 const DEFAULT_TITLE = '帮帮小水管服务器吧'
 const DEFAULT_CONTENT = '服务器成本不小，如果觉得好用，微信扫码看个视频支持一下吧。'
+const DEFAULT_LOADING_TEXT = ''
 const DEFAULT_HINT = '微信扫码，在小程序内观看视频'
 const BTN_DISMISS = '下次一定'
 const BTN_SUPPORT = '看完啦，支持作者'
@@ -155,6 +171,11 @@ export class FloatingUnlock {
       title: options.title ?? DEFAULT_TITLE,
       content: options.content ?? DEFAULT_CONTENT,
       contentHtml: options.contentHtml ?? '',
+      loadingText: options.loadingText ?? DEFAULT_LOADING_TEXT,
+      hint: options.hint ?? DEFAULT_HINT,
+      dismissText: options.dismissText ?? BTN_DISMISS,
+      confirmText: options.confirmText ?? BTN_SUPPORT,
+      hideActions: options.hideActions ?? false,
       width: options.width ?? 380,
       zIndex: options.zIndex ?? 10000,
       theme: { ...DEFAULT_THEME, ...(options.theme ?? {}) }
@@ -180,13 +201,14 @@ export class FloatingUnlock {
       <div class="fu-modal" role="dialog" aria-modal="true" aria-label="${escapeAttr(this.opts.title)}">
         <button class="fu-close" type="button" aria-label="关闭">×</button>
         <p class="fu-title">${escapeHtml(this.opts.title)}</p>
-        <div class="fu-content">${this.buildContent()}</div>
+        ${this.opts.loadingText ? `<div class="fu-loading"><span class="fu-spinner" aria-hidden="true"></span><span class="fu-loading-text">${escapeHtml(this.opts.loadingText)}</span></div>` : ''}
+        ${this.opts.content ? `<div class="fu-content">${this.buildContent()}</div>` : ''}
         <div class="fu-qr"><img class="fu-qr-img" alt="支持二维码" src="${escapeAttr(this.opts.qrSrc)}" /></div>
-        <div class="fu-hint">${escapeHtml(DEFAULT_HINT)}</div>
-        <div class="fu-actions">
-          <button class="fu-btn fu-btn-ghost" type="button">${escapeHtml(BTN_DISMISS)}</button>
-          <button class="fu-btn fu-btn-primary" type="button">${escapeHtml(BTN_SUPPORT)}</button>
-        </div>
+        ${this.opts.hint ? `<div class="fu-hint">${escapeHtml(this.opts.hint)}</div>` : ''}
+        ${this.opts.hideActions ? '' : `<div class="fu-actions">
+          <button class="fu-btn fu-btn-ghost" type="button">${escapeHtml(this.opts.dismissText)}</button>
+          <button class="fu-btn fu-btn-primary" type="button">${escapeHtml(this.opts.confirmText)}</button>
+        </div>`}
       </div>
     `
 
