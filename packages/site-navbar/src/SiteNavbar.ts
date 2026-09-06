@@ -22,7 +22,8 @@ export const DEFAULT_LINKS: SiteNavbarLink[] = [
   { href: 'https://shenzjd.com', label: 'AI情报局', icon: '🏠' },
   { href: 'https://panhub.shenzjd.com', label: '网盘搜索', icon: '🔍' },
   { href: 'https://parse.shenzjd.com', label: '视频解析', icon: '🎬' },
-  { href: 'https://newshub.shenzjd.com', label: '热点聚合', icon: '📰' },
+  // { href: 'https://newshub.shenzjd.com', label: '热点聚合', icon: '📰' },
+  { href: 'https://img.shenzjd.com/', label: 'Git 图床', icon: '📷' },
   { href: 'https://navhub.shenzjd.com', label: '导航森林', icon: '🧭' },
   { href: 'https://bing.shenzjd.com', label: '必应壁纸', icon: '🖼️' }
 ]

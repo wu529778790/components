@@ -6,7 +6,7 @@
 
 ## 特性
 
-- 🧭 内置 shenzjd.com 系列子站链接（AI情报局 / 网盘搜索 / 视频解析 / 热点聚合 / 导航森林 / 必应壁纸），可用 `links` 覆盖
+- 🧭 内置 shenzjd.com 系列子站链接（AI情报局 / 网盘搜索 / 视频解析 / Git 图床 / 导航森林 / 必应壁纸），可用 `links` 覆盖
 - 🎯 按 `location.hostname` **自动高亮当前站**（host 精确匹配，匹配不上则不高亮任何链接），也可用 `active` 强制指定；高亮样式仅为文字变色
 - 👤 **内置 user-avatar**（微信登录头像）：运行时动态加载最新版 Web Component，头像组件发版即自动生效，导航栏无需跟随发版
 - 📱 移动端（<768px）折叠为 hamburger 下拉菜单，`position: fixed` portal 挂载，玻璃拟态
