@@ -8,11 +8,11 @@
       title: "\u516C\u4F17\u53F7",
       desc: ""
     },
-    // 小程序区块（默认渲染；已由赞赏码换成小程序）
+    // 小程序区块（默认渲染；码指向小程序激励视频页，扫码看广告支持作者）
     donate: {
-      src: "https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260828-153016-d3e9.jpg",
-      title: "\u5C0F\u7A0B\u5E8F",
-      desc: ""
+      src: "https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/reward-unlock-qr.jpg",
+      title: "\u770B\u5E7F\u544A\u652F\u6301",
+      desc: "\u626B\u7801\u770B\u4E2A\u89C6\u9891\uFF0C\u5E2E\u5C0F\u6C34\u7BA1\u670D\u52A1\u5668\u7EED\u547D"
     }
   };
   var DEFAULT_THEME = {
