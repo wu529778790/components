@@ -614,28 +614,44 @@
   letter-spacing: 0.02em;
 }
 
-/* 解绑小按钮（已绑定） */
+/* 解绑小按钮（已绑定）
+   与右侧「已绑定」绿色 pill badge 共处一行：
+   - 用 pill 圆角（999px）与之呼应，避免方角按钮在视觉上显得突兀
+   - 高度收紧到接近 badge，避免一行内元素纵向参差
+   - 边框用 color-mix + --ua-danger 派生，浅/深色模式自动适配 */
 .ua-gh-unbind {
   flex-shrink: 0;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.2;
   color: var(--ua-danger);
   background: transparent;
-  border: 1px solid light-dark(#fecaca, rgba(248, 81, 73, 0.45));
-  border-radius: 8px;
-  padding: 0.3rem 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--ua-danger) 32%, transparent);
+  border-radius: 999px;
+  padding: 0.18rem 0.62rem;
   cursor: pointer;
-  transition: all 0.25s ease;
-  font-weight: 500;
   white-space: nowrap;
+  user-select: none;
+  transition:
+    color 0.18s ease,
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.12s ease;
 }
 
 .ua-gh-unbind:hover {
-  background: light-dark(#fef2f2, rgba(248, 81, 73, 0.14));
-  border-color: light-dark(#fca5a5, #f85149);
+  background: color-mix(in srgb, var(--ua-danger) 10%, transparent);
+  border-color: var(--ua-danger);
 }
 
 .ua-gh-unbind:active {
-  transform: scale(0.97);
+  background: color-mix(in srgb, var(--ua-danger) 18%, transparent);
+  transform: scale(0.96);
+}
+
+.ua-gh-unbind:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ua-danger) 22%, transparent);
 }
 
 /* 绑定按钮（未绑定） */

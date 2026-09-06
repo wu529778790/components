@@ -512,6 +512,9 @@ export class UserAvatar {
       const data = (await res.json()) as { success: boolean; message?: string }
       if (data.success) {
         await this.fetchUser(true)
+        // 让开着的设置弹窗立刻从「已绑定」切到「绑定 GitHub」状态，
+        // 不必让用户关掉弹窗再重开来看到效果（之前这步缺失，体验断裂）。
+        this.refreshGithubRow()
       } else {
         window.alert(data.message || '解绑失败')
       }
@@ -807,22 +810,9 @@ export class UserAvatar {
     // GitHub 绑定：单行左右结构
     // - 左侧固定：GitHub 图标 +「GitHub」标题
     // - 右侧状态区：未绑定 →「绑定 GitHub」按钮；已绑定 → GitHub 名字 + 解绑按钮
-    const githubBlock = u.github
-      ? `
-        <div class="ua-gh-row">
-          <span class="ua-gh-title">${GITHUB_ICON}<b>GitHub</b></span>
-          <div class="ua-gh-status">
-            <span class="ua-gh-name">@${escapeHtml(u.github.login)}<span class="ua-badge">已绑定</span></span>
-            <button type="button" class="ua-gh-unbind" data-action="unbind">解绑</button>
-          </div>
-        </div>`
-      : `
-        <div class="ua-gh-row">
-          <span class="ua-gh-title">${GITHUB_ICON}<b>GitHub</b></span>
-          <div class="ua-gh-status">
-            <button type="button" class="ua-gh-bind" data-action="bind">${GITHUB_ICON}<span>绑定 GitHub</span></button>
-          </div>
-        </div>`
+    // 整行 HTML 抽到 buildGithubRowHtml，便于解绑/绑定后原地刷新（不重渲染整个弹窗，
+    // 避免丢失用户在「设置名字」输入框里的草稿、焦点和光标位置）。
+    const githubRow = this.buildGithubRowHtml(u)
 
     return `
       <div class="ua-dialog" role="dialog" aria-modal="true" aria-label="设置">
@@ -848,7 +838,7 @@ export class UserAvatar {
           </div>
 
           <!-- GitHub 绑定：左右单行（左：图标+标题；右：绑定按钮 / 用户名+解绑） -->
-          ${githubBlock}
+          ${githubRow}
 
           <!-- 设置名字 -->
           <div class="ua-field-group">
@@ -862,6 +852,53 @@ export class UserAvatar {
         </div>
       </div>
     `
+  }
+
+  /**
+   * 构建 GitHub 绑定行的 HTML。
+   * 抽出来是为了让「解绑 / 绑定」成功后能原地替换这行（见 refreshGithubRow），
+   * 而不是重渲染整个设置弹窗 —— 后者会丢掉用户在「设置名字」输入框里的草稿和焦点。
+   */
+  private buildGithubRowHtml(u: WxUserInfo): string {
+    return u.github
+      ? `
+        <div class="ua-gh-row">
+          <span class="ua-gh-title">${GITHUB_ICON}<b>GitHub</b></span>
+          <div class="ua-gh-status">
+            <span class="ua-gh-name">@${escapeHtml(u.github.login)}<span class="ua-badge">已绑定</span></span>
+            <button type="button" class="ua-gh-unbind" data-action="unbind">解绑</button>
+          </div>
+        </div>`
+      : `
+        <div class="ua-gh-row">
+          <span class="ua-gh-title">${GITHUB_ICON}<b>GitHub</b></span>
+          <div class="ua-gh-status">
+            <button type="button" class="ua-gh-bind" data-action="bind">${GITHUB_ICON}<span>绑定 GitHub</span></button>
+          </div>
+        </div>`
+  }
+
+  /**
+   * 就地刷新打开中的设置弹窗里的 GitHub 行。
+   * 在解绑 / 绑定成功后调用：this.user.github 已更新，需要让弹窗立刻反映出新状态。
+   * 弹窗未打开时无需动作。
+   */
+  private refreshGithubRow(): void {
+    if (!this.settingsEl || !this.user) return
+    const oldRow = this.settingsEl.querySelector('.ua-gh-row')
+    if (!oldRow) return
+    const wrapper = document.createElement('div')
+    wrapper.innerHTML = this.buildGithubRowHtml(this.user).trim()
+    const newRow = wrapper.firstElementChild as HTMLElement | null
+    if (!newRow) return
+    oldRow.replaceWith(newRow)
+    // 新行的按钮要重新绑事件（replaceWith 不会保留旧节点的事件监听）
+    newRow.querySelector<HTMLButtonElement>('[data-action="bind"]')?.addEventListener('click', () => {
+      this.startGithubBind()
+    })
+    newRow.querySelector<HTMLButtonElement>('[data-action="unbind"]')?.addEventListener('click', () => {
+      void this.unbindGithub()
+    })
   }
 
   private bindSettingsEvents(settings: HTMLElement): void {
@@ -947,6 +984,9 @@ export class UserAvatar {
       window.removeEventListener('message', this.githubMsgListener!)
       this.githubMsgListener = null
       void this.fetchUser(true).then(() => {
+        // 让开着的设置弹窗从「绑定 GitHub」按钮切到「@用户名 + 解绑」状态，
+        // 同样修复绑定完成后 UI 不刷新的体验问题。
+        this.refreshGithubRow()
         if (this.user?.github) this.opts.onGithubBound?.(this.user)
       })
     }
