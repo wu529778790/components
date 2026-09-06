@@ -75,11 +75,11 @@ const DEFAULT_BLOCKS: Record<'wechat' | 'donate', Required<FloatingQRBlock>> = {
     title: '公众号',
     desc: ''
   },
-  // 小程序区块（默认渲染；已由赞赏码换成小程序）
+  // 小程序区块（默认渲染；码指向小程序激励视频页，扫码看广告支持作者）
   donate: {
-    src: 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260828-153016-d3e9.jpg',
-    title: '小程序',
-    desc: ''
+    src: 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/reward-unlock-qr.jpg',
+    title: '看广告支持',
+    desc: '扫码看个视频，帮小水管服务器续命'
   }
 }
 
