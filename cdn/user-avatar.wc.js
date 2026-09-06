@@ -1,4 +1,4 @@
-/* @wu529778790/user-avatar v0.1.26 */
+/* @wu529778790/user-avatar v0.1.27 */
 "use strict";
 (() => {
   // src/wx-auth.ts
@@ -626,28 +626,44 @@
   letter-spacing: 0.02em;
 }
 
-/* \u89E3\u7ED1\u5C0F\u6309\u94AE\uFF08\u5DF2\u7ED1\u5B9A\uFF09 */
+/* \u89E3\u7ED1\u5C0F\u6309\u94AE\uFF08\u5DF2\u7ED1\u5B9A\uFF09
+   \u4E0E\u53F3\u4FA7\u300C\u5DF2\u7ED1\u5B9A\u300D\u7EFF\u8272 pill badge \u5171\u5904\u4E00\u884C\uFF1A
+   - \u7528 pill \u5706\u89D2\uFF08999px\uFF09\u4E0E\u4E4B\u547C\u5E94\uFF0C\u907F\u514D\u65B9\u89D2\u6309\u94AE\u5728\u89C6\u89C9\u4E0A\u663E\u5F97\u7A81\u5140
+   - \u9AD8\u5EA6\u6536\u7D27\u5230\u63A5\u8FD1 badge\uFF0C\u907F\u514D\u4E00\u884C\u5185\u5143\u7D20\u7EB5\u5411\u53C2\u5DEE
+   - \u8FB9\u6846\u7528 color-mix + --ua-danger \u6D3E\u751F\uFF0C\u6D45/\u6DF1\u8272\u6A21\u5F0F\u81EA\u52A8\u9002\u914D */
 .ua-gh-unbind {
   flex-shrink: 0;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.2;
   color: var(--ua-danger);
   background: transparent;
-  border: 1px solid light-dark(#fecaca, rgba(248, 81, 73, 0.45));
-  border-radius: 8px;
-  padding: 0.3rem 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--ua-danger) 32%, transparent);
+  border-radius: 999px;
+  padding: 0.18rem 0.62rem;
   cursor: pointer;
-  transition: all 0.25s ease;
-  font-weight: 500;
   white-space: nowrap;
+  user-select: none;
+  transition:
+    color 0.18s ease,
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.12s ease;
 }
 
 .ua-gh-unbind:hover {
-  background: light-dark(#fef2f2, rgba(248, 81, 73, 0.14));
-  border-color: light-dark(#fca5a5, #f85149);
+  background: color-mix(in srgb, var(--ua-danger) 10%, transparent);
+  border-color: var(--ua-danger);
 }
 
 .ua-gh-unbind:active {
-  transform: scale(0.97);
+  background: color-mix(in srgb, var(--ua-danger) 18%, transparent);
+  transform: scale(0.96);
+}
+
+.ua-gh-unbind:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ua-danger) 22%, transparent);
 }
 
 /* \u7ED1\u5B9A\u6309\u94AE\uFF08\u672A\u7ED1\u5B9A\uFF09 */
@@ -1273,6 +1289,7 @@
         const data = await res.json();
         if (data.success) {
           await this.fetchUser(true);
+          this.refreshGithubRow();
         } else {
           window.alert(data.message || "\u89E3\u7ED1\u5931\u8D25");
         }
@@ -1506,20 +1523,7 @@
       var _a, _b;
       const avatarSrc = u.avatarUrl || u.headimgurl || ((_a = u.github) == null ? void 0 : _a.avatar);
       const bigAvatar = avatarSrc ? `<img class="ua-big-avatar" src="${escapeAttr(avatarSrc)}" alt="" referrerpolicy="no-referrer" />` : `<div class="ua-big-avatar ua-big-avatar-fallback">${escapeHtml((u.nickname || ((_b = u.github) == null ? void 0 : _b.login) || "?").charAt(0).toUpperCase())}</div>`;
-      const githubBlock = u.github ? `
-        <div class="ua-gh-row">
-          <span class="ua-gh-title">${GITHUB_ICON}<b>GitHub</b></span>
-          <div class="ua-gh-status">
-            <span class="ua-gh-name">@${escapeHtml(u.github.login)}<span class="ua-badge">\u5DF2\u7ED1\u5B9A</span></span>
-            <button type="button" class="ua-gh-unbind" data-action="unbind">\u89E3\u7ED1</button>
-          </div>
-        </div>` : `
-        <div class="ua-gh-row">
-          <span class="ua-gh-title">${GITHUB_ICON}<b>GitHub</b></span>
-          <div class="ua-gh-status">
-            <button type="button" class="ua-gh-bind" data-action="bind">${GITHUB_ICON}<span>\u7ED1\u5B9A GitHub</span></button>
-          </div>
-        </div>`;
+      const githubRow = this.buildGithubRowHtml(u);
       return `
       <div class="ua-dialog" role="dialog" aria-modal="true" aria-label="\u8BBE\u7F6E">
         <div class="ua-dialog-head">
@@ -1544,7 +1548,7 @@
           </div>
 
           <!-- GitHub \u7ED1\u5B9A\uFF1A\u5DE6\u53F3\u5355\u884C\uFF08\u5DE6\uFF1A\u56FE\u6807+\u6807\u9898\uFF1B\u53F3\uFF1A\u7ED1\u5B9A\u6309\u94AE / \u7528\u6237\u540D+\u89E3\u7ED1\uFF09 -->
-          ${githubBlock}
+          ${githubRow}
 
           <!-- \u8BBE\u7F6E\u540D\u5B57 -->
           <div class="ua-field-group">
@@ -1558,6 +1562,49 @@
         </div>
       </div>
     `;
+    }
+    /**
+     * 构建 GitHub 绑定行的 HTML。
+     * 抽出来是为了让「解绑 / 绑定」成功后能原地替换这行（见 refreshGithubRow），
+     * 而不是重渲染整个设置弹窗 —— 后者会丢掉用户在「设置名字」输入框里的草稿和焦点。
+     */
+    buildGithubRowHtml(u) {
+      return u.github ? `
+        <div class="ua-gh-row">
+          <span class="ua-gh-title">${GITHUB_ICON}<b>GitHub</b></span>
+          <div class="ua-gh-status">
+            <span class="ua-gh-name">@${escapeHtml(u.github.login)}<span class="ua-badge">\u5DF2\u7ED1\u5B9A</span></span>
+            <button type="button" class="ua-gh-unbind" data-action="unbind">\u89E3\u7ED1</button>
+          </div>
+        </div>` : `
+        <div class="ua-gh-row">
+          <span class="ua-gh-title">${GITHUB_ICON}<b>GitHub</b></span>
+          <div class="ua-gh-status">
+            <button type="button" class="ua-gh-bind" data-action="bind">${GITHUB_ICON}<span>\u7ED1\u5B9A GitHub</span></button>
+          </div>
+        </div>`;
+    }
+    /**
+     * 就地刷新打开中的设置弹窗里的 GitHub 行。
+     * 在解绑 / 绑定成功后调用：this.user.github 已更新，需要让弹窗立刻反映出新状态。
+     * 弹窗未打开时无需动作。
+     */
+    refreshGithubRow() {
+      var _a, _b;
+      if (!this.settingsEl || !this.user) return;
+      const oldRow = this.settingsEl.querySelector(".ua-gh-row");
+      if (!oldRow) return;
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = this.buildGithubRowHtml(this.user).trim();
+      const newRow = wrapper.firstElementChild;
+      if (!newRow) return;
+      oldRow.replaceWith(newRow);
+      (_a = newRow.querySelector('[data-action="bind"]')) == null ? void 0 : _a.addEventListener("click", () => {
+        this.startGithubBind();
+      });
+      (_b = newRow.querySelector('[data-action="unbind"]')) == null ? void 0 : _b.addEventListener("click", () => {
+        void this.unbindGithub();
+      });
     }
     bindSettingsEvents(settings) {
       var _a, _b, _c, _d;
@@ -1641,6 +1688,7 @@
         this.githubMsgListener = null;
         void this.fetchUser(true).then(() => {
           var _a, _b, _c;
+          this.refreshGithubRow();
           if ((_a = this.user) == null ? void 0 : _a.github) (_c = (_b = this.opts).onGithubBound) == null ? void 0 : _c.call(_b, this.user);
         });
       };
