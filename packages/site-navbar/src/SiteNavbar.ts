@@ -25,7 +25,8 @@ export const DEFAULT_LINKS: SiteNavbarLink[] = [
   // { href: 'https://newshub.shenzjd.com', label: '热点聚合', icon: '📰' },
   { href: 'https://img.shenzjd.com/', label: 'Git 图床', icon: '📷' },
   { href: 'https://navhub.shenzjd.com', label: '导航森林', icon: '🧭' },
-  { href: 'https://bing.shenzjd.com', label: '必应壁纸', icon: '🖼️' }
+  { href: 'https://bing.shenzjd.com', label: '必应壁纸', icon: '🖼️' },
+  { href: 'https://freeimg.shenzjd.com/', label: '免费生图', icon: '🆓' }
 ]
 
 /**
