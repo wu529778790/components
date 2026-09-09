@@ -5,6 +5,7 @@
   var DEFAULT_QR_SRC = "https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/reward-unlock-qr.jpg";
   var DEFAULT_TITLE = "\u5E2E\u5E2E\u5C0F\u6C34\u7BA1\u670D\u52A1\u5668\u5427";
   var DEFAULT_CONTENT = "\u670D\u52A1\u5668\u6210\u672C\u4E0D\u5C0F\uFF0C\u5982\u679C\u89C9\u5F97\u597D\u7528\uFF0C\u5FAE\u4FE1\u626B\u7801\u770B\u4E2A\u89C6\u9891\u652F\u6301\u4E00\u4E0B\u5427\u3002";
+  var DEFAULT_LOADING_TEXT = "";
   var DEFAULT_HINT = "\u5FAE\u4FE1\u626B\u7801\uFF0C\u5728\u5C0F\u7A0B\u5E8F\u5185\u89C2\u770B\u89C6\u9891";
   var BTN_DISMISS = "\u4E0B\u6B21\u4E00\u5B9A";
   var BTN_SUPPORT = "\u770B\u5B8C\u5566\uFF0C\u652F\u6301\u4F5C\u8005";
@@ -59,15 +60,20 @@
     }
     // ==================== 内部实现 ====================
     resolve(options) {
-      var _a, _b, _c, _d, _e, _f, _g;
+      var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l;
       return {
         qrSrc: (_a = options.qrSrc) != null ? _a : DEFAULT_QR_SRC,
         title: (_b = options.title) != null ? _b : DEFAULT_TITLE,
         content: (_c = options.content) != null ? _c : DEFAULT_CONTENT,
         contentHtml: (_d = options.contentHtml) != null ? _d : "",
-        width: (_e = options.width) != null ? _e : 380,
-        zIndex: (_f = options.zIndex) != null ? _f : 1e4,
-        theme: { ...DEFAULT_THEME, ...(_g = options.theme) != null ? _g : {} }
+        loadingText: (_e = options.loadingText) != null ? _e : DEFAULT_LOADING_TEXT,
+        hint: (_f = options.hint) != null ? _f : DEFAULT_HINT,
+        dismissText: (_g = options.dismissText) != null ? _g : BTN_DISMISS,
+        confirmText: (_h = options.confirmText) != null ? _h : BTN_SUPPORT,
+        hideActions: (_i = options.hideActions) != null ? _i : false,
+        width: (_j = options.width) != null ? _j : 380,
+        zIndex: (_k = options.zIndex) != null ? _k : 1e4,
+        theme: { ...DEFAULT_THEME, ...(_l = options.theme) != null ? _l : {} }
       };
     }
     render() {
@@ -88,13 +94,14 @@
       <div class="fu-modal" role="dialog" aria-modal="true" aria-label="${escapeAttr(this.opts.title)}">
         <button class="fu-close" type="button" aria-label="\u5173\u95ED">\xD7</button>
         <p class="fu-title">${escapeHtml(this.opts.title)}</p>
-        <div class="fu-content">${this.buildContent()}</div>
+        ${this.opts.loadingText ? `<div class="fu-loading"><span class="fu-spinner" aria-hidden="true"></span><span class="fu-loading-text">${escapeHtml(this.opts.loadingText)}</span></div>` : ""}
+        ${this.opts.content ? `<div class="fu-content">${this.buildContent()}</div>` : ""}
         <div class="fu-qr"><img class="fu-qr-img" alt="\u652F\u6301\u4E8C\u7EF4\u7801" src="${escapeAttr(this.opts.qrSrc)}" /></div>
-        <div class="fu-hint">${escapeHtml(DEFAULT_HINT)}</div>
-        <div class="fu-actions">
-          <button class="fu-btn fu-btn-ghost" type="button">${escapeHtml(BTN_DISMISS)}</button>
-          <button class="fu-btn fu-btn-primary" type="button">${escapeHtml(BTN_SUPPORT)}</button>
-        </div>
+        ${this.opts.hint ? `<div class="fu-hint">${escapeHtml(this.opts.hint)}</div>` : ""}
+        ${this.opts.hideActions ? "" : `<div class="fu-actions">
+          <button class="fu-btn fu-btn-ghost" type="button">${escapeHtml(this.opts.dismissText)}</button>
+          <button class="fu-btn fu-btn-primary" type="button">${escapeHtml(this.opts.confirmText)}</button>
+        </div>`}
       </div>
     `;
       (_a = mask.querySelector(".fu-close")) == null ? void 0 : _a.addEventListener("click", () => this.close());
@@ -170,7 +177,7 @@
   }
 
   // src/styles.css
-  var styles_default = '.fu-mask {\n  --fu-overlay: rgba(0, 0, 0, 0.4);\n  --fu-bg: #fff;\n  --fu-accent: #185fa5;\n  --fu-radius: 16px;\n  --fu-border: rgba(0, 0, 0, 0.1);\n  --fu-title-color: #1f1f1f;\n  --fu-text-color: #555;\n  --fu-width: 380px;\n\n  position: fixed;\n  inset: 0;\n  z-index: 10000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  box-sizing: border-box;\n  background: var(--fu-overlay);\n  animation: fu-fade-in 0.18s ease;\n}\n\n.fu-modal {\n  position: relative;\n  box-sizing: border-box;\n  width: var(--fu-width);\n  max-width: 92vw;\n  max-height: 88vh;\n  overflow-y: auto;\n  padding: 28px 28px 24px;\n  background: var(--fu-bg);\n  border: 1px solid var(--fu-border);\n  border-radius: var(--fu-radius);\n  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);\n  text-align: center;\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,\n    "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",\n    sans-serif;\n  line-height: 1.6;\n  animation: fu-rise-in 0.22s ease;\n}\n\n.fu-close {\n  position: absolute;\n  top: 10px;\n  right: 12px;\n  width: 32px;\n  height: 32px;\n  padding: 0;\n  border: none;\n  background: transparent;\n  color: #999;\n  font-size: 22px;\n  line-height: 1;\n  cursor: pointer;\n  border-radius: 8px;\n  transition: color 0.15s ease, background 0.15s ease;\n}\n\n.fu-close:hover {\n  color: var(--fu-accent);\n  background: rgba(0, 0, 0, 0.05);\n}\n\n.fu-title {\n  margin: 0 0 12px;\n  font-size: 17px;\n  font-weight: 500;\n  color: var(--fu-title-color);\n}\n\n.fu-content {\n  margin: 0 0 18px;\n  font-size: 13px;\n  color: var(--fu-text-color);\n}\n\n.fu-qr {\n  margin: 0 auto 14px;\n  width: 190px;\n  max-width: 100%;\n}\n\n.fu-qr-img {\n  display: block;\n  width: 100%;\n  height: auto;\n  border-radius: 8px;\n}\n\n.fu-hint {\n  display: block;\n  font-size: 12px;\n  color: var(--fu-text-color);\n}\n\n.fu-actions {\n  display: flex;\n  gap: 10px;\n  margin-top: 16px;\n}\n\n.fu-btn {\n  flex: 1;\n  min-width: 0;\n  padding: 9px 8px;\n  border-radius: 8px;\n  font-size: 13px;\n  font-weight: 500;\n  line-height: 1.4;\n  cursor: pointer;\n  transition: opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease;\n  box-sizing: border-box;\n}\n\n.fu-btn-ghost {\n  border: 1px solid var(--fu-border);\n  background: transparent;\n  color: var(--fu-text-color);\n}\n\n.fu-btn-ghost:hover {\n  border-color: var(--fu-accent);\n  color: var(--fu-accent);\n}\n\n.fu-btn-primary {\n  border: none;\n  background: var(--fu-accent);\n  color: #fff;\n}\n\n.fu-btn-primary:hover {\n  opacity: 0.85;\n}\n\n@keyframes fu-fade-in {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n\n@keyframes fu-rise-in {\n  from {\n    opacity: 0;\n    transform: translateY(12px);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n\n@media (max-width: 480px) {\n  .fu-modal {\n    padding: 24px 20px 20px;\n  }\n\n  .fu-qr {\n    width: 160px;\n  }\n}\n';
+  var styles_default = '.fu-mask {\n  --fu-overlay: rgba(0, 0, 0, 0.4);\n  --fu-bg: #fff;\n  --fu-accent: #185fa5;\n  --fu-radius: 16px;\n  --fu-border: rgba(0, 0, 0, 0.1);\n  --fu-title-color: #1f1f1f;\n  --fu-text-color: #555;\n  --fu-width: 380px;\n\n  position: fixed;\n  inset: 0;\n  z-index: 10000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  box-sizing: border-box;\n  background: var(--fu-overlay);\n  animation: fu-fade-in 0.18s ease;\n}\n\n.fu-modal {\n  position: relative;\n  box-sizing: border-box;\n  width: var(--fu-width);\n  max-width: 92vw;\n  max-height: 88vh;\n  overflow-y: auto;\n  padding: 28px 28px 24px;\n  background: var(--fu-bg);\n  border: 1px solid var(--fu-border);\n  border-radius: var(--fu-radius);\n  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);\n  text-align: center;\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,\n    "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",\n    sans-serif;\n  line-height: 1.6;\n  animation: fu-rise-in 0.22s ease;\n}\n\n.fu-close {\n  position: absolute;\n  top: 10px;\n  right: 12px;\n  width: 32px;\n  height: 32px;\n  padding: 0;\n  border: none;\n  background: transparent;\n  color: #999;\n  font-size: 22px;\n  line-height: 1;\n  cursor: pointer;\n  border-radius: 8px;\n  transition: color 0.15s ease, background 0.15s ease;\n}\n\n.fu-close:hover {\n  color: var(--fu-accent);\n  background: rgba(0, 0, 0, 0.05);\n}\n\n.fu-title {\n  margin: 0 0 12px;\n  font-size: 17px;\n  font-weight: 500;\n  color: var(--fu-title-color);\n}\n\n.fu-content {\n  margin: 0 0 18px;\n  font-size: 13px;\n  color: var(--fu-text-color);\n}\n\n/* loading \u63D0\u793A\u533A\uFF08spinner + \u6587\u6848\uFF09 */\n.fu-loading {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 8px;\n  margin: -4px 0 14px;\n  font-size: 13px;\n  color: var(--fu-text-color);\n}\n\n.fu-loading-text {\n  line-height: 1.2;\n}\n\n.fu-spinner {\n  flex-shrink: 0;\n  width: 15px;\n  height: 15px;\n  box-sizing: border-box;\n  border: 2px solid rgba(0, 0, 0, 0.12);\n  border-top-color: var(--fu-accent);\n  border-radius: 50%;\n  animation: fu-spin 0.8s linear infinite;\n}\n\n@keyframes fu-spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n\n.fu-qr {\n  margin: 0 auto 14px;\n  width: 190px;\n  max-width: 100%;\n}\n\n.fu-qr-img {\n  display: block;\n  width: 100%;\n  height: auto;\n  border-radius: 8px;\n}\n\n.fu-hint {\n  display: block;\n  font-size: 12px;\n  color: var(--fu-text-color);\n}\n\n.fu-actions {\n  display: flex;\n  gap: 10px;\n  margin-top: 16px;\n}\n\n.fu-btn {\n  flex: 1;\n  min-width: 0;\n  padding: 9px 8px;\n  border-radius: 8px;\n  font-size: 13px;\n  font-weight: 500;\n  line-height: 1.4;\n  cursor: pointer;\n  transition: opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease;\n  box-sizing: border-box;\n}\n\n.fu-btn-ghost {\n  border: 1px solid var(--fu-border);\n  background: transparent;\n  color: var(--fu-text-color);\n}\n\n.fu-btn-ghost:hover {\n  border-color: var(--fu-accent);\n  color: var(--fu-accent);\n}\n\n.fu-btn-primary {\n  border: none;\n  background: var(--fu-accent);\n  color: #fff;\n}\n\n.fu-btn-primary:hover {\n  opacity: 0.85;\n}\n\n@keyframes fu-fade-in {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n\n@keyframes fu-rise-in {\n  from {\n    opacity: 0;\n    transform: translateY(12px);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n\n@media (max-width: 480px) {\n  .fu-modal {\n    padding: 24px 20px 20px;\n  }\n\n  .fu-qr {\n    width: 160px;\n  }\n}\n';
 
   // src/web-component.ts
   var TAG = "floating-unlock";
@@ -208,6 +215,11 @@
         "title",
         "content",
         "content-html",
+        "loading-text",
+        "hint",
+        "btn-dismiss",
+        "btn-confirm",
+        "hide-actions",
         "width",
         "z-index",
         ...THEME_ATTRS.map(([attr]) => attr)
@@ -242,7 +254,7 @@
       return this.widget;
     }
     buildOptions() {
-      var _a, _b, _c, _d, _e, _f, _g, _h;
+      var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l;
       const global = (_a = readGlobal()) != null ? _a : {};
       const get = (name) => this.getAttribute(name);
       const theme = {};
@@ -256,9 +268,14 @@
         title: (_c = get("title")) != null ? _c : global.title,
         content: (_d = get("content")) != null ? _d : global.content,
         contentHtml: (_e = get("content-html")) != null ? _e : global.contentHtml,
-        width: numAttr(this, "width", (_f = global.width) != null ? _f : 380),
-        zIndex: numAttr(this, "z-index", (_g = global.zIndex) != null ? _g : 1e4),
-        theme: { ...(_h = global.theme) != null ? _h : {}, ...theme }
+        loadingText: (_f = get("loading-text")) != null ? _f : global.loadingText,
+        hint: (_g = get("hint")) != null ? _g : global.hint,
+        dismissText: (_h = get("btn-dismiss")) != null ? _h : global.dismissText,
+        confirmText: (_i = get("btn-confirm")) != null ? _i : global.confirmText,
+        hideActions: this.hasAttribute("hide-actions") || global.hideActions === true,
+        width: numAttr(this, "width", (_j = global.width) != null ? _j : 380),
+        zIndex: numAttr(this, "z-index", (_k = global.zIndex) != null ? _k : 1e4),
+        theme: { ...(_l = global.theme) != null ? _l : {}, ...theme }
       };
     }
   };

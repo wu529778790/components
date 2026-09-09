@@ -1,4 +1,4 @@
-/* @wu529778790/user-avatar v0.1.27 */
+/* @wu529778790/user-avatar v0.1.28 */
 "use strict";
 (() => {
   // src/wx-auth.ts
