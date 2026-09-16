@@ -4,7 +4,8 @@
  * 交互流程：
  *   - 未登录：默认人形头像，点击 → 弹微信订阅号认证登录窗（走 sdk.requireAuth）
  *   - 已登录：真实头像（后端 avatarUrl > 微信 headimgurl > GitHub > 昵称首字母），Hover/点击 → 下拉菜单（设置 / 退出登录）
- *   - 设置弹窗：头像昵称 + openid、绑定/解绑 GitHub、修改昵称
+ *   - 设置弹窗：头像昵称 + openid、积分（余额 / 签到 / 看广告赚分）、
+ *     绑定/解绑 GitHub、修改昵称
  *
  * 零运行时依赖，原生 DOM。样式 --ua-* CSS 变量驱动（见 src/styles.css）。
  *
@@ -12,7 +13,8 @@
  */
 import type { WxAuthApi } from './wx-auth'
 import { getWindowSdk } from './wx-auth'
-import type { WxUserInfo } from './types'
+import type { WxPointsInfo, WxUserInfo } from './types'
+import { checkinPoints, fetchPoints } from './points'
 import portalStyles from './styles.css'
 import {
   getAuthToken,
@@ -24,7 +26,8 @@ import {
   SETTINGS_ICON,
   LOGOUT_ICON,
   CLOSE_ICON,
-  GITHUB_ICON
+  GITHUB_ICON,
+  COIN_ICON
 } from './utils'
 
 export interface UserAvatarTheme {
@@ -81,6 +84,11 @@ export interface UserAvatarOptions {
   /** 主题（映射 --ua-* CSS 变量） */
   theme?: UserAvatarTheme
   /**
+   * 「看广告赚积分」小程序码图片地址，缺省用内置的固定码（全站共用一张）。
+   * 看广告赚积分的码是固定的，不动态出码；要换图时传自己的地址即可。
+   */
+  pointsQrSrc?: string
+  /**
    * 点击头像 / 调 login() 触发的登录弹窗是否强制不可关闭，默认 false（可关闭）。
    *
    * 用户主动点登录属于「可反悔」操作，默认弹窗带 ×、遮罩可点，用户能退出；
@@ -109,6 +117,7 @@ interface ResolvedOptions {
   portal: boolean
   portalEl?: HTMLElement
   theme: Theme
+  pointsQrSrc: string
   loginRequired: boolean
   onLogin?: (user: WxUserInfo) => void
   onLogout?: () => void
@@ -135,6 +144,22 @@ const DEFAULT_THEME: Theme = {
   success: 'light-dark(#1a7f37, #3fb950)'
 }
 
+/**
+ * 「看广告赚积分」小程序码（固定图，全站共用一张）。
+ *
+ * 看广告赚积分的码是固定的：用户扫码进小程序的广告页，领票 / 播激励视频 /
+ * 加分都由小程序侧完成，网页只负责展示这张码。所以不做动态出码。
+ */
+const DEFAULT_POINTS_QR_SRC =
+  'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/img.shenzjd.com-20260917-010529-5ck1.png'
+
+/** 激励视频要十几秒：先静默这么久再开始核对余额，早查必然「还没变」 */
+const EARN_FIRST_POLL_DELAY_MS = 15_000
+/** 一次激励视频大致结束后的核对间隔 */
+const EARN_POLL_INTERVAL_MS = 3_000
+/** 自动核对总时长（看完一次广告绰绰有余；超时后仍可手动「刷新积分」） */
+const EARN_POLL_WINDOW_MS = 90_000
+
 export class UserAvatar {
   private readonly root: HTMLElement
   private readonly container: HTMLElement | ShadowRoot
@@ -158,6 +183,37 @@ export class UserAvatar {
   private saving = false
   private saveBtnTimer: number | null = null
   private nicknameDraft = ''
+
+  // ===== 积分（wx-auth 账本）=====
+  /** 最近一次读到的余额读数（null = 还没读到过） */
+  private points: WxPointsInfo | null = null
+  /** 积分卡片状态：idle=未请求 / loading=读取中 / ready=可展示 / error=读不到（显示重试） */
+  private pointsState: 'idle' | 'loading' | 'ready' | 'error' = 'idle'
+  /** 签到 / 出码在途：期间按钮禁用，避免连点造成重复请求 */
+  private pointsBusy = false
+  /** 卡片副文案（签到结果 / 出码失败原因），一次性 */
+  private pointsTip = ''
+  private pointsTipOk = false
+  /** 余额刚变过：数字做一次短促放大反馈 */
+  private pointsBump = false
+  private pointsBumpTimer: number | null = null
+  /** 请求代际：弹窗重开/重试后丢弃过期响应，避免旧结果覆盖新读数 */
+  private pointsSeq = 0
+
+  // ===== 看广告赚积分（固定小程序码弹窗）=====
+  private adEl: HTMLElement | null = null
+  private adCleanup: (() => void) | null = null
+  /** 第一次核对余额的定时器（激励视频十几秒，先静默再查） */
+  private adFirstTimer: number | null = null
+  private adPollTimer: number | null = null
+  private adPolling = false
+  /** 开窗时的余额基准：比它多即视为到账（null = 开窗时还没读到余额） */
+  private adBaseline: number | null = null
+  /** 自动核对窗口的截止时间 */
+  private adDeadline = 0
+  /** 本轮广告是否已结算（防止轮询与手动核对竞态下重复结算） */
+  private adRedeemed = false
+  private adCloseTimer: number | null = null
   /**
    * 静默刷新节流：focus / visibilitychange 触发的刷新受最小间隔限制，
    * 避免用户频繁切换标签页/窗口时对 userinfo 接口造成过多请求。
@@ -262,6 +318,7 @@ export class UserAvatar {
       portalEl: options.portalEl,
       // theme.size 与 size 同步：options.size 优先于 options.theme.size
       theme: { ...DEFAULT_THEME, ...(options.theme ?? {}), size: options.size ?? (options.theme?.size ?? DEFAULT_THEME.size) },
+      pointsQrSrc: options.pointsQrSrc?.trim() || DEFAULT_POINTS_QR_SRC,
       loginRequired: options.loginRequired ?? false,
       onLogin: options.onLogin,
       onLogout: options.onLogout,
@@ -788,6 +845,9 @@ export class UserAvatar {
     this.closeMenu()
     this.closeSettings()
     this.nicknameDraft = u.nickname || ''
+    // 积分是一次性读数：每次打开都用最新余额（残留的签到/到账提示清掉）
+    this.pointsTip = ''
+    this.pointsBump = false
 
     const settings = document.createElement('div')
     settings.className = 'ua-mask'
@@ -799,6 +859,9 @@ export class UserAvatar {
     this.appendOverlay(settings)
 
     this.bindSettingsEvents(settings)
+    this.bindPointsEvents(settings)
+    // 余额是增强信息：异步读，读到再原地刷新卡片，不阻塞弹窗打开
+    void this.loadPoints()
 
     const onMaskDown = (e: MouseEvent) => {
       // 同 openMenu：shadow DOM 下 e.target 被 retarget 成 host，用 composedPath[0] 取真实点击目标
@@ -828,6 +891,9 @@ export class UserAvatar {
     // 避免丢失用户在「设置名字」输入框里的草稿、焦点和光标位置）。
     const githubRow = this.buildGithubRowHtml(u)
 
+    // 积分区块（余额 + 今日签到 + 看广告赚分），见 buildPointsCardHtml
+    const pointsCard = this.buildPointsCardHtml()
+
     return `
       <div class="ua-dialog" role="dialog" aria-modal="true" aria-label="设置">
         <div class="ua-dialog-head">
@@ -850,6 +916,9 @@ export class UserAvatar {
               <span class="ua-postcard-id">${escapeHtml(u.openid || '-')}</span>
             </div>
           </div>
+
+          <!-- 积分（wx-auth 账本）：余额 + 今日签到 + 看广告赚分 -->
+          ${pointsCard}
 
           <!-- GitHub 绑定：左右单行（左：图标+标题；右：绑定按钮 / 用户名+解绑） -->
           ${githubRow}
@@ -943,6 +1012,15 @@ export class UserAvatar {
       clearTimeout(this.saveBtnTimer)
       this.saveBtnTimer = null
     }
+    // 广告码弹窗是设置弹窗的子层：设置一关就必须一起关，
+    // 否则遮罩会留在页面上（它是 portal 到顶层的独立节点，render 清不掉）
+    this.closeEarnDialog()
+    if (this.pointsBumpTimer !== null) {
+      clearTimeout(this.pointsBumpTimer)
+      this.pointsBumpTimer = null
+    }
+    this.pointsBump = false
+    this.pointsSeq++ // 作废在途的余额请求
     this.settingsEl?.remove()
     this.settingsEl = null
     this.settingsCleanup?.()
@@ -1005,5 +1083,367 @@ export class UserAvatar {
       })
     }
     window.addEventListener('message', this.githubMsgListener)
+  }
+
+  // ==================== 积分（wx-auth 账本） ====================
+
+  /**
+   * 构建积分卡片的 HTML。
+   * 与 GitHub 行同款做法（抽成方法）：读到余额 / 签到 / 重试后原地替换这一块，
+   * 不重渲染整个设置弹窗——后者会丢掉用户在「设置名字」输入框里的草稿与焦点。
+   */
+  private buildPointsCardHtml(): string {
+    const p = this.points
+    const loading = this.pointsState === 'idle' || this.pointsState === 'loading'
+    const failed = this.pointsState === 'error'
+    const reward = p?.checkinReward ?? 0
+    const adReward = p?.adReward ?? 0
+
+    // 余额数字：首次读取中 → 省略号；读不到且无历史读数 → 破折号（配合「重试」）
+    const balance =
+      loading && !p
+        ? '<span class="ua-points-num ua-points-num-muted">···</span>'
+        : failed && !p
+          ? '<span class="ua-points-num ua-points-num-muted">—</span>'
+          : `<span class="ua-points-num${this.pointsBump ? ' ua-points-num-bump' : ''}">${
+              p?.balance ?? 0
+            }</span><span class="ua-points-unit">分</span>`
+
+    // 副文案：优先显示一次性提示（签到结果 / 出码失败原因），否则显示今日签到口径
+    const hint = this.pointsTip
+      ? this.pointsTip
+      : p?.checkedIn
+        ? `今日已签到${reward > 0 ? ` +${reward}` : ''}`
+        : reward > 0
+          ? `每日签到 +${reward}`
+          : '每日签到领积分'
+
+    // 操作区：读取中 / 读不到 / 正常三态
+    let actions: string
+    if (loading && !p) {
+      actions = '<button type="button" class="ua-points-btn" disabled>读取中…</button>'
+    } else if (failed && !p) {
+      actions = '<button type="button" class="ua-points-btn" data-action="points-retry">重试</button>'
+    } else {
+      const disabled = this.pointsBusy ? ' disabled' : ''
+      const checkinBtn = p?.checkedIn
+        ? '<button type="button" class="ua-points-btn" disabled>今日已签到</button>'
+        : `<button type="button" class="ua-points-btn ua-points-btn-primary" data-action="checkin"${disabled}>签到${
+            reward > 0 ? ` +${reward}` : ''
+          }</button>`
+      actions =
+        checkinBtn +
+        `<button type="button" class="ua-points-btn" data-action="earn"${disabled}>看广告${
+          adReward > 0 ? ` +${adReward}` : ''
+        }</button>`
+    }
+
+    return `
+      <div class="ua-points-card">
+        <div class="ua-points-head">
+          <span class="ua-points-title">${COIN_ICON}<b>积分</b></span>
+          <span class="ua-points-balance">${balance}</span>
+        </div>
+        <div class="ua-points-foot">
+          <span class="ua-points-hint${
+            this.pointsTip && this.pointsTipOk ? ' ua-points-hint-ok' : ''
+          }">${escapeHtml(hint)}</span>
+          <span class="ua-points-btns">${actions}</span>
+        </div>
+      </div>`
+  }
+
+  /** 绑定积分卡片内的按钮事件（初次渲染与原地替换后都要调用） */
+  private bindPointsEvents(root: ParentNode): void {
+    root.querySelector<HTMLButtonElement>('[data-action="checkin"]')?.addEventListener('click', () => {
+      void this.doCheckin()
+    })
+    root.querySelector<HTMLButtonElement>('[data-action="earn"]')?.addEventListener('click', () => {
+      this.openEarnDialog()
+    })
+    root
+      .querySelector<HTMLButtonElement>('[data-action="points-retry"]')
+      ?.addEventListener('click', () => {
+        void this.loadPoints()
+      })
+  }
+
+  /** 原地刷新积分卡片（弹窗未打开时无操作） */
+  private refreshPointsRow(): void {
+    if (!this.settingsEl) return
+    const old = this.settingsEl.querySelector('.ua-points-card')
+    if (!old) return
+    const wrapper = document.createElement('div')
+    wrapper.innerHTML = this.buildPointsCardHtml().trim()
+    const next = wrapper.firstElementChild as HTMLElement | null
+    if (!next) return
+    old.replaceWith(next)
+    this.bindPointsEvents(next)
+  }
+
+  /** 一次性提示（签到结果 / 出码失败原因）；写入后由调用方 refreshPointsRow 落地 */
+  private setPointsTip(text: string, ok = false): void {
+    this.pointsTip = text
+    this.pointsTipOk = ok
+  }
+
+  /**
+   * 读余额。已有历史读数时不进「读取中」（避免数字被省略号顶掉再回来），
+   * 刷新失败也只提示、不清空旧值——积分是增强信息，不该看起来像坏了。
+   */
+  private async loadPoints(): Promise<void> {
+    const token = getAuthToken()
+    if (!token) return
+    const seq = ++this.pointsSeq
+    if (!this.points) {
+      this.pointsState = 'loading'
+      this.refreshPointsRow()
+    }
+    const info = await fetchPoints(this.opts.apiBase, token)
+    if (seq !== this.pointsSeq) return // 弹窗已关或又有新请求：丢弃本次结果
+    if (info) {
+      this.points = info
+      this.pointsState = 'ready'
+    } else if (this.points) {
+      this.pointsState = 'ready'
+      this.setPointsTip('积分刷新失败，稍后再试')
+    } else {
+      this.pointsState = 'error'
+    }
+    this.refreshPointsRow()
+  }
+
+  /** 每日签到（上游幂等：重复调用返回 granted:0，不会重复发分） */
+  private async doCheckin(): Promise<void> {
+    const token = getAuthToken()
+    if (!token || this.pointsBusy) return
+    this.pointsBusy = true
+    this.setPointsTip('')
+    this.refreshPointsRow()
+    const r = await checkinPoints(this.opts.apiBase, token)
+    this.pointsBusy = false
+    if (!this.settingsEl) return
+    if (!r) {
+      this.setPointsTip('签到失败，请稍后再试')
+    } else if (r.granted > 0) {
+      this.applyPointsBalance(r.balance)
+      if (this.points) this.points.checkedIn = true
+      this.setPointsTip(`签到成功 +${r.granted} 积分`, true)
+      this.bumpPoints()
+    } else {
+      // granted=0：今天确实已签，或并发/双 tab 竞态下已被另一个请求领走
+      if (this.points) this.points.checkedIn = true
+      this.setPointsTip('今天已经签到过了', true)
+    }
+    this.refreshPointsRow()
+  }
+
+  /** 用服务端读数覆盖本地余额（非法值忽略：宁可不更新也不写脏） */
+  private applyPointsBalance(value: number | null): void {
+    if (value === null || !Number.isFinite(value)) return
+    if (this.points) this.points = { ...this.points, balance: value }
+  }
+
+  /** 余额变化的短促放大反馈：数值悄悄变了没动静，会被感知成「没生效」 */
+  private bumpPoints(): void {
+    this.pointsBump = true
+    if (this.pointsBumpTimer !== null) clearTimeout(this.pointsBumpTimer)
+    this.pointsBumpTimer = window.setTimeout(() => {
+      this.pointsBumpTimer = null
+      this.pointsBump = false
+      this.refreshPointsRow()
+    }, 800)
+  }
+
+  // ==================== 看广告赚积分（固定小程序码） ====================
+
+  /**
+   * 弹出「看广告赚积分」的小程序码。
+   *
+   * 刻意**不动态出码**：看广告赚积分全站共用一张固定的小程序码，用户扫码进小程序
+   * 广告页，领票 / 播激励视频 / 加分都在小程序那条链路上完成——网页侧没有票可查，
+   * 为一张静态图去请求接口纯属浪费。
+   *
+   * 到账检测：一个激励视频要十几秒，扫码后立刻查必然是「没变」，所以先静默
+   * EARN_FIRST_POLL_DELAY_MS 再开始核对余额，比开窗时的基准余额多即视为到账
+   * （多出来的差值就是本次赚到的分）。窗口过后仍可手动「刷新积分」核对。
+   */
+  private openEarnDialog(): void {
+    this.closeEarnDialog()
+
+    const reward = this.points?.adReward ?? 0
+    const waitSec = Math.round(EARN_FIRST_POLL_DELAY_MS / 1000)
+    const mask = document.createElement('div')
+    mask.className = 'ua-mask'
+    // 比设置弹窗（zIndex + 10）高一档：二维码叠在其上层
+    mask.style.zIndex = String(this.opts.zIndex + 20)
+    mask.innerHTML = `
+      <div class="ua-dialog ua-earn" role="dialog" aria-modal="true" aria-label="看广告赚积分">
+        <div class="ua-dialog-head">
+          <h3 class="ua-dialog-title">看广告赚积分</h3>
+          <button type="button" class="ua-close" data-action="close" aria-label="关闭">${CLOSE_ICON}</button>
+        </div>
+        <div class="ua-earn-body">
+          <p class="ua-earn-sub">微信扫码，在小程序里看完一个激励视频${
+            reward > 0 ? `，<b>+${reward} 积分</b>自动到账` : '，积分自动到账'
+          }</p>
+          <img class="ua-earn-qr" src="${escapeAttr(this.opts.pointsQrSrc)}" alt="小程序码" />
+          <div class="ua-earn-status" data-role="earn-status">看完广告约 ${waitSec} 秒后自动到账</div>
+          <button type="button" class="ua-points-btn" data-action="earn-refresh">刷新积分</button>
+        </div>
+      </div>
+    `
+    this.adEl = mask
+    // 基准余额：开窗时已知的余额（未知时第一读到的那次当基准，见 maybeSettle）
+    this.adBaseline = this.points ? this.points.balance : null
+    this.appendOverlay(mask)
+
+    const close = () => this.closeEarnDialog()
+    mask.querySelector<HTMLButtonElement>('[data-action="close"]')?.addEventListener('click', close)
+    mask.querySelector<HTMLButtonElement>('[data-action="earn-refresh"]')?.addEventListener('click', () => {
+      void this.checkEarnManually()
+    })
+
+    const onMaskDown = (e: MouseEvent) => {
+      if (e.composedPath()[0] === mask) close()
+    }
+    const onDocKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close()
+    }
+    document.addEventListener('mousedown', onMaskDown)
+    document.addEventListener('keydown', onDocKey)
+    this.adCleanup = () => {
+      document.removeEventListener('mousedown', onMaskDown)
+      document.removeEventListener('keydown', onDocKey)
+    }
+
+    // 静默期：先把「正在检测」等 UI 变化推迟到广告大致看完之后，免得用户
+    // 盯着一个不动的「检测中」以为卡住了
+    this.adFirstTimer = window.setTimeout(() => {
+      this.adFirstTimer = null
+      if (!this.adEl) return
+      this.setEarnStatus('正在检测积分到账…')
+      this.startEarnPolling()
+    }, EARN_FIRST_POLL_DELAY_MS)
+  }
+
+  /** 到账核对轮询（第一次在静默期结束后触发） */
+  private startEarnPolling(): void {
+    this.stopEarnPolling()
+    this.adDeadline = Date.now() + EARN_POLL_WINDOW_MS
+    this.adPollTimer = window.setInterval(() => {
+      if (this.adPolling) return
+      if (Date.now() > this.adDeadline) {
+        this.stopEarnPolling()
+        this.setEarnStatus('还没检测到到账，可点「刷新积分」再核对一次')
+        return
+      }
+      void this.checkEarnOnce()
+    }, EARN_POLL_INTERVAL_MS)
+  }
+
+  private stopEarnPolling(): void {
+    if (this.adPollTimer !== null) {
+      clearInterval(this.adPollTimer)
+      this.adPollTimer = null
+    }
+  }
+
+  /**
+   * 读一次余额并判断是否到账。
+   * 读失败（网络抖动 / 服务不可用）按「本次没结论」处理，继续轮询即可。
+   */
+  private async checkEarnOnce(): Promise<boolean> {
+    if (this.adPolling || !this.adEl || this.adRedeemed) return false
+    this.adPolling = true
+    let info: WxPointsInfo | null = null
+    try {
+      info = await this.readPoints()
+    } finally {
+      this.adPolling = false
+    }
+    if (!this.adEl || !info) return false
+    return this.maybeSettle(info)
+  }
+
+  /** 「刷新积分」：手动核对一次（不受自动核对窗口限制） */
+  private async checkEarnManually(): Promise<void> {
+    if (!this.adEl || this.adRedeemed) return
+    const info = await this.readPoints()
+    if (!this.adEl || !info) {
+      if (this.adEl) this.setEarnStatus('积分读取失败，稍后再试', 'err')
+      return
+    }
+    if (this.maybeSettle(info)) return
+    this.setEarnStatus('还没检测到新的积分到账，看完广告再点一次')
+  }
+
+  /**
+   * 用余额差值判断本次广告是否到账：比开窗基准多即结算，多出来的差值就是这次赚的。
+   * 基准未知（开窗前没读到余额）时，把第一次读到的值当基准——否则会把
+   * 「第一次读成功」误判成「已到账」。
+   */
+  private maybeSettle(info: WxPointsInfo): boolean {
+    if (this.adRedeemed) return true
+    if (this.adBaseline === null) {
+      this.adBaseline = info.balance
+      return false
+    }
+    if (info.balance <= this.adBaseline) return false
+    this.settleEarn(info)
+    return true
+  }
+
+  /** 到账：状态行报喜 + 卡片余额刷新，「已到账」停留一瞬后收起弹窗 */
+  private settleEarn(info: WxPointsInfo): void {
+    if (this.adRedeemed) return
+    this.adRedeemed = true
+    this.stopEarnPolling()
+    const gained = this.adBaseline === null ? 0 : info.balance - this.adBaseline
+    this.setEarnStatus(gained > 0 ? `已到账 +${gained} 积分` : '积分已到账', 'ok')
+    this.setPointsTip(gained > 0 ? `看广告 +${gained} 积分已到账` : '看广告积分已到账', true)
+    this.bumpPoints()
+    this.refreshPointsRow()
+    this.adCloseTimer = window.setTimeout(() => {
+      this.adCloseTimer = null
+      this.closeEarnDialog()
+    }, 900)
+  }
+
+  /** 读一次余额并落地到卡片（成功返回读数；失败返回 null，不动已有读数） */
+  private async readPoints(): Promise<WxPointsInfo | null> {
+    const token = getAuthToken()
+    if (!token) return null
+    const info = await fetchPoints(this.opts.apiBase, token)
+    if (!info) return null
+    this.points = info
+    this.pointsState = 'ready'
+    this.refreshPointsRow()
+    return info
+  }
+
+  private setEarnStatus(text: string, kind: '' | 'ok' | 'err' = ''): void {
+    const el = this.adEl?.querySelector<HTMLElement>('[data-role="earn-status"]')
+    if (!el) return
+    el.textContent = text
+    el.className = `ua-earn-status${kind ? ` ua-earn-status-${kind}` : ''}`
+  }
+
+  private closeEarnDialog(): void {
+    this.stopEarnPolling()
+    if (this.adFirstTimer !== null) {
+      clearTimeout(this.adFirstTimer)
+      this.adFirstTimer = null
+    }
+    if (this.adCloseTimer !== null) {
+      clearTimeout(this.adCloseTimer)
+      this.adCloseTimer = null
+    }
+    this.adEl?.remove()
+    this.adEl = null
+    this.adCleanup?.()
+    this.adCleanup = null
+    this.adRedeemed = false
+    this.adBaseline = null
   }
 }

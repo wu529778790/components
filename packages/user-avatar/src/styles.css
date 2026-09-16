@@ -866,3 +866,241 @@
 .ua-confirm-btn-danger:hover {
   background: color-mix(in srgb, var(--ua-danger) 85%, #000);
 }
+
+/* ==================== 积分（wx-auth 账本） ==================== */
+
+/* 上：标题 + 余额；下：状态文案 + 动作按钮（与 GitHub 行同一套卡片语言） */
+.ua-points-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.6rem 0.85rem;
+  background: var(--ua-bg);
+  border: 1px solid var(--ua-btn-border);
+  border-radius: 12px;
+}
+
+.ua-points-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.ua-points-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  min-width: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ua-text);
+  letter-spacing: -0.01em;
+}
+
+.ua-points-title .ua-icon {
+  width: 18px;
+  height: 18px;
+  /* 金币色：浅/深色背景下都保持可辨识的金黄 */
+  color: #d99b1f;
+  flex-shrink: 0;
+}
+
+.ua-points-balance {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.ua-points-num {
+  /* inline-block：余额放大反馈需要它是可变换的盒 */
+  display: inline-block;
+  font-size: 1.3rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--ua-text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.ua-points-num-muted {
+  color: var(--ua-sub);
+  font-weight: 700;
+}
+
+/* 余额变化反馈：短促放大 + 变金色（数值悄悄变了没动静＝像没生效） */
+.ua-points-num-bump {
+  animation: ua-points-bump 0.7s ease;
+}
+
+@keyframes ua-points-bump {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.28);
+    color: #d99b1f;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.ua-points-unit {
+  font-size: 0.72rem;
+  color: var(--ua-sub);
+}
+
+.ua-points-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.ua-points-hint {
+  min-width: 0;
+  font-size: 0.76rem;
+  color: var(--ua-sub);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ua-points-hint-ok {
+  color: var(--ua-success);
+  font-weight: 600;
+}
+
+.ua-points-btns {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.ua-points-btn {
+  padding: 0.28rem 0.7rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+  color: var(--ua-text);
+  background: var(--ua-btn-bg);
+  border: 1px solid var(--ua-btn-border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    color 0.18s ease,
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.12s ease;
+}
+
+.ua-points-btn:not(:disabled):hover {
+  border-color: var(--ua-accent);
+  background: color-mix(in srgb, var(--ua-text) 7%, var(--ua-bg));
+}
+
+.ua-points-btn:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+.ua-points-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ua-accent) 22%, transparent);
+}
+
+.ua-points-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ua-points-btn-primary {
+  color: #fff;
+  border-color: transparent;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.ua-points-btn-primary:not(:disabled):hover {
+  border-color: transparent;
+  background: linear-gradient(135deg, #5b6fd6 0%, #684094 100%);
+}
+
+/* ==================== 看广告赚积分（小程序码弹窗） ==================== */
+
+.ua-earn {
+  max-width: 22rem;
+}
+
+.ua-earn-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 1.1rem 1.4rem 1.4rem;
+  text-align: center;
+}
+
+.ua-earn-sub {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--ua-sub);
+}
+
+.ua-earn-sub b {
+  color: var(--ua-text);
+}
+
+.ua-earn-qr {
+  width: 11rem;
+  height: 11rem;
+  padding: 0.35rem;
+  /* 二维码恒白底：深色模式也不反色，否则部分机型扫不出来 */
+  background: #fff;
+  border: 1px solid var(--ua-btn-border);
+  border-radius: 12px;
+  object-fit: contain;
+  box-sizing: content-box;
+}
+
+.ua-earn-status {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ua-sub);
+}
+
+.ua-earn-status-ok {
+  color: var(--ua-success);
+}
+
+.ua-earn-status-err {
+  color: var(--ua-danger);
+}
+
+/* 窄屏：动作按钮换行，二维码略缩 */
+@media (max-width: 480px) {
+  .ua-points-foot {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .ua-points-btns {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .ua-earn-qr {
+    width: 9.5rem;
+    height: 9.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ua-points-num-bump {
+    animation: none;
+  }
+}

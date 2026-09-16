@@ -79,6 +79,7 @@ export class UserAvatarElement extends HTMLElement {
       'z-index',
       'portal',
       'portal-el',
+      'points-qr-src',
       'login-required',
       ...THEME_ATTRS.map(([attr]) => attr)
     ]
@@ -179,6 +180,7 @@ export class UserAvatarElement extends HTMLElement {
       zIndex: get('z-index') !== null ? numAttr(this, 'z-index', 12000) : undefined,
       portal: get('portal') !== null ? boolAttr(this, 'portal', true) : undefined,
       portalEl: resolvePortalEl(get('portal-el') ?? undefined),
+      pointsQrSrc: get('points-qr-src') ?? undefined,
       loginRequired:
         get('login-required') !== null ? boolAttr(this, 'login-required', false) : undefined,
       theme: Object.keys(themeAttrs).length ? themeAttrs : undefined
