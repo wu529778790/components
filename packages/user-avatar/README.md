@@ -23,7 +23,8 @@ pnpm add @wu529778790/user-avatar
 
 ## 快速开始（推荐 · Web Component）
 
-> ⚠️ 前置：本组件依赖 **wx-auth-sdk**（`window.WxAuth`）。请先引入 SDK 并 `WxAuth.init({ silent: true, required: false })`，组件会自动探测并复用。
+> ⚠️ 前置：本组件依赖 **wx-auth-sdk**（`window.WxAuth`，建议 `>= 1.2.41`）。请先引入 SDK 并 `WxAuth.init({ silent: true, required: false })`，组件会自动探测并复用。
+> 头像登录弹窗的「能否关闭」由组件自己按 `login-required` 决定，不受宿主全局 `required` 影响，详见下方「登录弹窗能不能关？」。
 
 ### 方式一：CDN 一行引入
 
@@ -68,9 +69,12 @@ const avatar = new UserAvatar({ apiBase: '' })
 avatar.mount(document.body)
 
 // 手动控制
-await avatar.login()          // 弹微信登录，返回是否成功
+await avatar.login()          // 弹微信登录（默认可关闭），返回是否成功
 await avatar.refresh()        // 重新拉取用户信息
 avatar.unmount()              // 卸载
+
+// 需要「必须登录才能继续」的宿主流程：让本次弹窗强制不可关闭
+const forced = new UserAvatar({ loginRequired: true })
 ```
 
 ## 属性一览（Web Component）
@@ -84,6 +88,7 @@ avatar.unmount()              // 卸载
 | `z-index` | `number` | `12000` | 弹窗层级 |
 | `portal` | `boolean` | true | 设置弹窗 / 下拉菜单是否挂到顶层（body）。开启后弹窗始终全屏居中，避免被 `backdrop-filter` / `transform` / `filter` / `contain` / `overflow` 祖先困住；关闭则内联到组件根节点（旧行为） |
 | `portal-el` | `string` | — | Portal 挂载容器。接受 CSS 选择器或元素 id（如 `#app` 或 `.overlay-root`），解析不到则回退到 `body` |
+| `login-required` | `boolean` | false | 点击头像触发的登录弹窗是否**强制不可关闭**。默认 false = 带 × 可关闭（用户主动点登录允许反悔）；只有「必须完成登录才能继续」的宿主场景才设为 true |
 | `theme-accent` | `string` | `#1f2328` | 主色（头像/按钮/toast，默认中性灰黑） |
 | `theme-size` | `string` | `2.5rem` | 头像尺寸（略同 size） |
 | `theme-radius` | `string` | `16px` | 卡片/弹窗圆角 |
@@ -151,6 +156,23 @@ avatar.unmount()
                                         ├─ 设置 ──► 设置弹窗（GitHub 绑定/解绑、改昵称、openid、用户序号）
                                         └─ 退出登录（清 cookie）
 ```
+
+## 登录弹窗能不能关？（重要）
+
+用户**主动点头像**属于可反悔操作，弹窗默认可关闭（右上角 ×）。组件调用 SDK 时会显式传本次语义：
+
+```ts
+sdk.requireAuth({ required: this.opts.loginRequired })   // 默认 false → 可关闭
+```
+
+为什么必须显式传：`required` 在 wx-auth-sdk 里是**调用级**入参，缺省才回落到 `WxAuth.init()` 的全局配置。
+而宿主页面常常会为「搜索 / 获取 / 上传」这类**后端校验**流程把全局配置 init 成 `required: true`（强制不可关），
+同一个页面里的头像弹窗就会被一起带成强制——用户点了头像却关不掉，只能刷新页面。
+本组件自己传 `required: false` 后与宿主全局配置解耦，各是各的语义。
+
+反向需求：如果宿主希望「点头像必须完成登录才能继续」，设 `loginRequired: true`（或属性 `login-required`）。
+
+> 依赖 `wx-auth-sdk >= 1.2.41`；更老的 SDK 会忽略该入参（不报错），此时弹窗形态取决于宿主 init 的 `required`。
 
 ## 数据接口依赖（后端应为 wx-auth 同款）
 

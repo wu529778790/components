@@ -80,6 +80,15 @@ export interface UserAvatarOptions {
   portalEl?: HTMLElement
   /** 主题（映射 --ua-* CSS 变量） */
   theme?: UserAvatarTheme
+  /**
+   * 点击头像 / 调 login() 触发的登录弹窗是否强制不可关闭，默认 false（可关闭）。
+   *
+   * 用户主动点登录属于「可反悔」操作，默认弹窗带 ×、遮罩可点，用户能退出；
+   * 只有「后台校验 / 功能前置拦截」这类必须完成登录的场景才应设 true。
+   * 注意：宿主页面若用 WxAuth.init({ required: true }) 做过全局强制（如搜索页），
+   * 本组件仍会显式传自己的语义，不会被全局配置带偏。
+   */
+  loginRequired?: boolean
   /** 登录成功回调 */
   onLogin?: (user: WxUserInfo) => void
   /** 退出登录回调 */
@@ -100,6 +109,7 @@ interface ResolvedOptions {
   portal: boolean
   portalEl?: HTMLElement
   theme: Theme
+  loginRequired: boolean
   onLogin?: (user: WxUserInfo) => void
   onLogout?: () => void
   onGithubBound?: (user: WxUserInfo) => void
@@ -252,6 +262,7 @@ export class UserAvatar {
       portalEl: options.portalEl,
       // theme.size 与 size 同步：options.size 优先于 options.theme.size
       theme: { ...DEFAULT_THEME, ...(options.theme ?? {}), size: options.size ?? (options.theme?.size ?? DEFAULT_THEME.size) },
+      loginRequired: options.loginRequired ?? false,
       onLogin: options.onLogin,
       onLogout: options.onLogout,
       onGithubBound: options.onGithubBound
@@ -336,7 +347,10 @@ export class UserAvatar {
       console.warn('[UserAvatar] 未找到微信认证 SDK')
       return false
     }
-    const ok = await sdk.requireAuth()
+    // 显式传本次弹窗语义：用户主动点登录默认「可关闭」（loginRequired=false）。
+    // 不显式传的话会沿用宿主 init 的全局 required——宿主若为「搜索/获取」等
+    // 后端校验流程 init 过 required:true，头像弹窗就会被一起带成强制不可关闭。
+    const ok = await sdk.requireAuth({ required: this.opts.loginRequired })
     if (ok) {
       await this.fetchUser(true)
       if (this.user) this.opts.onLogin?.(this.user)

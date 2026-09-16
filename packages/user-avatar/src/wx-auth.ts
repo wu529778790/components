@@ -5,8 +5,14 @@
  * 都能作为 sdk 传入（如 CDN 方式 window.WxAuth）。
  */
 export interface WxAuthApi {
-  /** 校验本地凭证，无效时弹出扫码/验证码登录弹窗，返回是否认证成功 */
-  requireAuth(): Promise<boolean>
+  /**
+   * 校验本地凭证，无效时弹出扫码/验证码登录弹窗，返回是否认证成功。
+   *
+   * options.required：**本次**弹窗是否强制（不可关闭），缺省沿用 SDK init 的配置。
+   * 组件默认传 false（用户主动点登录 → 允许反悔关掉），见 UserAvatarOptions.loginRequired。
+   * 需要 wx-auth-sdk >= 1.2.41；老版本 SDK 会忽略该入参（不会报错）。
+   */
+  requireAuth(options?: { required?: boolean }): Promise<boolean>
   /** 清空本地登录凭证（Cookie + localStorage 双删） */
   clearToken(): void
   /** 服务端吊销当前 token + 清本地（SDK >= 1.2.18；老版本无此方法） */
