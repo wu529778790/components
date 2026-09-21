@@ -1,4 +1,4 @@
-/* @wu529778790/floating-unlock v0.1.4 */
+/* @wu529778790/floating-unlock v0.1.5 */
 "use strict";
 (() => {
   // src/FloatingUnlock.ts

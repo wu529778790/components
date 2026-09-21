@@ -1,4 +1,4 @@
-/* @wu529778790/site-navbar v0.1.18 */
+/* @wu529778790/site-navbar v0.1.19 */
 "use strict";
 (() => {
   // src/styles.css
@@ -102,10 +102,10 @@
     { href: "https://shenzjd.com", label: "AI\u60C5\u62A5\u5C40", icon: "\u{1F3E0}" },
     { href: "https://panhub.shenzjd.com", label: "\u7F51\u76D8\u641C\u7D22", icon: "\u{1F50D}" },
     { href: "https://parse.shenzjd.com", label: "\u89C6\u9891\u89E3\u6790", icon: "\u{1F3AC}" },
+    { href: "https://h5.lot-ml.com/ProductEn/Index/3d58b4cfe8b560c8", label: "\u6D41\u91CF\u5361", icon: "\u{1F4F6}" },
     // { href: 'https://newshub.shenzjd.com', label: '热点聚合', icon: '📰' },
     { href: "https://img.shenzjd.com/", label: "Git \u56FE\u5E8A", icon: "\u{1F4F7}" },
     { href: "https://navhub.shenzjd.com", label: "\u5BFC\u822A\u68EE\u6797", icon: "\u{1F9ED}" },
-    { href: "https://bing.shenzjd.com", label: "\u5FC5\u5E94\u58C1\u7EB8", icon: "\u{1F5BC}\uFE0F" },
     { href: "https://freeimg.shenzjd.com/", label: "\u514D\u8D39\u751F\u56FE", icon: "\u{1F193}" }
   ];
   var DEFAULT_BRAND = {

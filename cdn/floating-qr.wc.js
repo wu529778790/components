@@ -1,4 +1,4 @@
-/* @wu529778790/floating-qr v0.1.14 */
+/* @wu529778790/floating-qr v0.1.15 */
 "use strict";
 (() => {
   // src/FloatingQR.ts
@@ -6,13 +6,13 @@
     wechat: {
       src: "https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/wp/1782738963299-5wrchz.jpg",
       title: "\u516C\u4F17\u53F7",
-      desc: ""
+      desc: "\u5173\u6CE8\u516C\u4F17\u53F7\u9632\u5931\u8054"
     },
-    // 小程序区块（默认渲染；码指向小程序激励视频页，扫码看广告支持作者）
+    // 小程序区块（默认渲染；码指向小程序每日签到页，扫码领积分）
     donate: {
-      src: "https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/reward-unlock-qr.jpg",
-      title: "\u770B\u5E7F\u544A\u652F\u6301",
-      desc: "\u626B\u7801\u770B\u4E2A\u89C6\u9891\uFF0C\u5E2E\u5C0F\u6C34\u7BA1\u670D\u52A1\u5668\u7EED\u547D"
+      src: "https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/img.shenzjd.com-20260916-092907-oe86.png",
+      title: "\u9886\u79EF\u5206",
+      desc: "\u6BCF\u5929\u626B\u7801\u7B7E\u5230\u9886\u79EF\u5206"
     }
   };
   var DEFAULT_THEME = {
