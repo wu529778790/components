@@ -75,11 +75,11 @@ const DEFAULT_BLOCKS: Record<'wechat' | 'donate', Required<FloatingQRBlock>> = {
     title: '公众号',
     desc: '关注公众号防失联'
   },
-  // 小程序区块（默认渲染；码指向小程序每日签到页，扫码领积分）
+  // 小程序区块（默认渲染；已由赞赏码换成小程序）
   donate: {
-    src: 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/img.shenzjd.com-20260916-092907-oe86.png',
-    title: '领积分',
-    desc: '每天扫码签到领积分'
+    src: 'https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260828-153016-d3e9.jpg',
+    title: '小程序',
+    desc: ''
   }
 }
 
