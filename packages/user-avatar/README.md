@@ -1,8 +1,8 @@
 # @wu529778790/user-avatar
 
-右上角**用户头像账号组件**：未登录显示默认人形头像，点击弹出**微信订阅号登录**窗口；已登录显示真实头像，点击弹出下拉菜单（**设置 / 退出登录**），设置弹窗内含 **积分**（余额 / 每日签到 / 看广告赚分）、**GitHub 绑定**、openid 展示、**修改昵称**、**用户序号**（本站第 N 位用户）。
+右上角**用户头像账号组件**：未登录显示默认人形头像，点击弹出**微信订阅号登录**窗口；已登录显示真实头像，点击弹出下拉菜单（**设置 / 退出登录**），设置弹窗内含 **GitHub 绑定**、openid 展示、**修改昵称**、**用户序号**（本站第 N 位用户）。
 
-与 [`wx-auth`](https://github.com/wu529778790/wx-auth) 微信订阅号认证体系深度集成：复用其 SDK（`window.WxAuth`）与后端接口（`/api/auth/userinfo`、`/api/auth/profile`、`/api/oauth/github/authorize`、`/api/points/**`）。
+与 [`wx-auth`](https://github.com/wu529778790/wx-auth) 微信订阅号认证体系深度集成：复用其 SDK（`window.WxAuth`）与后端接口（`/api/auth/userinfo`、`/api/auth/profile`、`/api/oauth/github/authorize`）。
 
 ## 特性
 
@@ -10,7 +10,6 @@
 - 🎨 头像组件零样式依赖：CSS 变量驱动（`--ua-*`），可整套换肤
 - 🌗 默认**深浅色自动适配**（`light-dark()`）：宿主页面声明 `color-scheme: light / dark` 时跟随宿主配色，未声明时跟随系统，无需任何配置
 - 🔐 与 wx-auth 微信登录无缝衔接：未登录点击 → 弹扫码/验证码；登录后自动识别人头
-- 🪙 **积分**（wx-auth 账本，全站通用）：设置弹窗内展示余额、今日签到状态，可一键**签到**领分、**看广告赚分**（弹小程序码 → 看完激励视频自动到账）
 - 🐙 设置弹窗内绑定 / 解绑 GitHub（子窗口授权，`postMessage` 自动刷新）
 - ✏️ 修改昵称（复用后端 nickname 配置），openid 一键复制
 - 🔢 展示用户序号（userinfo 的 `userSeq`）：设置弹窗内显示「你是本站第 N 位用户」
@@ -89,7 +88,6 @@ const forced = new UserAvatar({ loginRequired: true })
 | `z-index` | `number` | `12000` | 弹窗层级 |
 | `portal` | `boolean` | true | 设置弹窗 / 下拉菜单是否挂到顶层（body）。开启后弹窗始终全屏居中，避免被 `backdrop-filter` / `transform` / `filter` / `contain` / `overflow` 祖先困住；关闭则内联到组件根节点（旧行为） |
 | `portal-el` | `string` | — | Portal 挂载容器。接受 CSS 选择器或元素 id（如 `#app` 或 `.overlay-root`），解析不到则回退到 `body` |
-| `points-qr-src` | `string` | 内置固定小程序码 | 「看广告赚积分」弹窗里的小程序码图片地址（看广告的码是固定的，一般无需配置） |
 | `login-required` | `boolean` | false | 点击头像触发的登录弹窗是否**强制不可关闭**。默认 false = 带 × 可关闭（用户主动点登录允许反悔）；只有「必须完成登录才能继续」的宿主场景才设为 true |
 | `theme-accent` | `string` | `#1f2328` | 主色（头像/按钮/toast，默认中性灰黑） |
 | `theme-size` | `string` | `2.5rem` | 头像尺寸（略同 size） |
@@ -155,31 +153,9 @@ avatar.unmount()
 └──────────┘             └──────────────────┘
                           验证成功 ──► 头像变真实头像 + 下拉菜单
                                         │
-                                        ├─ 设置 ──► 设置弹窗（积分、GitHub 绑定/解绑、改昵称、openid、用户序号）
-                                        │             └─ 看广告赚分 ──► 小程序码弹窗（扫码看完自动到账）
+                                        ├─ 设置 ──► 设置弹窗（GitHub 绑定/解绑、改昵称、openid、用户序号）
                                         └─ 退出登录（清 cookie）
 ```
-
-## 积分（wx-auth 账本）
-
-积分账本由 wx-auth 统一记账、**全站通用一份余额**（站点侧只负责展示与赚分，扣分一律由各站服务端收口）。
-组件在设置弹窗里做了三件事，全程静默（读不到就只提示，绝不弹错、不阻断弹窗其他功能）：
-
-| 行为 | 交互 |
-| --- | --- |
-| 展示余额 | 打开设置弹窗即读一次 `/api/points/balance`，显示「积分 12 分」+ 今日签到状态 |
-| 每日签到 | 未签到时按钮显示「签到 +N」（N 取服务端下发的 `checkinReward`）→ 点击领取；已签到则按钮置灰为「今日已签到」。上游按「北京自然日」幂等，重复调用不会重复发分 |
-| 看广告赚分 | 「看广告 +N」→ 弹出**固定的小程序码**（不动态出码）→ 用户扫码在小程序看完激励视频 → 组件静默 15s 后开始核对余额（每 3s 一次，最多 90s），比开窗时多即视为到账 → 卡片提示「看广告 +N 积分已到账」并自动收起弹窗 |
-
-约定与边界：
-
-- 余额数字与奖励额度**一律取服务端下发值**（`adReward` / `checkinReward`），组件不写死数字。
-- **不动态出码**：看广告赚积分全站共用一张固定小程序码（`points-qr-src` 可换图），领票 / 播视频 / 加分都在小程序侧完成，网页侧没有票可查，为一个静态图请求接口纯属浪费。
-- **先静默再核对**：一个激励视频要十几秒，扫码后立刻查必然是「还没变」，所以等 15s 才开始核对（间隔 3s，窗口 90s）；窗口过后可点弹窗里的「刷新积分」手动核对一次。
-- 到账判定用的是**余额差值**（开窗基准 vs 当前余额），差值即本次赚到的分；基准未知时（开窗时读不到余额）把第一次成功读数当基准，避免误报「已到账」。
-- 余额刷新失败时保留上一次读数、只提示「积分刷新失败」，不会把已有数字换成破折号；首次就读不到才显示「—」+「重试」。
-- 小程序码弹窗是设置弹窗的子层：关闭设置弹窗会一并关闭它并停止核对。
-- **组件不代扣分**：`POST /api/points/spend` 必须由接入方服务端携带用户凭证调用（浏览器直调等于把记账权交给客户端），所以本组件里没有扣分入口。
 
 ## 登录弹窗能不能关？（重要）
 
@@ -205,10 +181,8 @@ sdk.requireAuth({ required: this.opts.loginRequired })   // 默认 false → 可
 | `GET /api/auth/userinfo?token=` | 拉取当前用户（openid / nickname / github 等） |
 | `POST /api/auth/profile` | `{action:'set-nickname', nickname}` / `{action:'unbind-github'}` |
 | `GET /api/oauth/github/authorize?token=` | 发起 GitHub OAuth 绑定（新窗口），子窗 `postMessage({type:'github-bound'})` |
-| `GET /api/points/balance?token=` | 积分余额 + 今日签到状态 + 广告/签到奖励额度（到账核对也是复用它，不再另开接口） |
-| `POST /api/points/checkin` | `{token}` 每日签到（幂等，`granted:0` = 今天已领） |
 
-若无这些接口，组件依然能渲染头像与登录，但设置面板的能力（积分、绑定/改名）不可用。
+若无这些接口，组件依然能渲染头像与登录，但设置面板的能力（绑定/改名）不可用。
 
 ## License
 
