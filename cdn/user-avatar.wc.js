@@ -1,4 +1,4 @@
-/* @wu529778790/user-avatar v0.1.29 */
+/* @wu529778790/user-avatar v0.1.30 */
 "use strict";
 (() => {
   // src/wx-auth.ts
@@ -7,62 +7,6 @@
       return window.WxAuth;
     }
     return void 0;
-  }
-
-  // src/points.ts
-  var TIMEOUT_MS = 8e3;
-  function num(value, fallback = 0) {
-    const n = Number(value);
-    return Number.isFinite(n) ? n : fallback;
-  }
-  function endpoint(base, path) {
-    const b = (base || "").trim().replace(/\/+$/, "");
-    return `${b || window.location.origin}${path}`;
-  }
-  async function call(url, init) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-    try {
-      const res = await fetch(url, { ...init, signal: controller.signal });
-      const data = await res.json().catch(() => null);
-      return { ok: res.ok, status: res.status, data };
-    } catch {
-      return { ok: false, status: 0, data: null };
-    } finally {
-      clearTimeout(timer);
-    }
-  }
-  async function fetchPoints(base, token) {
-    const r = await call(
-      endpoint(base, `/api/points/balance?token=${encodeURIComponent(token)}`),
-      { method: "GET", headers: { accept: "application/json" } }
-    );
-    if (!r.ok || !r.data || r.data.error) return null;
-    if (!Number.isFinite(Number(r.data.balance))) return null;
-    return {
-      balance: num(r.data.balance),
-      checkedIn: r.data.checkedIn === true,
-      adReward: num(r.data.adReward, 10),
-      checkinReward: num(r.data.checkinReward, 10),
-      adsRemaining: num(r.data.adsRemaining)
-    };
-  }
-  async function checkinPoints(base, token) {
-    var _a;
-    const r = await call(
-      endpoint(base, "/api/points/checkin"),
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token })
-      }
-    );
-    if (!r.ok || !((_a = r.data) == null ? void 0 : _a.ok)) return null;
-    const balance = Number(r.data.balance);
-    return {
-      granted: num(r.data.granted),
-      balance: r.data.balance === null || r.data.balance === void 0 || !Number.isFinite(balance) ? null : balance
-    };
   }
 
   // src/styles.css
@@ -934,244 +878,6 @@
 .ua-confirm-btn-danger:hover {
   background: color-mix(in srgb, var(--ua-danger) 85%, #000);
 }
-
-/* ==================== \u79EF\u5206\uFF08wx-auth \u8D26\u672C\uFF09 ==================== */
-
-/* \u4E0A\uFF1A\u6807\u9898 + \u4F59\u989D\uFF1B\u4E0B\uFF1A\u72B6\u6001\u6587\u6848 + \u52A8\u4F5C\u6309\u94AE\uFF08\u4E0E GitHub \u884C\u540C\u4E00\u5957\u5361\u7247\u8BED\u8A00\uFF09 */
-.ua-points-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  padding: 0.6rem 0.85rem;
-  background: var(--ua-bg);
-  border: 1px solid var(--ua-btn-border);
-  border-radius: 12px;
-}
-
-.ua-points-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.8rem;
-}
-
-.ua-points-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-shrink: 0;
-  min-width: 0;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--ua-text);
-  letter-spacing: -0.01em;
-}
-
-.ua-points-title .ua-icon {
-  width: 18px;
-  height: 18px;
-  /* \u91D1\u5E01\u8272\uFF1A\u6D45/\u6DF1\u8272\u80CC\u666F\u4E0B\u90FD\u4FDD\u6301\u53EF\u8FA8\u8BC6\u7684\u91D1\u9EC4 */
-  color: #d99b1f;
-  flex-shrink: 0;
-}
-
-.ua-points-balance {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.2rem;
-  min-width: 0;
-}
-
-.ua-points-num {
-  /* inline-block\uFF1A\u4F59\u989D\u653E\u5927\u53CD\u9988\u9700\u8981\u5B83\u662F\u53EF\u53D8\u6362\u7684\u76D2 */
-  display: inline-block;
-  font-size: 1.3rem;
-  font-weight: 800;
-  line-height: 1.1;
-  color: var(--ua-text);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-}
-
-.ua-points-num-muted {
-  color: var(--ua-sub);
-  font-weight: 700;
-}
-
-/* \u4F59\u989D\u53D8\u5316\u53CD\u9988\uFF1A\u77ED\u4FC3\u653E\u5927 + \u53D8\u91D1\u8272\uFF08\u6570\u503C\u6084\u6084\u53D8\u4E86\u6CA1\u52A8\u9759\uFF1D\u50CF\u6CA1\u751F\u6548\uFF09 */
-.ua-points-num-bump {
-  animation: ua-points-bump 0.7s ease;
-}
-
-@keyframes ua-points-bump {
-  0% {
-    transform: scale(1);
-  }
-  30% {
-    transform: scale(1.28);
-    color: #d99b1f;
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.ua-points-unit {
-  font-size: 0.72rem;
-  color: var(--ua-sub);
-}
-
-.ua-points-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.6rem;
-}
-
-.ua-points-hint {
-  min-width: 0;
-  font-size: 0.76rem;
-  color: var(--ua-sub);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.ua-points-hint-ok {
-  color: var(--ua-success);
-  font-weight: 600;
-}
-
-.ua-points-btns {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-shrink: 0;
-}
-
-.ua-points-btn {
-  padding: 0.28rem 0.7rem;
-  font-size: 0.76rem;
-  font-weight: 600;
-  line-height: 1.3;
-  white-space: nowrap;
-  color: var(--ua-text);
-  background: var(--ua-btn-bg);
-  border: 1px solid var(--ua-btn-border);
-  border-radius: 999px;
-  cursor: pointer;
-  transition:
-    color 0.18s ease,
-    background-color 0.18s ease,
-    border-color 0.18s ease,
-    transform 0.12s ease;
-}
-
-.ua-points-btn:not(:disabled):hover {
-  border-color: var(--ua-accent);
-  background: color-mix(in srgb, var(--ua-text) 7%, var(--ua-bg));
-}
-
-.ua-points-btn:not(:disabled):active {
-  transform: scale(0.97);
-}
-
-.ua-points-btn:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ua-accent) 22%, transparent);
-}
-
-.ua-points-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.ua-points-btn-primary {
-  color: #fff;
-  border-color: transparent;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.ua-points-btn-primary:not(:disabled):hover {
-  border-color: transparent;
-  background: linear-gradient(135deg, #5b6fd6 0%, #684094 100%);
-}
-
-/* ==================== \u770B\u5E7F\u544A\u8D5A\u79EF\u5206\uFF08\u5C0F\u7A0B\u5E8F\u7801\u5F39\u7A97\uFF09 ==================== */
-
-.ua-earn {
-  max-width: 22rem;
-}
-
-.ua-earn-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 1.1rem 1.4rem 1.4rem;
-  text-align: center;
-}
-
-.ua-earn-sub {
-  margin: 0;
-  font-size: 0.8rem;
-  line-height: 1.6;
-  color: var(--ua-sub);
-}
-
-.ua-earn-sub b {
-  color: var(--ua-text);
-}
-
-.ua-earn-qr {
-  width: 11rem;
-  height: 11rem;
-  padding: 0.35rem;
-  /* \u4E8C\u7EF4\u7801\u6052\u767D\u5E95\uFF1A\u6DF1\u8272\u6A21\u5F0F\u4E5F\u4E0D\u53CD\u8272\uFF0C\u5426\u5219\u90E8\u5206\u673A\u578B\u626B\u4E0D\u51FA\u6765 */
-  background: #fff;
-  border: 1px solid var(--ua-btn-border);
-  border-radius: 12px;
-  object-fit: contain;
-  box-sizing: content-box;
-}
-
-.ua-earn-status {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--ua-sub);
-}
-
-.ua-earn-status-ok {
-  color: var(--ua-success);
-}
-
-.ua-earn-status-err {
-  color: var(--ua-danger);
-}
-
-/* \u7A84\u5C4F\uFF1A\u52A8\u4F5C\u6309\u94AE\u6362\u884C\uFF0C\u4E8C\u7EF4\u7801\u7565\u7F29 */
-@media (max-width: 480px) {
-  .ua-points-foot {
-    flex-wrap: wrap;
-    justify-content: flex-start;
-  }
-
-  .ua-points-btns {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .ua-earn-qr {
-    width: 9.5rem;
-    height: 9.5rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ua-points-num-bump {
-    animation: none;
-  }
-}
 `;
 
   // src/utils.ts
@@ -1236,7 +942,6 @@
   var USER_ICON_SVG = '<svg class="ua-icon-user" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>';
   var SETTINGS_ICON = '<svg class="ua-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.533 1.533 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.533 1.533 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>';
   var LOGOUT_ICON = '<svg class="ua-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h4a1 1 0 110 2H4v12h4a1 1 0 110 2H4a1 1 0 01-1-1V3zm10.293 9.293a1 1 0 001.414 0l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293a1 1 0 000 1.414zM21 10a1 1 0 01-1-1v2a1 1 0 110 0v-2a1 1 0 011 0 1 1 0 010 1v-1h27a1 1 0 010 2H20a1 1 0 01-1-1v-2a1 1 0 010-1z" clip-rule="evenodd"/></svg>';
-  var COIN_ICON = '<svg class="ua-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg>';
   var CLOSE_ICON = '<svg class="ua-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>';
   var GITHUB_ICON = '<svg class="ua-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z" clip-rule="evenodd"/></svg>';
 
@@ -1254,10 +959,6 @@
     danger: "light-dark(#dc2626, #f85149)",
     success: "light-dark(#1a7f37, #3fb950)"
   };
-  var DEFAULT_POINTS_QR_SRC = "https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/img.shenzjd.com-20260917-010529-5ck1.png";
-  var EARN_FIRST_POLL_DELAY_MS = 15e3;
-  var EARN_POLL_INTERVAL_MS = 3e3;
-  var EARN_POLL_WINDOW_MS = 9e4;
   var UserAvatar = class {
     constructor(options = {}, container = document.body) {
       this.user = null;
@@ -1278,35 +979,6 @@
       this.saving = false;
       this.saveBtnTimer = null;
       this.nicknameDraft = "";
-      // ===== 积分（wx-auth 账本）=====
-      /** 最近一次读到的余额读数（null = 还没读到过） */
-      this.points = null;
-      /** 积分卡片状态：idle=未请求 / loading=读取中 / ready=可展示 / error=读不到（显示重试） */
-      this.pointsState = "idle";
-      /** 签到 / 出码在途：期间按钮禁用，避免连点造成重复请求 */
-      this.pointsBusy = false;
-      /** 卡片副文案（签到结果 / 出码失败原因），一次性 */
-      this.pointsTip = "";
-      this.pointsTipOk = false;
-      /** 余额刚变过：数字做一次短促放大反馈 */
-      this.pointsBump = false;
-      this.pointsBumpTimer = null;
-      /** 请求代际：弹窗重开/重试后丢弃过期响应，避免旧结果覆盖新读数 */
-      this.pointsSeq = 0;
-      // ===== 看广告赚积分（固定小程序码弹窗）=====
-      this.adEl = null;
-      this.adCleanup = null;
-      /** 第一次核对余额的定时器（激励视频十几秒，先静默再查） */
-      this.adFirstTimer = null;
-      this.adPollTimer = null;
-      this.adPolling = false;
-      /** 开窗时的余额基准：比它多即视为到账（null = 开窗时还没读到余额） */
-      this.adBaseline = null;
-      /** 自动核对窗口的截止时间 */
-      this.adDeadline = 0;
-      /** 本轮广告是否已结算（防止轮询与手动核对竞态下重复结算） */
-      this.adRedeemed = false;
-      this.adCloseTimer = null;
       /**
        * 静默刷新节流：focus / visibilitychange 触发的刷新受最小间隔限制，
        * 避免用户频繁切换标签页/窗口时对 userinfo 接口造成过多请求。
@@ -1397,7 +1069,7 @@
     }
     // ==================== 初始化 ====================
     resolve(options) {
-      var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l;
+      var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k;
       const sdk = (_a = options.sdk) != null ? _a : getWindowSdk();
       const apiBase = options.apiBase !== void 0 && options.apiBase !== "" ? options.apiBase : "https://wx-auth.shenzjd.com";
       return {
@@ -1411,8 +1083,7 @@
         portalEl: options.portalEl,
         // theme.size 与 size 同步：options.size 优先于 options.theme.size
         theme: { ...DEFAULT_THEME, ...(_g = options.theme) != null ? _g : {}, size: (_j = options.size) != null ? _j : (_i = (_h = options.theme) == null ? void 0 : _h.size) != null ? _i : DEFAULT_THEME.size },
-        pointsQrSrc: ((_k = options.pointsQrSrc) == null ? void 0 : _k.trim()) || DEFAULT_POINTS_QR_SRC,
-        loginRequired: (_l = options.loginRequired) != null ? _l : false,
+        loginRequired: (_k = options.loginRequired) != null ? _k : false,
         onLogin: options.onLogin,
         onLogout: options.onLogout,
         onGithubBound: options.onGithubBound
@@ -1829,8 +1500,6 @@
       this.closeMenu();
       this.closeSettings();
       this.nicknameDraft = u.nickname || "";
-      this.pointsTip = "";
-      this.pointsBump = false;
       const settings = document.createElement("div");
       settings.className = "ua-mask";
       settings.style.zIndex = String(this.opts.zIndex + 10);
@@ -1838,8 +1507,6 @@
       this.settingsEl = settings;
       this.appendOverlay(settings);
       this.bindSettingsEvents(settings);
-      this.bindPointsEvents(settings);
-      void this.loadPoints();
       const onMaskDown = (e) => {
         if (e.composedPath()[0] === settings) this.closeSettings();
       };
@@ -1858,7 +1525,6 @@
       const avatarSrc = u.avatarUrl || u.headimgurl || ((_a = u.github) == null ? void 0 : _a.avatar);
       const bigAvatar = avatarSrc ? `<img class="ua-big-avatar" src="${escapeAttr(avatarSrc)}" alt="" referrerpolicy="no-referrer" />` : `<div class="ua-big-avatar ua-big-avatar-fallback">${escapeHtml((u.nickname || ((_b = u.github) == null ? void 0 : _b.login) || "?").charAt(0).toUpperCase())}</div>`;
       const githubRow = this.buildGithubRowHtml(u);
-      const pointsCard = this.buildPointsCardHtml();
       return `
       <div class="ua-dialog" role="dialog" aria-modal="true" aria-label="\u8BBE\u7F6E">
         <div class="ua-dialog-head">
@@ -1881,9 +1547,6 @@
               <span class="ua-postcard-id">${escapeHtml(u.openid || "-")}</span>
             </div>
           </div>
-
-          <!-- \u79EF\u5206\uFF08wx-auth \u8D26\u672C\uFF09\uFF1A\u4F59\u989D + \u4ECA\u65E5\u7B7E\u5230 + \u770B\u5E7F\u544A\u8D5A\u5206 -->
-          ${pointsCard}
 
           <!-- GitHub \u7ED1\u5B9A\uFF1A\u5DE6\u53F3\u5355\u884C\uFF08\u5DE6\uFF1A\u56FE\u6807+\u6807\u9898\uFF1B\u53F3\uFF1A\u7ED1\u5B9A\u6309\u94AE / \u7528\u6237\u540D+\u89E3\u7ED1\uFF09 -->
           ${githubRow}
@@ -1973,13 +1636,6 @@
         clearTimeout(this.saveBtnTimer);
         this.saveBtnTimer = null;
       }
-      this.closeEarnDialog();
-      if (this.pointsBumpTimer !== null) {
-        clearTimeout(this.pointsBumpTimer);
-        this.pointsBumpTimer = null;
-      }
-      this.pointsBump = false;
-      this.pointsSeq++;
       (_a = this.settingsEl) == null ? void 0 : _a.remove();
       this.settingsEl = null;
       (_b = this.settingsCleanup) == null ? void 0 : _b.call(this);
@@ -2038,310 +1694,6 @@
         });
       };
       window.addEventListener("message", this.githubMsgListener);
-    }
-    // ==================== 积分（wx-auth 账本） ====================
-    /**
-     * 构建积分卡片的 HTML。
-     * 与 GitHub 行同款做法（抽成方法）：读到余额 / 签到 / 重试后原地替换这一块，
-     * 不重渲染整个设置弹窗——后者会丢掉用户在「设置名字」输入框里的草稿与焦点。
-     */
-    buildPointsCardHtml() {
-      var _a, _b, _c;
-      const p = this.points;
-      const loading = this.pointsState === "idle" || this.pointsState === "loading";
-      const failed = this.pointsState === "error";
-      const reward = (_a = p == null ? void 0 : p.checkinReward) != null ? _a : 0;
-      const adReward = (_b = p == null ? void 0 : p.adReward) != null ? _b : 0;
-      const balance = loading && !p ? '<span class="ua-points-num ua-points-num-muted">\xB7\xB7\xB7</span>' : failed && !p ? '<span class="ua-points-num ua-points-num-muted">\u2014</span>' : `<span class="ua-points-num${this.pointsBump ? " ua-points-num-bump" : ""}">${(_c = p == null ? void 0 : p.balance) != null ? _c : 0}</span><span class="ua-points-unit">\u5206</span>`;
-      const hint = this.pointsTip ? this.pointsTip : (p == null ? void 0 : p.checkedIn) ? `\u4ECA\u65E5\u5DF2\u7B7E\u5230${reward > 0 ? ` +${reward}` : ""}` : reward > 0 ? `\u6BCF\u65E5\u7B7E\u5230 +${reward}` : "\u6BCF\u65E5\u7B7E\u5230\u9886\u79EF\u5206";
-      let actions;
-      if (loading && !p) {
-        actions = '<button type="button" class="ua-points-btn" disabled>\u8BFB\u53D6\u4E2D\u2026</button>';
-      } else if (failed && !p) {
-        actions = '<button type="button" class="ua-points-btn" data-action="points-retry">\u91CD\u8BD5</button>';
-      } else {
-        const disabled = this.pointsBusy ? " disabled" : "";
-        const checkinBtn = (p == null ? void 0 : p.checkedIn) ? '<button type="button" class="ua-points-btn" disabled>\u4ECA\u65E5\u5DF2\u7B7E\u5230</button>' : `<button type="button" class="ua-points-btn ua-points-btn-primary" data-action="checkin"${disabled}>\u7B7E\u5230${reward > 0 ? ` +${reward}` : ""}</button>`;
-        actions = checkinBtn + `<button type="button" class="ua-points-btn" data-action="earn"${disabled}>\u770B\u5E7F\u544A${adReward > 0 ? ` +${adReward}` : ""}</button>`;
-      }
-      return `
-      <div class="ua-points-card">
-        <div class="ua-points-head">
-          <span class="ua-points-title">${COIN_ICON}<b>\u79EF\u5206</b></span>
-          <span class="ua-points-balance">${balance}</span>
-        </div>
-        <div class="ua-points-foot">
-          <span class="ua-points-hint${this.pointsTip && this.pointsTipOk ? " ua-points-hint-ok" : ""}">${escapeHtml(hint)}</span>
-          <span class="ua-points-btns">${actions}</span>
-        </div>
-      </div>`;
-    }
-    /** 绑定积分卡片内的按钮事件（初次渲染与原地替换后都要调用） */
-    bindPointsEvents(root) {
-      var _a, _b, _c;
-      (_a = root.querySelector('[data-action="checkin"]')) == null ? void 0 : _a.addEventListener("click", () => {
-        void this.doCheckin();
-      });
-      (_b = root.querySelector('[data-action="earn"]')) == null ? void 0 : _b.addEventListener("click", () => {
-        this.openEarnDialog();
-      });
-      (_c = root.querySelector('[data-action="points-retry"]')) == null ? void 0 : _c.addEventListener("click", () => {
-        void this.loadPoints();
-      });
-    }
-    /** 原地刷新积分卡片（弹窗未打开时无操作） */
-    refreshPointsRow() {
-      if (!this.settingsEl) return;
-      const old = this.settingsEl.querySelector(".ua-points-card");
-      if (!old) return;
-      const wrapper = document.createElement("div");
-      wrapper.innerHTML = this.buildPointsCardHtml().trim();
-      const next = wrapper.firstElementChild;
-      if (!next) return;
-      old.replaceWith(next);
-      this.bindPointsEvents(next);
-    }
-    /** 一次性提示（签到结果 / 出码失败原因）；写入后由调用方 refreshPointsRow 落地 */
-    setPointsTip(text, ok = false) {
-      this.pointsTip = text;
-      this.pointsTipOk = ok;
-    }
-    /**
-     * 读余额。已有历史读数时不进「读取中」（避免数字被省略号顶掉再回来），
-     * 刷新失败也只提示、不清空旧值——积分是增强信息，不该看起来像坏了。
-     */
-    async loadPoints() {
-      const token = getAuthToken();
-      if (!token) return;
-      const seq = ++this.pointsSeq;
-      if (!this.points) {
-        this.pointsState = "loading";
-        this.refreshPointsRow();
-      }
-      const info = await fetchPoints(this.opts.apiBase, token);
-      if (seq !== this.pointsSeq) return;
-      if (info) {
-        this.points = info;
-        this.pointsState = "ready";
-      } else if (this.points) {
-        this.pointsState = "ready";
-        this.setPointsTip("\u79EF\u5206\u5237\u65B0\u5931\u8D25\uFF0C\u7A0D\u540E\u518D\u8BD5");
-      } else {
-        this.pointsState = "error";
-      }
-      this.refreshPointsRow();
-    }
-    /** 每日签到（上游幂等：重复调用返回 granted:0，不会重复发分） */
-    async doCheckin() {
-      const token = getAuthToken();
-      if (!token || this.pointsBusy) return;
-      this.pointsBusy = true;
-      this.setPointsTip("");
-      this.refreshPointsRow();
-      const r = await checkinPoints(this.opts.apiBase, token);
-      this.pointsBusy = false;
-      if (!this.settingsEl) return;
-      if (!r) {
-        this.setPointsTip("\u7B7E\u5230\u5931\u8D25\uFF0C\u8BF7\u7A0D\u540E\u518D\u8BD5");
-      } else if (r.granted > 0) {
-        this.applyPointsBalance(r.balance);
-        if (this.points) this.points.checkedIn = true;
-        this.setPointsTip(`\u7B7E\u5230\u6210\u529F +${r.granted} \u79EF\u5206`, true);
-        this.bumpPoints();
-      } else {
-        if (this.points) this.points.checkedIn = true;
-        this.setPointsTip("\u4ECA\u5929\u5DF2\u7ECF\u7B7E\u5230\u8FC7\u4E86", true);
-      }
-      this.refreshPointsRow();
-    }
-    /** 用服务端读数覆盖本地余额（非法值忽略：宁可不更新也不写脏） */
-    applyPointsBalance(value) {
-      if (value === null || !Number.isFinite(value)) return;
-      if (this.points) this.points = { ...this.points, balance: value };
-    }
-    /** 余额变化的短促放大反馈：数值悄悄变了没动静，会被感知成「没生效」 */
-    bumpPoints() {
-      this.pointsBump = true;
-      if (this.pointsBumpTimer !== null) clearTimeout(this.pointsBumpTimer);
-      this.pointsBumpTimer = window.setTimeout(() => {
-        this.pointsBumpTimer = null;
-        this.pointsBump = false;
-        this.refreshPointsRow();
-      }, 800);
-    }
-    // ==================== 看广告赚积分（固定小程序码） ====================
-    /**
-     * 弹出「看广告赚积分」的小程序码。
-     *
-     * 刻意**不动态出码**：看广告赚积分全站共用一张固定的小程序码，用户扫码进小程序
-     * 广告页，领票 / 播激励视频 / 加分都在小程序那条链路上完成——网页侧没有票可查，
-     * 为一张静态图去请求接口纯属浪费。
-     *
-     * 到账检测：一个激励视频要十几秒，扫码后立刻查必然是「没变」，所以先静默
-     * EARN_FIRST_POLL_DELAY_MS 再开始核对余额，比开窗时的基准余额多即视为到账
-     * （多出来的差值就是本次赚到的分）。窗口过后仍可手动「刷新积分」核对。
-     */
-    openEarnDialog() {
-      var _a, _b, _c, _d;
-      this.closeEarnDialog();
-      const reward = (_b = (_a = this.points) == null ? void 0 : _a.adReward) != null ? _b : 0;
-      const waitSec = Math.round(EARN_FIRST_POLL_DELAY_MS / 1e3);
-      const mask = document.createElement("div");
-      mask.className = "ua-mask";
-      mask.style.zIndex = String(this.opts.zIndex + 20);
-      mask.innerHTML = `
-      <div class="ua-dialog ua-earn" role="dialog" aria-modal="true" aria-label="\u770B\u5E7F\u544A\u8D5A\u79EF\u5206">
-        <div class="ua-dialog-head">
-          <h3 class="ua-dialog-title">\u770B\u5E7F\u544A\u8D5A\u79EF\u5206</h3>
-          <button type="button" class="ua-close" data-action="close" aria-label="\u5173\u95ED">${CLOSE_ICON}</button>
-        </div>
-        <div class="ua-earn-body">
-          <p class="ua-earn-sub">\u5FAE\u4FE1\u626B\u7801\uFF0C\u5728\u5C0F\u7A0B\u5E8F\u91CC\u770B\u5B8C\u4E00\u4E2A\u6FC0\u52B1\u89C6\u9891${reward > 0 ? `\uFF0C<b>+${reward} \u79EF\u5206</b>\u81EA\u52A8\u5230\u8D26` : "\uFF0C\u79EF\u5206\u81EA\u52A8\u5230\u8D26"}</p>
-          <img class="ua-earn-qr" src="${escapeAttr(this.opts.pointsQrSrc)}" alt="\u5C0F\u7A0B\u5E8F\u7801" />
-          <div class="ua-earn-status" data-role="earn-status">\u770B\u5B8C\u5E7F\u544A\u7EA6 ${waitSec} \u79D2\u540E\u81EA\u52A8\u5230\u8D26</div>
-          <button type="button" class="ua-points-btn" data-action="earn-refresh">\u5237\u65B0\u79EF\u5206</button>
-        </div>
-      </div>
-    `;
-      this.adEl = mask;
-      this.adBaseline = this.points ? this.points.balance : null;
-      this.appendOverlay(mask);
-      const close = () => this.closeEarnDialog();
-      (_c = mask.querySelector('[data-action="close"]')) == null ? void 0 : _c.addEventListener("click", close);
-      (_d = mask.querySelector('[data-action="earn-refresh"]')) == null ? void 0 : _d.addEventListener("click", () => {
-        void this.checkEarnManually();
-      });
-      const onMaskDown = (e) => {
-        if (e.composedPath()[0] === mask) close();
-      };
-      const onDocKey = (e) => {
-        if (e.key === "Escape") close();
-      };
-      document.addEventListener("mousedown", onMaskDown);
-      document.addEventListener("keydown", onDocKey);
-      this.adCleanup = () => {
-        document.removeEventListener("mousedown", onMaskDown);
-        document.removeEventListener("keydown", onDocKey);
-      };
-      this.adFirstTimer = window.setTimeout(() => {
-        this.adFirstTimer = null;
-        if (!this.adEl) return;
-        this.setEarnStatus("\u6B63\u5728\u68C0\u6D4B\u79EF\u5206\u5230\u8D26\u2026");
-        this.startEarnPolling();
-      }, EARN_FIRST_POLL_DELAY_MS);
-    }
-    /** 到账核对轮询（第一次在静默期结束后触发） */
-    startEarnPolling() {
-      this.stopEarnPolling();
-      this.adDeadline = Date.now() + EARN_POLL_WINDOW_MS;
-      this.adPollTimer = window.setInterval(() => {
-        if (this.adPolling) return;
-        if (Date.now() > this.adDeadline) {
-          this.stopEarnPolling();
-          this.setEarnStatus("\u8FD8\u6CA1\u68C0\u6D4B\u5230\u5230\u8D26\uFF0C\u53EF\u70B9\u300C\u5237\u65B0\u79EF\u5206\u300D\u518D\u6838\u5BF9\u4E00\u6B21");
-          return;
-        }
-        void this.checkEarnOnce();
-      }, EARN_POLL_INTERVAL_MS);
-    }
-    stopEarnPolling() {
-      if (this.adPollTimer !== null) {
-        clearInterval(this.adPollTimer);
-        this.adPollTimer = null;
-      }
-    }
-    /**
-     * 读一次余额并判断是否到账。
-     * 读失败（网络抖动 / 服务不可用）按「本次没结论」处理，继续轮询即可。
-     */
-    async checkEarnOnce() {
-      if (this.adPolling || !this.adEl || this.adRedeemed) return false;
-      this.adPolling = true;
-      let info = null;
-      try {
-        info = await this.readPoints();
-      } finally {
-        this.adPolling = false;
-      }
-      if (!this.adEl || !info) return false;
-      return this.maybeSettle(info);
-    }
-    /** 「刷新积分」：手动核对一次（不受自动核对窗口限制） */
-    async checkEarnManually() {
-      if (!this.adEl || this.adRedeemed) return;
-      const info = await this.readPoints();
-      if (!this.adEl || !info) {
-        if (this.adEl) this.setEarnStatus("\u79EF\u5206\u8BFB\u53D6\u5931\u8D25\uFF0C\u7A0D\u540E\u518D\u8BD5", "err");
-        return;
-      }
-      if (this.maybeSettle(info)) return;
-      this.setEarnStatus("\u8FD8\u6CA1\u68C0\u6D4B\u5230\u65B0\u7684\u79EF\u5206\u5230\u8D26\uFF0C\u770B\u5B8C\u5E7F\u544A\u518D\u70B9\u4E00\u6B21");
-    }
-    /**
-     * 用余额差值判断本次广告是否到账：比开窗基准多即结算，多出来的差值就是这次赚的。
-     * 基准未知（开窗前没读到余额）时，把第一次读到的值当基准——否则会把
-     * 「第一次读成功」误判成「已到账」。
-     */
-    maybeSettle(info) {
-      if (this.adRedeemed) return true;
-      if (this.adBaseline === null) {
-        this.adBaseline = info.balance;
-        return false;
-      }
-      if (info.balance <= this.adBaseline) return false;
-      this.settleEarn(info);
-      return true;
-    }
-    /** 到账：状态行报喜 + 卡片余额刷新，「已到账」停留一瞬后收起弹窗 */
-    settleEarn(info) {
-      if (this.adRedeemed) return;
-      this.adRedeemed = true;
-      this.stopEarnPolling();
-      const gained = this.adBaseline === null ? 0 : info.balance - this.adBaseline;
-      this.setEarnStatus(gained > 0 ? `\u5DF2\u5230\u8D26 +${gained} \u79EF\u5206` : "\u79EF\u5206\u5DF2\u5230\u8D26", "ok");
-      this.setPointsTip(gained > 0 ? `\u770B\u5E7F\u544A +${gained} \u79EF\u5206\u5DF2\u5230\u8D26` : "\u770B\u5E7F\u544A\u79EF\u5206\u5DF2\u5230\u8D26", true);
-      this.bumpPoints();
-      this.refreshPointsRow();
-      this.adCloseTimer = window.setTimeout(() => {
-        this.adCloseTimer = null;
-        this.closeEarnDialog();
-      }, 900);
-    }
-    /** 读一次余额并落地到卡片（成功返回读数；失败返回 null，不动已有读数） */
-    async readPoints() {
-      const token = getAuthToken();
-      if (!token) return null;
-      const info = await fetchPoints(this.opts.apiBase, token);
-      if (!info) return null;
-      this.points = info;
-      this.pointsState = "ready";
-      this.refreshPointsRow();
-      return info;
-    }
-    setEarnStatus(text, kind = "") {
-      var _a;
-      const el = (_a = this.adEl) == null ? void 0 : _a.querySelector('[data-role="earn-status"]');
-      if (!el) return;
-      el.textContent = text;
-      el.className = `ua-earn-status${kind ? ` ua-earn-status-${kind}` : ""}`;
-    }
-    closeEarnDialog() {
-      var _a, _b;
-      this.stopEarnPolling();
-      if (this.adFirstTimer !== null) {
-        clearTimeout(this.adFirstTimer);
-        this.adFirstTimer = null;
-      }
-      if (this.adCloseTimer !== null) {
-        clearTimeout(this.adCloseTimer);
-        this.adCloseTimer = null;
-      }
-      (_a = this.adEl) == null ? void 0 : _a.remove();
-      this.adEl = null;
-      (_b = this.adCleanup) == null ? void 0 : _b.call(this);
-      this.adCleanup = null;
-      this.adRedeemed = false;
-      this.adBaseline = null;
     }
   };
 
@@ -2407,7 +1759,6 @@
         "z-index",
         "portal",
         "portal-el",
-        "points-qr-src",
         "login-required",
         ...THEME_ATTRS.map(([attr]) => attr)
       ];
@@ -2461,7 +1812,7 @@
       this.widget.mount();
     }
     buildOptions() {
-      var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
+      var _a, _b, _c, _d, _e, _f, _g, _h, _i;
       const global = (_a = readGlobal()) != null ? _a : {};
       const props = (_b = this.props) != null ? _b : {};
       const get = (name) => this.getAttribute(name);
@@ -2478,7 +1829,6 @@
         zIndex: get("z-index") !== null ? numAttr(this, "z-index", 12e3) : void 0,
         portal: get("portal") !== null ? boolAttr(this, "portal", true) : void 0,
         portalEl: resolvePortalEl((_f = get("portal-el")) != null ? _f : void 0),
-        pointsQrSrc: (_g = get("points-qr-src")) != null ? _g : void 0,
         loginRequired: get("login-required") !== null ? boolAttr(this, "login-required", false) : void 0,
         theme: Object.keys(themeAttrs).length ? themeAttrs : void 0
       };
@@ -2486,7 +1836,7 @@
         ...compact(global),
         ...compact(attrs),
         ...compact(props),
-        theme: { ...(_h = global.theme) != null ? _h : {}, ...(_i = attrs.theme) != null ? _i : {}, ...(_j = props.theme) != null ? _j : {} }
+        theme: { ...(_g = global.theme) != null ? _g : {}, ...(_h = attrs.theme) != null ? _h : {}, ...(_i = props.theme) != null ? _i : {} }
       };
     }
   };
