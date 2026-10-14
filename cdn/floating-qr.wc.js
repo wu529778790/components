@@ -1,4 +1,4 @@
-/* @wu529778790/floating-qr v0.1.15 */
+/* @wu529778790/floating-qr v0.1.16 */
 "use strict";
 (() => {
   // src/FloatingQR.ts
