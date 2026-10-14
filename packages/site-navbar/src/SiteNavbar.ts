@@ -19,7 +19,7 @@ import { ensureWxAuth, type WxAuthBootstrapOptions } from './wx-auth-bootstrap'
 
 /** 内置默认子站链接（shenzjd.com 系列） */
 export const DEFAULT_LINKS: SiteNavbarLink[] = [
-  { href: 'https://shenzjd.com', label: 'AI情报局', icon: '🏠' },
+  { href: 'https://www.shenzjd.com', label: 'AI情报局', icon: '🏠' },
   { href: 'https://panhub.shenzjd.com', label: '网盘搜索', icon: '🔍' },
   { href: 'https://parse.shenzjd.com', label: '视频解析', icon: '🎬' },
   { href: 'https://h5.lot-ml.com/ProductEn/Index/3d58b4cfe8b560c8', label: '流量卡', icon: '📶' },

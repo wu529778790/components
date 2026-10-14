@@ -55,7 +55,7 @@ pnpm add @wu529778790/site-navbar
 <script>
   window.__SITE_NAVBAR_OPTIONS__ = {
     links: [
-      { href: 'https://shenzjd.com', label: 'AI情报局', icon: '🏠' },
+      { href: 'https://www.shenzjd.com', label: 'AI情报局', icon: '🏠' },
       { href: 'https://panhub.shenzjd.com', label: '网盘搜索', icon: '🔍' }
     ],
     brand: { text: '我的导航', icon: '🧭' },
@@ -72,7 +72,7 @@ import { SiteNavbar } from '@wu529778790/site-navbar'
 
 const nav = new SiteNavbar({
   links: [
-    { href: 'https://shenzjd.com', label: 'AI情报局', icon: '🏠' },
+    { href: 'https://www.shenzjd.com', label: 'AI情报局', icon: '🏠' },
     { href: 'https://panhub.shenzjd.com', label: '网盘搜索', icon: '🔍' }
   ],
   brand: { text: '我的导航', icon: '🧭' },

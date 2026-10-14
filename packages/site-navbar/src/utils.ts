@@ -32,7 +32,7 @@ function normalizeHost(host: string): string {
  * 匹配规则：
  *   - exact：归一化后 host 完全相等（当前就在该站，含 www 互通）
  *   - sub：当前 host 是该链接的子域（如当前在 parse.shenzjd.com，
- *     链接 https://shenzjd.com 判定为子域命中）
+ *     链接 https://www.shenzjd.com 判定为子域命中）
  *   - null：不匹配
  *
  * 返回等级而非布尔值，供调用方做「精确优先、子域取最长」的整体匹配，
