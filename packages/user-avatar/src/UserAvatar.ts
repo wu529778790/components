@@ -412,15 +412,29 @@ export class UserAvatar {
     try {
       const base = this.opts.apiBase || window.location.origin
       const res = await fetch(`${base}/api/auth/userinfo?token=${encodeURIComponent(token)}`)
-      const data = (await res.json()) as {
-        authenticated: boolean
-        error?: string
-        user?: WxUserInfo
-      }
-      if (!data.authenticated) {
-        // 服务端判定 token 失效（过期 / 被吊销 / 已解绑 / 非法）：
+      const data = (await res.json()) as Record<string, unknown>
+      if (data.authenticated !== true) {
+        // 2026-10-22 区分「凭证明确失效」与「服务端瞬时异常」：
+        // 服务端 503（server_error，DB 抖动）/ 429（rate_limited）以及任何形状异常的
+        // 响应都只是「本次无法判定登录态」，绝不是凭证失效——这里若删 Cookie，
+        // 一次 DB 瞬时故障 = 用户被强制重新扫码（掉登录的隐形来源）。
+        const err = typeof data.error === 'string' ? data.error : undefined
+        const transient =
+          err === 'server_error' || err === 'rate_limited' || res.status >= 500 || res.status === 429
+        if (transient) {
+          console.warn('[UserAvatar] userinfo 瞬时异常，保留登录态', err ?? `http ${res.status}`)
+          // 已展示头像则保留（避免误踢下线）；尚未登录只切 unauth 展示，
+          // 凭证原样保留，下一次校验/点击登录即可无感恢复。
+          if (this.status !== 'auth') {
+            this.user = null
+            this.status = 'unauth'
+          }
+          this.render()
+          return
+        }
+        // 明确失效（过期 / 被吊销 / 已解绑 / 非法 / 账号不存在 / 清退）：
         // 本地这份 token 已经没用了，主动作废，避免每次刷新都带着旧 token 白请求。
-        console.warn('[UserAvatar] token 已失效，自动清除本地凭证', data.error ?? '')
+        console.warn('[UserAvatar] token 已失效，自动清除本地凭证', err ?? '')
         deleteAuthCookies()
         this.user = null
         this.status = 'unauth'
@@ -433,7 +447,8 @@ export class UserAvatar {
         this.render()
         return
       }
-      this.user = data.user ? data.user : null
+      const userData = data.user as WxUserInfo | undefined
+      this.user = userData ?? null
       this.status = this.user ? 'auth' : 'unauth'
       // 成功拉取后更新缓存（无论数据是否变化，都刷新缓存时间，保证静默刷新有新鲜数据可用）
       this.cachedUser = this.user
