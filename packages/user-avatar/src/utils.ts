@@ -22,10 +22,17 @@ const LEGACY_COOKIE = 'wxauth-openid'
  * 注意：正则校验不等于后端验签，前端只是「从候选里挑最像真的」；
  * 是否有效以服务端 /check 为准（无效则组件显示未登录，行为正确）。
  */
+/**
+ * 签名 token 形态正则（2026-10-22 w1 兼容）：
+ * 3 段 = {openid}.{秒级时间戳}.{64位hex签名}（公众号验证码 / 小程序原生）
+ * 4 段 = {openid}.w1.{秒级时间戳}.{64位hex签名}（网页扫码，2026-10-14 起）
+ * demo-token / 明文 openid 都不匹配 → 被跳过。
+ */
+const SIGNED_TOKEN_RE = /^[^.]+(?:\.w1)?\.[0-9]+\.[0-9a-f]{64}$/
+
 function looksLikeSignedToken(value: string): boolean {
   if (!value || value.length < 20) return false
-  // {x}.{数字}.{64位hex} 三段结构（签名 token 特征）
-  return /^[^.]+\.[0-9]+\.[0-9a-f]{64}$/.test(value)
+  return SIGNED_TOKEN_RE.test(value)
 }
 
 export function getAuthToken(): string {
@@ -85,8 +92,10 @@ export function cleanupJunkTokens(): void {
     const name = row.slice(0, eq).trim()
     if (name !== TOKEN_COOKIE && name !== LEGACY_COOKIE) continue
     const value = row.slice(eq + 1)
-    // 合法签名 token 三段式 {x}.{ts}.{hex}；其他（demo-token/明文 openid）都算脏数据
-    if (!/^[^.]+\.[0-9]+\.[0-9a-f]{64}$/.test(value)) {
+    // 合法签名 token：3 段式或 4 段式 w1（见 SIGNED_TOKEN_RE 注释）；其他都算脏数据。
+    // ⚠️ 2026-10-22 修复：此前只认 3 段式，w1 4 段 token（网页扫码登录的唯一形态）
+    // 会被这里当脏数据物理删除——用户每打开/刷新一个挂本组件的页面就掉一次登录。
+    if (!SIGNED_TOKEN_RE.test(value)) {
       cleanupCookie(name, false)
       cleanupCookie(name, true)
     }
