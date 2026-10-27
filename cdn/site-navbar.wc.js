@@ -1,4 +1,4 @@
-/* @wu529778790/site-navbar v0.1.20 */
+/* @wu529778790/site-navbar v0.1.22 */
 "use strict";
 (() => {
   // src/styles.css
@@ -106,7 +106,8 @@
     // { href: 'https://newshub.shenzjd.com', label: '热点聚合', icon: '📰' },
     { href: "https://tvbox.shenzjd.com/", label: "TVbox \u63A5\u53E3", icon: "\u{1F4FA}" },
     { href: "https://navhub.shenzjd.com", label: "\u5BFC\u822A\u68EE\u6797", icon: "\u{1F9ED}" },
-    { href: "https://freeimg.shenzjd.com/", label: "\u514D\u8D39\u751F\u56FE", icon: "\u{1F193}" }
+    { href: "https://freeimg.shenzjd.com/", label: "\u514D\u8D39\u751F\u56FE", icon: "\u{1F193}" },
+    { href: "https://portfolio.shenzjd.com/products", label: "\u66F4\u591A", icon: "\u2728" }
   ];
   var DEFAULT_BRAND = {
     icon: '<img class="sn-brand-img" src="https://cdn.jsdmirror.com/gh/wu529778790/img.shenzjd.com@master/blog/imgx-20260701-180125-c1ub.webp" alt="\u795E\u65CF\u4E5D\u5E1D" />',

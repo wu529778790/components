@@ -883,9 +883,10 @@
   // src/utils.ts
   var TOKEN_COOKIE = "wxauth-token";
   var LEGACY_COOKIE = "wxauth-openid";
+  var SIGNED_TOKEN_RE = /^[^.]+(?:\.w1)?\.[0-9]+\.[0-9a-f]{64}$/;
   function looksLikeSignedToken(value) {
     if (!value || value.length < 20) return false;
-    return /^[^.]+\.[0-9]+\.[0-9a-f]{64}$/.test(value);
+    return SIGNED_TOKEN_RE.test(value);
   }
   function getAuthToken() {
     const cookies = document.cookie.split("; ");
@@ -922,7 +923,7 @@
       const name = row.slice(0, eq).trim();
       if (name !== TOKEN_COOKIE && name !== LEGACY_COOKIE) continue;
       const value = row.slice(eq + 1);
-      if (!/^[^.]+\.[0-9]+\.[0-9a-f]{64}$/.test(value)) {
+      if (!SIGNED_TOKEN_RE.test(value)) {
         cleanupCookie(name, false);
         cleanupCookie(name, true);
       }
@@ -1189,7 +1190,6 @@
      *              直接复用缓存不发请求；登录/改昵称/解绑/绑定等主动操作传 true 强制刷新。
      */
     async fetchUser(force = false) {
-      var _a;
       const token = getAuthToken();
       if (!token) {
         this.user = null;
@@ -1212,8 +1212,19 @@
         const base = this.opts.apiBase || window.location.origin;
         const res = await fetch(`${base}/api/auth/userinfo?token=${encodeURIComponent(token)}`);
         const data = await res.json();
-        if (!data.authenticated) {
-          console.warn("[UserAvatar] token \u5DF2\u5931\u6548\uFF0C\u81EA\u52A8\u6E05\u9664\u672C\u5730\u51ED\u8BC1", (_a = data.error) != null ? _a : "");
+        if (data.authenticated !== true) {
+          const err = typeof data.error === "string" ? data.error : void 0;
+          const transient = err === "server_error" || err === "rate_limited" || res.status >= 500 || res.status === 429;
+          if (transient) {
+            console.warn("[UserAvatar] userinfo \u77AC\u65F6\u5F02\u5E38\uFF0C\u4FDD\u7559\u767B\u5F55\u6001", err != null ? err : `http ${res.status}`);
+            if (this.status !== "auth") {
+              this.user = null;
+              this.status = "unauth";
+            }
+            this.render();
+            return;
+          }
+          console.warn("[UserAvatar] token \u5DF2\u5931\u6548\uFF0C\u81EA\u52A8\u6E05\u9664\u672C\u5730\u51ED\u8BC1", err != null ? err : "");
           deleteAuthCookies();
           this.user = null;
           this.status = "unauth";
@@ -1224,7 +1235,8 @@
           this.render();
           return;
         }
-        this.user = data.user ? data.user : null;
+        const userData = data.user;
+        this.user = userData != null ? userData : null;
         this.status = this.user ? "auth" : "unauth";
         this.cachedUser = this.user;
         this.cachedAt = Date.now();
