@@ -101,7 +101,6 @@
   var DEFAULT_LINKS = [
     { href: "https://www.shenzjd.com", label: "AI\u60C5\u62A5\u5C40", icon: "\u{1F3E0}" },
     { href: "https://panhub.shenzjd.com", label: "\u7F51\u76D8\u641C\u7D22", icon: "\u{1F50D}" },
-    { href: "https://parse.shenzjd.com", label: "\u89C6\u9891\u89E3\u6790", icon: "\u{1F3AC}" },
     { href: "https://h5.lot-ml.com/ProductEn/Index/3d58b4cfe8b560c8", label: "\u6D41\u91CF\u5361", icon: "\u{1F4F6}" },
     // { href: 'https://newshub.shenzjd.com', label: '热点聚合', icon: '📰' },
     { href: "https://tvbox.shenzjd.com/", label: "TVbox \u63A5\u53E3", icon: "\u{1F4FA}" },
