@@ -67,8 +67,7 @@ assert(lastAppended.innerHTML.includes('ad.jpg'), 'ad image src rendered')
 assert(lastAppended.innerHTML.includes('云服务器特惠'), 'ad title rendered')
 assert(lastAppended.innerHTML.includes('首年 99 元'), 'ad desc rendered')
 assert(lastAppended.innerHTML.includes('https://example.com'), 'ad href rendered')
-assert(lastAppended.innerHTML.includes('fa-label'), 'default ad label rendered')
-assert(lastAppended.innerHTML.includes('fa-head') === false, 'label does not take its own row')
+assert(lastAppended.innerHTML.includes('fa-label') === false, 'no ad label by default')
 assert(lastAppended.innerHTML.includes('target="_blank"'), 'default target is _blank')
 assert(lastAppended.innerHTML.includes('nofollow'), 'external ad link is nofollow/sponsored')
 
@@ -94,7 +93,13 @@ assert(wMulti.isMounted(), 'multi ad mounts')
 assert(lastAppended.innerHTML.includes('fa-divider'), 'divider between ads')
 assert(lastAppended.innerHTML.includes('fa-tag'), 'badge rendered')
 assert(lastAppended.innerHTML.includes('target="_self"'), '_self target respected')
-assert(lastAppended.innerHTML.includes('fa-label') === false, 'adLabel:false hides label')
+assert(lastAppended.innerHTML.includes('fa-label') === false, 'adLabel:false keeps label hidden')
+
+// 4.5 显式开启标识：压首图左上角，不占独立行
+const wLabel = new FA({ ads: [{ src: 'l.jpg', title: 'L' }], adLabel: '广告' })
+assert(wLabel.isMounted(), 'labelled ad mounts')
+assert(lastAppended.innerHTML.includes('<span class="fa-label">广告</span>'), 'adLabel renders label text')
+assert(lastAppended.innerHTML.includes('fa-head') === false, 'label does not take its own row')
 
 // 5. 主题 / 宽度写入 inline 变量
 const wTheme = new FA({

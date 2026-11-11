@@ -64,11 +64,11 @@ function parseAdsJson(raw: string | null): FloatingAdItem[] | null {
   return null
 }
 
-/** 解析 ad-label：缺省 / 空串 / true 走默认；false|none|off|0 关闭；其余为自定义文案 */
+/** 解析 ad-label：缺省跟随全局配置（默认不显示）；空串 / true 显示「广告」；false|none|off|0 关闭；其余为自定义文案 */
 function resolveAdLabel(raw: string | null, fallback: string | false): string | false {
   if (raw === null) return fallback
   const trimmed = raw.trim()
-  if (!trimmed || trimmed === 'true') return fallback === false ? '广告' : fallback
+  if (!trimmed || trimmed === 'true') return '广告'
   if (/^(false|none|off|0)$/i.test(trimmed)) return false
   return trimmed
 }
@@ -179,7 +179,7 @@ export class FloatingAdElement extends HTMLElement {
       offset: numAttr(this, 'offset', global.offset ?? 16),
       imageFit,
       imageHeight: numAttr(this, 'image-height', global.imageHeight ?? 0),
-      adLabel: resolveAdLabel(get('ad-label'), global.adLabel ?? '广告'),
+      adLabel: resolveAdLabel(get('ad-label'), global.adLabel ?? false),
       theme: { ...(global.theme ?? {}), ...theme }
     }
   }

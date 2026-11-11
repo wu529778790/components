@@ -46,7 +46,7 @@ export interface FloatingAdOptions {
   hideOnMobile?: boolean
   /** 浮窗 z-index，默认 9999 */
   zIndex?: number
-  /** 顶部「广告」标识文案，传 false 隐藏，默认 '广告' */
+  /** 「广告」标识文案（压在首图左上角），默认 false 不显示；传字符串则显示该文案 */
   adLabel?: string | false
   /** 浮窗宽度（px），默认 170 */
   width?: number
@@ -125,7 +125,7 @@ function resolveOptions(options: FloatingAdOptions): ResolvedOptions {
     closePersistence: options.closePersistence ?? false,
     hideOnMobile: options.hideOnMobile ?? true,
     zIndex: options.zIndex ?? 9999,
-    adLabel: options.adLabel === undefined ? '广告' : options.adLabel,
+    adLabel: options.adLabel === undefined ? false : options.adLabel,
     width: Number.isFinite(options.width) ? Math.max(80, Number(options.width)) : 170,
     offset: Number.isFinite(options.offset) ? Math.max(0, Number(options.offset)) : 16,
     imageFit: options.imageFit === 'contain' ? 'contain' : 'cover',

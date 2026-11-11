@@ -6,7 +6,7 @@
 
 - 首个版本：左侧广告浮窗组件，与 `floating-qr` 视觉同源（圆角卡片 / 半透明背景 / 右上角关闭 / 跟随系统深浅色）
 - 多张图片广告混排，自动分隔线；`badge` 支持图片角标（`src` 必填，没有图片的条目忽略）
-- 「广告」合规标识不占排版行高：压在首图左上角，可自定义或关闭（`ad-label` / `adLabel`）
+- 「广告」标识默认不显示（`ad-label` / `adLabel` 传文案时才出现，压首图左上角、不占行高）
 - Web Component `<floating-ad>`：支持 `ad-*` 单条属性与 `ads-json` 多条的 JSON 配置
 - `window.__FLOATING_AD_OPTIONS__` 全局配置；`data-fa-auto="false"` 可禁用自动注入
 - 没有广告数据时不渲染任何节点（不产生空白卡片）
