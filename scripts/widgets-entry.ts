@@ -6,12 +6,14 @@
  * sideEffects 配置将「导入即注册」的模块当无副作用整棵摇掉。
  */
 import { FloatingQRElement } from '../packages/floating-qr/src/web-component'
+import { FloatingAdElement } from '../packages/floating-ad/src/web-component'
 import { FloatingModalElement } from '../packages/floating-modal/src/web-component'
 import { FloatingUnlockElement } from '../packages/floating-unlock/src/web-component'
 import { UserAvatarElement } from '../packages/user-avatar/src/web-component'
 import { SiteNavbarElement } from '../packages/site-navbar/src/web-component'
 
 void FloatingQRElement
+void FloatingAdElement
 void FloatingModalElement
 void FloatingUnlockElement
 void UserAvatarElement

@@ -1,0 +1,15 @@
+# Changelog
+
+## 0.1.0
+
+### Features
+
+- 首个版本：左侧广告浮窗组件，与 `floating-qr` 视觉同源（圆角卡片 / 半透明背景 / 右上角关闭 / 跟随系统深浅色）
+- 图片广告 + 纯文字广告混排，多条广告自动分隔线；`badge` 支持图片角标
+- 顶部「广告」合规标识可自定义或关闭（`ad-label` / `adLabel`）
+- Web Component `<floating-ad>`：支持 `ad-*` 单条属性与 `ads-json` 多条的 JSON 配置
+- `window.__FLOATING_AD_OPTIONS__` 全局配置；`data-fa-auto="false"` 可禁用自动注入
+- 没有广告数据时不渲染任何节点（不产生空白卡片）
+- 关闭后刷新重现（可选 `closePersistence` 记住状态）、移动端默认隐藏、六方位定位
+- 危险协议链接（`javascript:` / `data:` / `vbscript:`）自动忽略，文案与属性全量转义
+- tsup 构建 ESM + CJS + IIFE 三格式，输出 `.d.ts` 类型声明
