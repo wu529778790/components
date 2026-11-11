@@ -43,7 +43,7 @@
       closePersistence: (_b = options.closePersistence) != null ? _b : false,
       hideOnMobile: (_c = options.hideOnMobile) != null ? _c : true,
       zIndex: (_d = options.zIndex) != null ? _d : 9999,
-      adLabel: options.adLabel === void 0 ? "\u5E7F\u544A" : options.adLabel,
+      adLabel: options.adLabel === void 0 ? false : options.adLabel,
       width: Number.isFinite(options.width) ? Math.max(80, Number(options.width)) : 170,
       offset: Number.isFinite(options.offset) ? Math.max(0, Number(options.offset)) : 16,
       imageFit: options.imageFit === "contain" ? "contain" : "cover",
@@ -225,7 +225,7 @@
   function resolveAdLabel(raw, fallback) {
     if (raw === null) return fallback;
     const trimmed = raw.trim();
-    if (!trimmed || trimmed === "true") return fallback === false ? "\u5E7F\u544A" : fallback;
+    if (!trimmed || trimmed === "true") return "\u5E7F\u544A";
     if (/^(false|none|off|0)$/i.test(trimmed)) return false;
     return trimmed;
   }
@@ -322,7 +322,7 @@
         offset: numAttr(this, "offset", (_g = global.offset) != null ? _g : 16),
         imageFit,
         imageHeight: numAttr(this, "image-height", (_h = global.imageHeight) != null ? _h : 0),
-        adLabel: resolveAdLabel(get("ad-label"), (_i = global.adLabel) != null ? _i : "\u5E7F\u544A"),
+        adLabel: resolveAdLabel(get("ad-label"), (_i = global.adLabel) != null ? _i : false),
         theme: { ...(_j = global.theme) != null ? _j : {}, ...theme }
       };
     }
