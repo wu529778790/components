@@ -106,7 +106,7 @@ const wTheme = new FA({
   ads: [{ src: 't.jpg', title: 'T' }],
   width: 200,
   offset: 24,
-  imageHeight: 120,
+  imageSize: 120,
   imageFit: 'contain',
   theme: { accent: '#e04040' }
 })

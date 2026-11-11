@@ -84,7 +84,7 @@ export class FloatingAdElement extends HTMLElement {
       'width',
       'offset',
       'image-fit',
-      'image-height',
+      'image-size',
       'ad-src',
       'ad-title',
       'ad-desc',
@@ -175,10 +175,10 @@ export class FloatingAdElement extends HTMLElement {
       closePersistence: boolAttr(this, 'close-persistence', global.closePersistence ?? false),
       hideOnMobile: boolAttr(this, 'hide-on-mobile', global.hideOnMobile ?? true),
       zIndex: numAttr(this, 'z-index', global.zIndex ?? 9999),
-      width: numAttr(this, 'width', global.width ?? 170),
+      width: numAttr(this, 'width', global.width ?? 150),
       offset: numAttr(this, 'offset', global.offset ?? 16),
       imageFit,
-      imageHeight: numAttr(this, 'image-height', global.imageHeight ?? 0),
+      imageSize: numAttr(this, 'image-size', global.imageSize ?? 120),
       adLabel: resolveAdLabel(get('ad-label'), global.adLabel ?? false),
       theme: { ...(global.theme ?? {}), ...theme }
     }

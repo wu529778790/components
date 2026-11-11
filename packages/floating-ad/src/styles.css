@@ -4,15 +4,15 @@
   --fa-radius: 12px;
   --fa-border: rgba(0, 0, 0, 0.1);
   --fa-offset: 16px;
-  --fa-width: 170px;
-  --fa-img-height: auto;
+  --fa-width: 150px;
+  --fa-img-size: 120px;
   --fa-img-fit: cover;
 
   position: fixed;
   z-index: 9999;
   box-sizing: border-box;
   width: var(--fa-width);
-  padding: 12px;
+  padding: 15px;
   background: var(--fa-bg);
   border: 1px solid var(--fa-border);
   border-radius: var(--fa-radius);
@@ -134,9 +134,13 @@ a.fa-item {
   cursor: pointer;
 }
 
+/* 图片固定方形（默认 120×120，与右侧公众号浮窗的二维码尺寸一致） */
 .fa-media {
   position: relative;
   display: block;
+  width: var(--fa-img-size, 120px);
+  height: var(--fa-img-size, 120px);
+  margin: 0 auto;
   overflow: hidden;
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.04);
@@ -145,7 +149,7 @@ a.fa-item {
 .fa-img {
   display: block;
   width: 100%;
-  height: var(--fa-img-height, auto);
+  height: 100%;
   object-fit: var(--fa-img-fit, cover);
   transition: transform 0.25s ease;
 }
@@ -198,8 +202,9 @@ a.fa-item:hover .fa-img {
 
 @media (max-width: 767px) {
   .fa-widget {
-    width: 130px;
+    width: 120px;
     padding: 10px;
+    --fa-img-size: 100px;
   }
 }
 

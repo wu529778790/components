@@ -48,14 +48,14 @@ export interface FloatingAdOptions {
   zIndex?: number
   /** 「广告」标识文案（压在首图左上角），默认 false 不显示；传字符串则显示该文案 */
   adLabel?: string | false
-  /** 浮窗宽度（px），默认 170 */
+  /** 浮窗宽度（px），默认 150 */
   width?: number
   /** 浮窗距视口边缘距离（px），默认 16 */
   offset?: number
   /** 图片填充方式，默认 cover */
   imageFit?: 'cover' | 'contain'
-  /** 图片固定高度（px），0 表示按图片原始比例自适应，默认 0 */
-  imageHeight?: number
+  /** 广告图片边长（px，正方形），默认 120 —— 与右侧公众号浮窗二维码同尺寸 */
+  imageSize?: number
   /** 主题（映射为 CSS 变量，也可直接覆盖 --fa-* 变量） */
   theme?: FloatingAdTheme
   /** 点击广告回调（不影响默认跳转行为） */
@@ -72,7 +72,7 @@ interface ResolvedOptions {
   width: number
   offset: number
   imageFit: 'cover' | 'contain'
-  imageHeight: number
+  imageSize: number
   theme: Required<FloatingAdTheme>
   /** 用户显式传入的主题子集（未配置的 key 交给 CSS 默认值，可随系统深浅色变化） */
   themeOverrides: FloatingAdTheme
@@ -126,10 +126,10 @@ function resolveOptions(options: FloatingAdOptions): ResolvedOptions {
     hideOnMobile: options.hideOnMobile ?? true,
     zIndex: options.zIndex ?? 9999,
     adLabel: options.adLabel === undefined ? false : options.adLabel,
-    width: Number.isFinite(options.width) ? Math.max(80, Number(options.width)) : 170,
+    width: Number.isFinite(options.width) ? Math.max(80, Number(options.width)) : 150,
     offset: Number.isFinite(options.offset) ? Math.max(0, Number(options.offset)) : 16,
     imageFit: options.imageFit === 'contain' ? 'contain' : 'cover',
-    imageHeight: Number.isFinite(options.imageHeight) ? Math.max(0, Number(options.imageHeight)) : 0,
+    imageSize: Number.isFinite(options.imageSize) ? Math.max(40, Number(options.imageSize)) : 120,
     theme: { ...DEFAULT_THEME, ...(options.theme ?? {}) },
     themeOverrides: options.theme ?? {},
     onClick: options.onClick
@@ -206,7 +206,7 @@ export class FloatingAd {
   }
 
   private render(): void {
-    const { ads, position, zIndex, themeOverrides, adLabel, width, offset, imageFit, imageHeight } =
+    const { ads, position, zIndex, themeOverrides, adLabel, width, offset, imageFit, imageSize } =
       this.opts
 
     if (ads.length === 0) return
@@ -218,7 +218,7 @@ export class FloatingAd {
     root.style.setProperty('--fa-width', `${width}px`)
     root.style.setProperty('--fa-offset', `${offset}px`)
     root.style.setProperty('--fa-img-fit', imageFit)
-    if (imageHeight > 0) root.style.setProperty('--fa-img-height', `${imageHeight}px`)
+    root.style.setProperty('--fa-img-size', `${imageSize}px`)
 
     // 仅把用户显式设置的主题写为 inline（用户优先）；
     // 未设置的 key 交给 CSS 变量默认值，以便跟随系统深浅色（prefers-color-scheme）

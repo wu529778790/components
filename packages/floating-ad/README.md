@@ -8,7 +8,7 @@
 
 - 🧩 Web Component 封装，一行 `<script>` 注入、改一处全站生效
 - 🎯 声明式标签 `<floating-ad>`，属性改动即时热更新
-- 🖼 多张图片广告混排（自动分隔线），每条可带标题 / 副文案 / 角标
+- 🖼 图片固定 120×120 方形（与右侧公众号浮窗的二维码同尺寸），`cover` / `contain` 可选，多张混排自动分隔线
 - 🏷 可选的「广告」标识（默认不显示），开启后压首图左上角、不占排版行高
 - 🎨 CSS 变量主题化（`--fa-*`），一行覆盖背景色 / 强调色 / 圆角 / 边框
 - 📱 移动端默认隐藏，可配置开启
@@ -85,14 +85,14 @@ new FloatingAd({
 | 属性 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `position` | `string` | `'left-center'` | `left-center` / `left-bottom` / `left-top` / `right-center` / `right-bottom` / `right-top` |
-| `width` | `number` | `170` | 浮窗宽度（px） |
+| `width` | `number` | `150` | 浮窗宽度（px） |
 | `offset` | `number` | `16` | 距视口边缘距离（px） |
 | `close-persistence` | `boolean` | 关 | 打开时关闭写入 localStorage，刷新不再出现 |
 | `hide-on-mobile` | `boolean` | 开 | `<768px` 时不渲染 |
 | `z-index` | `number` | `9999` | 浮窗层级 |
 | `ad-label` | `string` | 不显示 | 标识文案（压在首图左上角，不占行高）；空值 / `true` 显示「广告」，`false` / `none` / `off` / `0` 关闭 |
 | `image-fit` | `string` | `'cover'` | 图片填充方式：`cover` / `contain` |
-| `image-height` | `number` | `0` | 图片固定高度（px），0 = 按原图比例 |
+| `image-size` | `number` | `120` | 广告图片边长（px，正方形） |
 | `ad-src` | `string` | - | 单条广告图片 URL（必填，缺省不渲染） |
 | `ad-title` | `string` | - | 单条广告标题 |
 | `ad-desc` | `string` | - | 单条广告副文案 |
@@ -121,10 +121,10 @@ new FloatingAd({
 | `hideOnMobile` | `boolean` | `true` | `<768px` 时不渲染 |
 | `zIndex` | `number` | `9999` | 浮窗层级 |
 | `adLabel` | `string \| false` | `false` | 标识文案，默认不显示；传字符串如 `'广告'` 显示 |
-| `width` | `number` | `170` | 宽度（px） |
+| `width` | `number` | `150` | 宽度（px） |
 | `offset` | `number` | `16` | 距边缘（px） |
 | `imageFit` | `'cover' \| 'contain'` | `'cover'` | 图片填充 |
-| `imageHeight` | `number` | `0` | 图片高度（px），0 = 自适应 |
+| `imageSize` | `number` | `120` | 广告图片边长（px，正方形） |
 | `theme.bg` | `string` | 半透明白 | 背景色 |
 | `theme.accent` | `string` | `#333` | 强调色 |
 | `theme.radius` | `string` | `12px` | 圆角 |
@@ -179,7 +179,7 @@ Web Component 元素同样提供 `open()` / `close()`。
   --fa-offset: 24px;       /* 距视口边缘距离 */
   --fa-width: 180px;       /* 浮窗宽度 */
   --fa-img-fit: cover;     /* 图片填充方式 */
-  --fa-img-height: 120px;  /* 图片固定高度 */
+  --fa-img-size: 120px;   /* 广告图片边长（正方形） */
 }
 ```
 
