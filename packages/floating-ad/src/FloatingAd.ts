@@ -8,8 +8,8 @@ export type Position =
 
 /** 单条广告 */
 export interface FloatingAdItem {
-  /** 广告图片地址（可选：不传则渲染纯文字广告） */
-  src?: string
+  /** 广告图片地址（必填；没有图片的条目不会渲染） */
+  src: string
   /** 标题 */
   title?: string
   /** 副文案 / 卖点 */
@@ -112,11 +112,9 @@ function setCloseMark(): void {
   }
 }
 
-/** 至少要有图或文字才算一条可渲染的广告 */
+/** 只有带图片的条目才会渲染（本组件只承载图片广告） */
 function isRenderableAd(ad: FloatingAdItem | null | undefined): ad is FloatingAdItem {
-  if (!ad || typeof ad !== 'object') return false
-  const hasText = Boolean(ad.src?.trim() || ad.title?.trim() || ad.desc?.trim())
-  return hasText
+  return Boolean(ad && typeof ad === 'object' && ad.src?.trim())
 }
 
 function resolveOptions(options: FloatingAdOptions): ResolvedOptions {
@@ -234,7 +232,7 @@ export class FloatingAd {
       if (value !== undefined) root.style.setProperty(key, value)
     }
 
-    // 「广告」标识不单独占行：有图时压在首图左上角，纯文字时内联在标题行首
+    // 「广告」标识不单独占行：压在首图左上角
     const label = adLabel ? escapeHtml(String(adLabel)) : ''
 
     root.innerHTML = `
@@ -254,27 +252,21 @@ export class FloatingAd {
   }
 
   private renderItem(ad: FloatingAdItem, index: number, label: string): string {
-    const media = ad.src
-      ? `<span class="fa-media">
-          <img class="fa-img" src="${escapeAttr(ad.src)}" alt="${escapeAttr(ad.alt ?? ad.title ?? '')}" loading="lazy" decoding="async" />
-          ${ad.badge ? `<span class="fa-tag">${escapeHtml(ad.badge)}</span>` : ''}
-          ${label ? `<span class="fa-label">${label}</span>` : ''}
-        </span>`
-      : ''
-
-    // 纯文字广告没有图片可压标，把标识内联到标题行首
-    const inlineLabel = label && !ad.src ? `<span class="fa-label fa-label-inline">${label}</span>` : ''
+    const media = `<span class="fa-media">
+        <img class="fa-img" src="${escapeAttr(ad.src)}" alt="${escapeAttr(ad.alt ?? ad.title ?? '')}" loading="lazy" decoding="async" />
+        ${ad.badge ? `<span class="fa-tag">${escapeHtml(ad.badge)}</span>` : ''}
+        ${label ? `<span class="fa-label">${label}</span>` : ''}
+      </span>`
 
     const body =
       ad.title || ad.desc
         ? `<span class="fa-body">
-            ${ad.title ? `<span class="fa-title">${inlineLabel}${escapeHtml(ad.title)}</span>` : inlineLabel}
+            ${ad.title ? `<span class="fa-title">${escapeHtml(ad.title)}</span>` : ''}
             ${ad.desc ? `<span class="fa-desc">${escapeHtml(ad.desc)}</span>` : ''}
           </span>`
         : ''
 
     const inner = `${media}${body}`
-    if (!inner) return ''
 
     const href = ad.href ? safeHref(ad.href) : null
     if (href) {

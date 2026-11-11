@@ -103,9 +103,13 @@
   }
 }
 
-/* 「广告」标识：不占排版行高 —— 有图时压首图左上角，纯文字时内联到标题行首
+/* 「广告」标识：压在首图左上角，不占排版行高
    （《广告法》要求广告可识别，标识保留，但不必单独占一行） */
 .fa-label {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 1;
   display: inline-block;
   font-size: 10px;
   line-height: 1;
@@ -117,18 +121,6 @@
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   pointer-events: none;
-}
-
-.fa-media .fa-label {
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  z-index: 1;
-}
-
-.fa-label-inline {
-  margin-right: 6px;
-  vertical-align: 1px;
 }
 
 .fa-item {

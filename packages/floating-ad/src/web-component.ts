@@ -184,21 +184,18 @@ export class FloatingAdElement extends HTMLElement {
     }
   }
 
-  /** 单条广告的扁平静态属性（ad-src / ad-title / ...），无任一属性返回 null */
+  /** 单条广告的扁平静态属性（ad-src / ad-title / ...）；没有 ad-src 时返回 null */
   private readSingleAd(): FloatingAdItem | null {
     const src = this.getAttribute('ad-src')
+    if (src === null || !src.trim()) return null
+
     const title = this.getAttribute('ad-title')
     const desc = this.getAttribute('ad-desc')
     const href = this.getAttribute('ad-href')
     const badge = this.getAttribute('ad-badge')
     const target = this.getAttribute('ad-target')
 
-    if (src === null && title === null && desc === null && href === null && badge === null) {
-      return null
-    }
-
-    const item: FloatingAdItem = {}
-    if (src !== null) item.src = src
+    const item: FloatingAdItem = { src }
     if (title !== null) item.title = title
     if (desc !== null) item.desc = desc
     if (href !== null) item.href = href

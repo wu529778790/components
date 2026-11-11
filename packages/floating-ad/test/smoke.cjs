@@ -54,7 +54,7 @@ assert(wEmpty.isMounted() === false, 'renders nothing without ads')
 const wEmptyArr = new FA({ ads: [] })
 assert(wEmptyArr.isMounted() === false, 'renders nothing with empty ads array')
 // 只有空白字段的广告同样视为无效
-const wBlank = new FA({ ads: [{ title: '  ' }] })
+const wBlank = new FA({ ads: [{ src: '   ' }] })
 assert(wBlank.isMounted() === false, 'renders nothing for blank ad item')
 
 // 2. 图片广告正常渲染并挂载
@@ -72,19 +72,21 @@ assert(lastAppended.innerHTML.includes('fa-head') === false, 'label does not tak
 assert(lastAppended.innerHTML.includes('target="_blank"'), 'default target is _blank')
 assert(lastAppended.innerHTML.includes('nofollow'), 'external ad link is nofollow/sponsored')
 
-// 3. 纯文字广告（不传 src）
-const wText = new FA({ ads: [{ title: '周刊订阅', desc: '每周一封' }] })
-assert(wText.isMounted() === true, 'text-only ad mounts')
-assert(lastAppended.innerHTML.includes('fa-img') === false, 'text-only ad has no image')
-assert(lastAppended.innerHTML.includes('fa-desc') === true, 'text-only ad renders desc')
+// 3. 没有图片的条目一律忽略（本组件只承载图片广告）
+const wNoSrc = new FA({ ads: [{ title: '周刊订阅', desc: '每周一封' }] })
+assert(wNoSrc.isMounted() === false, 'item without src is ignored')
+
+// 3.5 无跳转链接的广告渲染为 div（不生成 <a>），只有 desc 也能渲染
+const wPlain = new FA({ ads: [{ src: 'plain.jpg', desc: '仅图片与文案' }] })
+assert(wPlain.isMounted() === true, 'no-href ad mounts')
 assert(lastAppended.innerHTML.includes('<div class="fa-item"'), 'no-href ad renders as div')
-assert(lastAppended.innerHTML.includes('fa-label-inline'), 'text-only ad inlines the label')
+assert(lastAppended.innerHTML.includes('fa-desc') === true, 'desc rendered without title')
 
 // 4. 多条广告 → 分隔线；角标、_self、关闭标识
 const wMulti = new FA({
   ads: [
     { src: 'a.jpg', title: 'A', badge: '限时' },
-    { title: 'B', href: '/b', target: '_self' }
+    { src: 'b.jpg', title: 'B', href: '/b', target: '_self' }
   ],
   adLabel: false
 })
@@ -96,7 +98,7 @@ assert(lastAppended.innerHTML.includes('fa-label') === false, 'adLabel:false hid
 
 // 5. 主题 / 宽度写入 inline 变量
 const wTheme = new FA({
-  ads: [{ title: 'T' }],
+  ads: [{ src: 't.jpg', title: 'T' }],
   width: 200,
   offset: 24,
   imageHeight: 120,
@@ -110,7 +112,7 @@ assert(root.style.zIndex === '9999', 'default z-index applied')
 
 // 6. XSS：文案与属性转义
 const wXss = new FA({
-  ads: [{ title: '<img src=x onerror=alert(1)>', href: 'javascript:alert(1)' }]
+  ads: [{ src: 'x.jpg', title: '<img src=x onerror=alert(1)>', href: 'javascript:alert(1)' }]
 })
 const html = lastAppended.innerHTML
 assert(html.includes('&lt;img src=x onerror=alert(1)&gt;'), 'title html escaped')
@@ -122,27 +124,27 @@ assert(w.isMounted() === false, 'close() unmounts')
 assert(localStorage.getItem('floating-ad:closed') === null, 'no persistence by default')
 
 // 8. closePersistence 写入 localStorage，下次构造不再渲染
-const wP = new FA({ ads: [{ title: 'P' }], closePersistence: true })
+const wP = new FA({ ads: [{ src: 'p.jpg', title: 'P' }], closePersistence: true })
 assert(wP.isMounted(), 'persistent ad mounts')
 wP.close()
 assert(localStorage.getItem('floating-ad:closed') === '1', 'persistence writes mark')
-const wP2 = new FA({ ads: [{ title: 'P' }], closePersistence: true })
+const wP2 = new FA({ ads: [{ src: 'p.jpg', title: 'P' }], closePersistence: true })
 assert(wP2.isMounted() === false, 'does not remount when close mark present')
 // open() 可强制重新打开
 wP2.open()
 assert(wP2.isMounted() === true, 'open() re-mounts despite close mark')
 
 // 9. update() 用新配置重渲染（容器不变）
-wP2.update({ ads: [{ title: 'U1' }, { title: 'U2' }] })
+wP2.update({ ads: [{ src: 'u1.jpg', title: 'U1' }, { src: 'u2.jpg', title: 'U2' }] })
 assert(wP2.isMounted(), 'update re-mounts')
 assert(lastAppended.innerHTML.includes('U1') && lastAppended.innerHTML.includes('U2'), 'update applies new ads')
 
 // 10. 移动端隐藏
 global.matchMedia = () => ({ matches: true })
-const wMobile = new FA({ ads: [{ title: 'M' }], hideOnMobile: true })
+const wMobile = new FA({ ads: [{ src: 'm.jpg', title: 'M' }], hideOnMobile: true })
 assert(wMobile.isMounted() === false, 'hidden on mobile by default')
 global.matchMedia = () => ({ matches: false })
-const wMobile2 = new FA({ ads: [{ title: 'M' }], hideOnMobile: false })
+const wMobile2 = new FA({ ads: [{ src: 'm.jpg', title: 'M' }], hideOnMobile: false })
 assert(wMobile2.isMounted() === true, 'hideOnMobile:false still renders on mobile')
 
 console.log(`\nAll ${pass} assertions passed.`)
