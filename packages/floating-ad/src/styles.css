@@ -103,22 +103,32 @@
   }
 }
 
-/* 顶部「广告」标识 */
-.fa-head {
-  display: flex;
-  align-items: center;
-  margin: 0 0 8px;
-  padding-right: 20px;
-}
-
+/* 「广告」标识：不占排版行高 —— 有图时压首图左上角，纯文字时内联到标题行首
+   （《广告法》要求广告可识别，标识保留，但不必单独占一行） */
 .fa-label {
+  display: inline-block;
   font-size: 10px;
   line-height: 1;
   letter-spacing: 0.06em;
   padding: 3px 5px;
-  border: 1px solid var(--fa-border);
   border-radius: 4px;
-  color: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  pointer-events: none;
+}
+
+.fa-media .fa-label {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 1;
+}
+
+.fa-label-inline {
+  margin-right: 6px;
+  vertical-align: 1px;
 }
 
 .fa-item {
@@ -225,10 +235,6 @@ a.fa-item:hover .fa-img {
 
   .fa-close:hover {
     color: rgba(255, 255, 255, 0.8);
-  }
-
-  .fa-label {
-    color: rgba(255, 255, 255, 0.45);
   }
 
   .fa-desc {

@@ -9,7 +9,7 @@
 - 🧩 Web Component 封装，一行 `<script>` 注入、改一处全站生效
 - 🎯 声明式标签 `<floating-ad>`，属性改动即时热更新
 - 🖼 图片广告 / 纯文字广告 / 多条广告混排（自动分隔线）
-- 🏷 顶部「广告」标识可自定义或关闭（合规露出）
+- 🏷 「广告」标识压首图左上角、不占排版行高，可自定义或关闭（合规露出）
 - 🎨 CSS 变量主题化（`--fa-*`），一行覆盖背景色 / 强调色 / 圆角 / 边框
 - 📱 移动端默认隐藏，可配置开启
 - 🧹 关闭即消失，默认不记住状态（刷新必重新出现）
@@ -90,7 +90,7 @@ new FloatingAd({
 | `close-persistence` | `boolean` | 关 | 打开时关闭写入 localStorage，刷新不再出现 |
 | `hide-on-mobile` | `boolean` | 开 | `<768px` 时不渲染 |
 | `z-index` | `number` | `9999` | 浮窗层级 |
-| `ad-label` | `string` | `'广告'` | 顶部标识文案；`false` / `none` / `off` / `0` 关闭 |
+| `ad-label` | `string` | `'广告'` | 标识文案（压在首图左上角，纯文字广告内联到标题行首）；`false` / `none` / `off` / `0` 关闭 |
 | `image-fit` | `string` | `'cover'` | 图片填充方式：`cover` / `contain` |
 | `image-height` | `number` | `0` | 图片固定高度（px），0 = 按原图比例 |
 | `ad-src` | `string` | - | 单条广告图片 URL（不传则为纯文字广告） |

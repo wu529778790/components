@@ -68,6 +68,7 @@ assert(lastAppended.innerHTML.includes('云服务器特惠'), 'ad title rendered
 assert(lastAppended.innerHTML.includes('首年 99 元'), 'ad desc rendered')
 assert(lastAppended.innerHTML.includes('https://example.com'), 'ad href rendered')
 assert(lastAppended.innerHTML.includes('fa-label'), 'default ad label rendered')
+assert(lastAppended.innerHTML.includes('fa-head') === false, 'label does not take its own row')
 assert(lastAppended.innerHTML.includes('target="_blank"'), 'default target is _blank')
 assert(lastAppended.innerHTML.includes('nofollow'), 'external ad link is nofollow/sponsored')
 
@@ -77,6 +78,7 @@ assert(wText.isMounted() === true, 'text-only ad mounts')
 assert(lastAppended.innerHTML.includes('fa-img') === false, 'text-only ad has no image')
 assert(lastAppended.innerHTML.includes('fa-desc') === true, 'text-only ad renders desc')
 assert(lastAppended.innerHTML.includes('<div class="fa-item"'), 'no-href ad renders as div')
+assert(lastAppended.innerHTML.includes('fa-label-inline'), 'text-only ad inlines the label')
 
 // 4. 多条广告 → 分隔线；角标、_self、关闭标识
 const wMulti = new FA({

@@ -234,14 +234,14 @@ export class FloatingAd {
       if (value !== undefined) root.style.setProperty(key, value)
     }
 
-    const head = adLabel
-      ? `<div class="fa-head"><span class="fa-label">${escapeHtml(String(adLabel))}</span></div>`
-      : ''
+    // 「广告」标识不单独占行：有图时压在首图左上角，纯文字时内联在标题行首
+    const label = adLabel ? escapeHtml(String(adLabel)) : ''
 
     root.innerHTML = `
       <button class="fa-close" type="button" aria-label="关闭广告">${CLOSE_SVG}</button>
-      ${head}
-      ${ads.map((ad, index) => this.renderItem(ad, index)).join('<div class="fa-divider" role="separator"></div>')}
+      ${ads
+        .map((ad, index) => this.renderItem(ad, index, index === 0 ? label : ''))
+        .join('<div class="fa-divider" role="separator"></div>')}
     `
 
     this.closeBtn = root.querySelector<HTMLButtonElement>('.fa-close')
@@ -253,18 +253,22 @@ export class FloatingAd {
     this.el = root
   }
 
-  private renderItem(ad: FloatingAdItem, index: number): string {
+  private renderItem(ad: FloatingAdItem, index: number, label: string): string {
     const media = ad.src
       ? `<span class="fa-media">
           <img class="fa-img" src="${escapeAttr(ad.src)}" alt="${escapeAttr(ad.alt ?? ad.title ?? '')}" loading="lazy" decoding="async" />
           ${ad.badge ? `<span class="fa-tag">${escapeHtml(ad.badge)}</span>` : ''}
+          ${label ? `<span class="fa-label">${label}</span>` : ''}
         </span>`
       : ''
+
+    // 纯文字广告没有图片可压标，把标识内联到标题行首
+    const inlineLabel = label && !ad.src ? `<span class="fa-label fa-label-inline">${label}</span>` : ''
 
     const body =
       ad.title || ad.desc
         ? `<span class="fa-body">
-            ${ad.title ? `<span class="fa-title">${escapeHtml(ad.title)}</span>` : ''}
+            ${ad.title ? `<span class="fa-title">${inlineLabel}${escapeHtml(ad.title)}</span>` : inlineLabel}
             ${ad.desc ? `<span class="fa-desc">${escapeHtml(ad.desc)}</span>` : ''}
           </span>`
         : ''
