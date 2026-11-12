@@ -39,15 +39,18 @@
     const raw = Array.isArray(options.ads) ? options.ads : [];
     return {
       ads: raw.filter(isRenderableAd),
-      position: (_a = options.position) != null ? _a : "left-center",
+      // 移动端缺省落在左下角（不挡右侧阅读区/返回顶部按钮）
+      position: (_a = options.position) != null ? _a : isMobile() ? "left-bottom" : "left-center",
       closePersistence: (_b = options.closePersistence) != null ? _b : false,
-      hideOnMobile: (_c = options.hideOnMobile) != null ? _c : true,
+      hideOnMobile: (_c = options.hideOnMobile) != null ? _c : false,
       zIndex: (_d = options.zIndex) != null ? _d : 9999,
       adLabel: options.adLabel === void 0 ? false : options.adLabel,
-      width: Number.isFinite(options.width) ? Math.max(80, Number(options.width)) : 150,
-      offset: Number.isFinite(options.offset) ? Math.max(0, Number(options.offset)) : 16,
       imageFit: options.imageFit === "contain" ? "contain" : "cover",
-      imageSize: Number.isFinite(options.imageSize) ? Math.max(40, Number(options.imageSize)) : 120,
+      sizeOverrides: {
+        width: Number.isFinite(options.width) ? Math.max(80, Number(options.width)) : void 0,
+        offset: Number.isFinite(options.offset) ? Math.max(0, Number(options.offset)) : void 0,
+        imageSize: Number.isFinite(options.imageSize) ? Math.max(40, Number(options.imageSize)) : void 0
+      },
       theme: { ...DEFAULT_THEME, ...(_e = options.theme) != null ? _e : {} },
       themeOverrides: (_f = options.theme) != null ? _f : {},
       onClick: options.onClick
@@ -125,16 +128,22 @@
     }
     render() {
       var _a;
-      const { ads, position, zIndex, themeOverrides, adLabel, width, offset, imageFit, imageSize } = this.opts;
+      const { ads, position, zIndex, themeOverrides, adLabel, imageFit, sizeOverrides } = this.opts;
       if (ads.length === 0) return;
       const root = document.createElement("div");
       root.className = "fa-widget";
       root.dataset.position = position;
       root.style.zIndex = String(zIndex);
-      root.style.setProperty("--fa-width", `${width}px`);
-      root.style.setProperty("--fa-offset", `${offset}px`);
       root.style.setProperty("--fa-img-fit", imageFit);
-      root.style.setProperty("--fa-img-size", `${imageSize}px`);
+      if (sizeOverrides.width !== void 0) {
+        root.style.setProperty("--fa-width", `${sizeOverrides.width}px`);
+      }
+      if (sizeOverrides.offset !== void 0) {
+        root.style.setProperty("--fa-offset", `${sizeOverrides.offset}px`);
+      }
+      if (sizeOverrides.imageSize !== void 0) {
+        root.style.setProperty("--fa-img-size", `${sizeOverrides.imageSize}px`);
+      }
       const overrides = [
         ["--fa-bg", themeOverrides.bg],
         ["--fa-accent", themeOverrides.accent],
@@ -194,7 +203,7 @@
   }
 
   // src/styles.css
-  var styles_default = '.fa-widget {\n  --fa-bg: rgba(255, 255, 255, 0.96);\n  --fa-accent: #333;\n  --fa-radius: 12px;\n  --fa-border: rgba(0, 0, 0, 0.1);\n  --fa-offset: 16px;\n  --fa-width: 150px;\n  --fa-img-size: 120px;\n  --fa-img-fit: cover;\n\n  position: fixed;\n  z-index: 9999;\n  box-sizing: border-box;\n  width: var(--fa-width);\n  padding: 14px;\n  background: var(--fa-bg);\n  border: 1px solid var(--fa-border);\n  border-radius: var(--fa-radius);\n  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,\n    "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",\n    sans-serif;\n  color: var(--fa-accent);\n  line-height: 1.5;\n  color-scheme: light dark;\n  transition: box-shadow 0.2s ease;\n}\n\n.fa-widget:hover {\n  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);\n}\n\n.fa-widget[data-position="right-bottom"] {\n  right: var(--fa-offset);\n  bottom: var(--fa-offset);\n}\n\n.fa-widget[data-position="right-top"] {\n  right: var(--fa-offset);\n  top: var(--fa-offset);\n}\n\n.fa-widget[data-position="left-bottom"] {\n  left: var(--fa-offset);\n  bottom: var(--fa-offset);\n}\n\n.fa-widget[data-position="left-top"] {\n  left: var(--fa-offset);\n  top: var(--fa-offset);\n}\n\n.fa-widget[data-position="right-center"] {\n  right: var(--fa-offset);\n  top: 50%;\n  transform: translateY(-50%);\n}\n\n.fa-widget[data-position="left-center"] {\n  left: var(--fa-offset);\n  top: 50%;\n  transform: translateY(-50%);\n}\n\n.fa-close {\n  position: absolute;\n  top: -2px;\n  right: -2px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  padding: 0;\n  margin: 0;\n  border: none;\n  border-radius: 50%;\n  background: transparent;\n  color: rgba(0, 0, 0, 0.35);\n  cursor: pointer;\n  transition: color 0.15s ease, opacity 0.15s ease;\n}\n\n.fa-close:hover {\n  color: rgba(0, 0, 0, 0.7);\n}\n\n/* \u89E6\u5C4F\u8BBE\u5907\uFF08\u65E0 hover\uFF09\uFF1A\u5173\u95ED\u6309\u94AE\u5E38\u663E\uFF0C\u4FDD\u8BC1\u53EF\u5173\u95ED */\n.fa-close {\n  opacity: 1;\n}\n\n/* \u652F\u6301 hover \u7684\u8BBE\u5907\uFF08\u9F20\u6807\uFF09\uFF1A\u5E73\u65F6\u9690\u85CF\uFF0C\u60AC\u505C\u5361\u7247\u65F6\u6D6E\u73B0 */\n@media (hover: hover) and (pointer: fine) {\n  .fa-close {\n    opacity: 0;\n    pointer-events: none;\n  }\n  .fa-widget:hover .fa-close,\n  .fa-close:focus-visible {\n    opacity: 1;\n    pointer-events: auto;\n  }\n}\n\n/* \u300C\u5E7F\u544A\u300D\u6807\u8BC6\uFF1A\u538B\u5728\u9996\u56FE\u5DE6\u4E0A\u89D2\uFF0C\u4E0D\u5360\u6392\u7248\u884C\u9AD8\n   \uFF08\u300A\u5E7F\u544A\u6CD5\u300B\u8981\u6C42\u5E7F\u544A\u53EF\u8BC6\u522B\uFF0C\u6807\u8BC6\u4FDD\u7559\uFF0C\u4F46\u4E0D\u5FC5\u5355\u72EC\u5360\u4E00\u884C\uFF09 */\n.fa-label {\n  position: absolute;\n  top: 6px;\n  left: 6px;\n  z-index: 1;\n  display: inline-block;\n  font-size: 10px;\n  line-height: 1;\n  letter-spacing: 0.06em;\n  padding: 3px 5px;\n  border-radius: 4px;\n  background: rgba(0, 0, 0, 0.45);\n  color: rgba(255, 255, 255, 0.92);\n  backdrop-filter: blur(4px);\n  -webkit-backdrop-filter: blur(4px);\n  pointer-events: none;\n}\n\n.fa-item {\n  display: block;\n  text-decoration: none;\n  color: inherit;\n  border-radius: 8px;\n}\n\na.fa-item {\n  cursor: pointer;\n}\n\n/* \u56FE\u7247\u56FA\u5B9A\u65B9\u5F62\uFF08\u9ED8\u8BA4 120\xD7120\uFF0C\u4E0E\u53F3\u4FA7\u516C\u4F17\u53F7\u6D6E\u7A97\u7684\u4E8C\u7EF4\u7801\u5C3A\u5BF8\u4E00\u81F4\uFF09 */\n.fa-media {\n  position: relative;\n  display: block;\n  width: var(--fa-img-size, 120px);\n  height: var(--fa-img-size, 120px);\n  margin: 0 auto;\n  overflow: hidden;\n  border-radius: 8px;\n  background: rgba(0, 0, 0, 0.04);\n}\n\n.fa-img {\n  display: block;\n  width: 100%;\n  height: 100%;\n  object-fit: var(--fa-img-fit, cover);\n  transition: transform 0.25s ease;\n}\n\na.fa-item:hover .fa-img {\n  transform: scale(1.04);\n}\n\n/* \u56FE\u7247\u52A0\u8F7D\u5931\u8D25\uFF1A\u9690\u85CF\u7A7A\u56FE\u6846\uFF0C\u53EA\u7559\u6587\u5B57\uFF1B\u8FDE\u6587\u5B57\u90FD\u6CA1\u6709\u5C31\u6574\u6761\u9690\u85CF */\n.fa-media--failed,\n.fa-item--failed {\n  display: none;\n}\n\n.fa-tag {\n  position: absolute;\n  top: 6px;\n  right: 6px;\n  padding: 1px 6px;\n  font-size: 10px;\n  line-height: 1.5;\n  border-radius: 999px;\n  background: var(--fa-accent);\n  color: var(--fa-bg);\n}\n\n.fa-body {\n  display: block;\n  margin-top: 8px;\n  text-align: left;\n}\n\n.fa-item > .fa-body:first-child {\n  margin-top: 0;\n}\n\n.fa-title {\n  display: block;\n  font-size: 12px;\n  font-weight: 500;\n  color: var(--fa-accent);\n}\n\n.fa-desc {\n  display: block;\n  margin-top: 2px;\n  font-size: 11px;\n  color: rgba(0, 0, 0, 0.45);\n}\n\n.fa-divider {\n  height: 1px;\n  margin: 10px 0;\n  background: var(--fa-border);\n}\n\n@media (max-width: 767px) {\n  .fa-widget {\n    width: 120px;\n    padding: 9px;\n    --fa-img-size: 100px;\n  }\n}\n\n/* \u8DDF\u968F\u7CFB\u7EDF\u6DF1\u8272\u6A21\u5F0F \u2014\u2014 \u5FC5\u987B\u653E\u6587\u4EF6\u672B\u5C3E\uFF0C\u786E\u4FDD\u4F18\u5148\u7EA7\u9AD8\u4E8E\u4E0A\u9762\u7684\u6D45\u8272\u89C4\u5219\n   (\u4EC5\u5F71\u54CD\u9ED8\u8BA4\u503C\uFF1B\u7528\u6237\u663E\u5F0F\u8BBE\u7F6E\u7684 --fa-* inline \u53D8\u91CF\u4ECD\u4F18\u5148) */\n@media (prefers-color-scheme: dark) {\n  .fa-widget {\n    --fa-bg: rgba(28, 28, 30, 0.96);\n    --fa-accent: rgba(255, 255, 255, 0.92);\n    --fa-border: rgba(255, 255, 255, 0.14);\n    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);\n  }\n\n  .fa-widget:hover {\n    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.6);\n  }\n\n  .fa-media {\n    background: rgba(255, 255, 255, 0.06);\n  }\n\n  .fa-close {\n    color: rgba(255, 255, 255, 0.4);\n  }\n\n  .fa-close:hover {\n    color: rgba(255, 255, 255, 0.8);\n  }\n\n  .fa-desc {\n    color: rgba(255, 255, 255, 0.55);\n  }\n}\n';
+  var styles_default = '.fa-widget {\n  --fa-bg: rgba(255, 255, 255, 0.96);\n  --fa-accent: #333;\n  --fa-radius: 12px;\n  --fa-border: rgba(0, 0, 0, 0.1);\n  --fa-offset: 16px;\n  --fa-width: 150px;\n  --fa-img-size: 120px;\n  --fa-img-fit: cover;\n\n  position: fixed;\n  z-index: 9999;\n  box-sizing: border-box;\n  width: var(--fa-width);\n  padding: 14px;\n  background: var(--fa-bg);\n  border: 1px solid var(--fa-border);\n  border-radius: var(--fa-radius);\n  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,\n    "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",\n    sans-serif;\n  color: var(--fa-accent);\n  line-height: 1.5;\n  color-scheme: light dark;\n  transition: box-shadow 0.2s ease;\n}\n\n.fa-widget:hover {\n  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);\n}\n\n.fa-widget[data-position="right-bottom"] {\n  right: var(--fa-offset);\n  bottom: var(--fa-offset);\n}\n\n.fa-widget[data-position="right-top"] {\n  right: var(--fa-offset);\n  top: var(--fa-offset);\n}\n\n.fa-widget[data-position="left-bottom"] {\n  left: var(--fa-offset);\n  bottom: var(--fa-offset);\n}\n\n.fa-widget[data-position="left-top"] {\n  left: var(--fa-offset);\n  top: var(--fa-offset);\n}\n\n.fa-widget[data-position="right-center"] {\n  right: var(--fa-offset);\n  top: 50%;\n  transform: translateY(-50%);\n}\n\n.fa-widget[data-position="left-center"] {\n  left: var(--fa-offset);\n  top: 50%;\n  transform: translateY(-50%);\n}\n\n.fa-close {\n  position: absolute;\n  top: -2px;\n  right: -2px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  padding: 0;\n  margin: 0;\n  border: none;\n  border-radius: 50%;\n  background: transparent;\n  color: rgba(0, 0, 0, 0.35);\n  cursor: pointer;\n  transition: color 0.15s ease, opacity 0.15s ease;\n}\n\n.fa-close:hover {\n  color: rgba(0, 0, 0, 0.7);\n}\n\n/* \u89E6\u5C4F\u8BBE\u5907\uFF08\u65E0 hover\uFF09\uFF1A\u5173\u95ED\u6309\u94AE\u5E38\u663E\uFF0C\u4FDD\u8BC1\u53EF\u5173\u95ED */\n.fa-close {\n  opacity: 1;\n}\n\n/* \u652F\u6301 hover \u7684\u8BBE\u5907\uFF08\u9F20\u6807\uFF09\uFF1A\u5E73\u65F6\u9690\u85CF\uFF0C\u60AC\u505C\u5361\u7247\u65F6\u6D6E\u73B0 */\n@media (hover: hover) and (pointer: fine) {\n  .fa-close {\n    opacity: 0;\n    pointer-events: none;\n  }\n  .fa-widget:hover .fa-close,\n  .fa-close:focus-visible {\n    opacity: 1;\n    pointer-events: auto;\n  }\n}\n\n/* \u300C\u5E7F\u544A\u300D\u6807\u8BC6\uFF1A\u538B\u5728\u9996\u56FE\u5DE6\u4E0A\u89D2\uFF0C\u4E0D\u5360\u6392\u7248\u884C\u9AD8\n   \uFF08\u300A\u5E7F\u544A\u6CD5\u300B\u8981\u6C42\u5E7F\u544A\u53EF\u8BC6\u522B\uFF0C\u6807\u8BC6\u4FDD\u7559\uFF0C\u4F46\u4E0D\u5FC5\u5355\u72EC\u5360\u4E00\u884C\uFF09 */\n.fa-label {\n  position: absolute;\n  top: 6px;\n  left: 6px;\n  z-index: 1;\n  display: inline-block;\n  font-size: 10px;\n  line-height: 1;\n  letter-spacing: 0.06em;\n  padding: 3px 5px;\n  border-radius: 4px;\n  background: rgba(0, 0, 0, 0.45);\n  color: rgba(255, 255, 255, 0.92);\n  backdrop-filter: blur(4px);\n  -webkit-backdrop-filter: blur(4px);\n  pointer-events: none;\n}\n\n.fa-item {\n  display: block;\n  text-decoration: none;\n  color: inherit;\n  border-radius: 8px;\n}\n\na.fa-item {\n  cursor: pointer;\n}\n\n/* \u56FE\u7247\u56FA\u5B9A\u65B9\u5F62\uFF08\u9ED8\u8BA4 120\xD7120\uFF0C\u4E0E\u53F3\u4FA7\u516C\u4F17\u53F7\u6D6E\u7A97\u7684\u4E8C\u7EF4\u7801\u5C3A\u5BF8\u4E00\u81F4\uFF09 */\n.fa-media {\n  position: relative;\n  display: block;\n  width: var(--fa-img-size, 120px);\n  height: var(--fa-img-size, 120px);\n  margin: 0 auto;\n  overflow: hidden;\n  border-radius: 8px;\n  background: rgba(0, 0, 0, 0.04);\n}\n\n.fa-img {\n  display: block;\n  width: 100%;\n  height: 100%;\n  object-fit: var(--fa-img-fit, cover);\n  transition: transform 0.25s ease;\n}\n\na.fa-item:hover .fa-img {\n  transform: scale(1.04);\n}\n\n/* \u56FE\u7247\u52A0\u8F7D\u5931\u8D25\uFF1A\u9690\u85CF\u7A7A\u56FE\u6846\uFF0C\u53EA\u7559\u6587\u5B57\uFF1B\u8FDE\u6587\u5B57\u90FD\u6CA1\u6709\u5C31\u6574\u6761\u9690\u85CF */\n.fa-media--failed,\n.fa-item--failed {\n  display: none;\n}\n\n.fa-tag {\n  position: absolute;\n  top: 6px;\n  right: 6px;\n  padding: 1px 6px;\n  font-size: 10px;\n  line-height: 1.5;\n  border-radius: 999px;\n  background: var(--fa-accent);\n  color: var(--fa-bg);\n}\n\n.fa-body {\n  display: block;\n  margin-top: 8px;\n  text-align: left;\n}\n\n.fa-item > .fa-body:first-child {\n  margin-top: 0;\n}\n\n.fa-title {\n  display: block;\n  font-size: 12px;\n  font-weight: 500;\n  color: var(--fa-accent);\n}\n\n.fa-desc {\n  display: block;\n  margin-top: 2px;\n  font-size: 11px;\n  color: rgba(0, 0, 0, 0.45);\n}\n\n.fa-divider {\n  height: 1px;\n  margin: 10px 0;\n  background: var(--fa-border);\n}\n\n/* \u79FB\u52A8\u7AEF\uFF1A\u6574\u4F53\u5C0F\u4E00\u53F7\uFF08\u5361\u7247 120 / \u56FE\u7247 96 / \u8DDD\u8FB9 12\uFF09\uFF0C\u7F3A\u7701\u843D\u5728\u5DE6\u4E0B\u89D2 */\n@media (max-width: 767px) {\n  .fa-widget {\n    --fa-width: 120px;\n    --fa-img-size: 96px;\n    --fa-offset: 12px;\n    padding: 11px;\n  }\n\n  /* \u89E6\u5C4F\u70B9\u6309\u533A\u57DF\u7A0D\u653E\u5927 */\n  .fa-close {\n    width: 24px;\n    height: 24px;\n  }\n}\n\n/* \u8DDF\u968F\u7CFB\u7EDF\u6DF1\u8272\u6A21\u5F0F \u2014\u2014 \u5FC5\u987B\u653E\u6587\u4EF6\u672B\u5C3E\uFF0C\u786E\u4FDD\u4F18\u5148\u7EA7\u9AD8\u4E8E\u4E0A\u9762\u7684\u6D45\u8272\u89C4\u5219\n   (\u4EC5\u5F71\u54CD\u9ED8\u8BA4\u503C\uFF1B\u7528\u6237\u663E\u5F0F\u8BBE\u7F6E\u7684 --fa-* inline \u53D8\u91CF\u4ECD\u4F18\u5148) */\n@media (prefers-color-scheme: dark) {\n  .fa-widget {\n    --fa-bg: rgba(28, 28, 30, 0.96);\n    --fa-accent: rgba(255, 255, 255, 0.92);\n    --fa-border: rgba(255, 255, 255, 0.14);\n    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);\n  }\n\n  .fa-widget:hover {\n    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.6);\n  }\n\n  .fa-media {\n    background: rgba(255, 255, 255, 0.06);\n  }\n\n  .fa-close {\n    color: rgba(255, 255, 255, 0.4);\n  }\n\n  .fa-close:hover {\n    color: rgba(255, 255, 255, 0.8);\n  }\n\n  .fa-desc {\n    color: rgba(255, 255, 255, 0.55);\n  }\n}\n';
 
   // src/web-component.ts
   var TAG = "floating-ad";
@@ -214,6 +223,12 @@
     if (v === null || v === "") return fallback;
     const n = Number(v);
     return Number.isFinite(n) ? n : fallback;
+  }
+  function sizeAttr(el, name) {
+    const v = el.getAttribute(name);
+    if (v === null || v === "") return void 0;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : void 0;
   }
   var THEME_ATTRS = [
     ["theme-bg", "bg"],
@@ -327,12 +342,12 @@
         ads,
         position: (_b = get("position")) != null ? _b : global.position,
         closePersistence: boolAttr(this, "close-persistence", (_c = global.closePersistence) != null ? _c : false),
-        hideOnMobile: boolAttr(this, "hide-on-mobile", (_d = global.hideOnMobile) != null ? _d : true),
+        hideOnMobile: boolAttr(this, "hide-on-mobile", (_d = global.hideOnMobile) != null ? _d : false),
         zIndex: numAttr(this, "z-index", (_e = global.zIndex) != null ? _e : 9999),
-        width: numAttr(this, "width", (_f = global.width) != null ? _f : 150),
-        offset: numAttr(this, "offset", (_g = global.offset) != null ? _g : 16),
+        width: (_f = sizeAttr(this, "width")) != null ? _f : global.width,
+        offset: (_g = sizeAttr(this, "offset")) != null ? _g : global.offset,
         imageFit,
-        imageSize: numAttr(this, "image-size", (_h = global.imageSize) != null ? _h : 120),
+        imageSize: (_h = sizeAttr(this, "image-size")) != null ? _h : global.imageSize,
         adLabel: resolveAdLabel(get("ad-label"), (_i = global.adLabel) != null ? _i : false),
         theme: { ...(_j = global.theme) != null ? _j : {}, ...theme }
       };
