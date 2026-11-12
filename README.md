@@ -35,7 +35,7 @@ pnpm dev              # 监听模式构建 + 启动 demo 预览（http://localho
 pnpm typecheck        # 类型检查全部包
 ```
 
-演示站：每个包的 demo 在包内（如 `packages/floating-qr/demo/index.html`）。`pnpm dev` 启动后日志会打印全部 demo 地址（如 `http://localhost:8317/packages/floating-qr/demo/index.html`）；在线预览：[components 组件库演示](https://wu529778790.github.io/components/)。
+演示站：每个包的 demo 在包内（如 `packages/floating-qr/demo/index.html`）。`pnpm dev` 启动后会打印全部 demo 地址，同时给出**内网地址**（形如 `http://192.168.x.x:8317/`）——手机连同一个 WiFi 直接打开即可真机调试；编译日志刷屏后会自动在末尾补一行地址提醒，不用往上翻。在线预览：[components 组件库演示](https://wu529778790.github.io/components/)。
 
 ## 发布新包
 
