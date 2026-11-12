@@ -231,17 +231,16 @@ new FloatingAd({ ads: [{ src: '/ad.jpg', title: '广告位', href: '/' }] })</co
   <!-- 声明式标签：本页用标签模式，无标签时才走自动注入 -->
   <floating-ad id="demo-ad" position="left-center"></floating-ad>
 
-  <script src="../dist/floating-ad.wc.js"></script>
+  <script src="../dist/floating-ad.wc.js?v=20261112"></script>
   <script>
     const widget = document.getElementById('demo-ad')
 
     // 演示素材：真实广告图（正方形 1254×1254，缩到 120×120 展示）
+    // 只露图片，不带标题/副文案/角标；alt 仅供读屏，不会显示
     const IMAGE_AD = {
       src: 'https://cdn.jsdmirror.com/gh/meta-cosmos/img.shenzjd.com@main/img.shenzjd.com-20261112-140015-91gj.png',
-      title: '聚合网盘拉新工具',
-      desc: '批量操作 · 自动同步 · 免费使用',
-      href: 'https://www.panbot.cn/c/PANHUB',
-      badge: '免费'
+      alt: '聚合网盘拉新工具',
+      href: 'https://www.panbot.cn/c/PANHUB'
     }
 
     function hexToRgba(hex, alpha) {
