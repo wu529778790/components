@@ -12,5 +12,6 @@
 - `window.__FLOATING_AD_OPTIONS__` 全局配置；`data-fa-auto="false"` 可禁用自动注入
 - 没有广告数据时不渲染任何节点（不产生空白卡片）
 - 关闭后刷新重现（可选 `closePersistence` 记住状态）、移动端默认隐藏、六方位定位
+- 图片加载失败自动降级：隐藏空图框只留文字，连文字都没有则整条隐藏
 - 危险协议链接（`javascript:` / `data:` / `vbscript:`）自动忽略，文案与属性全量转义
 - tsup 构建 ESM + CJS + IIFE 三格式，输出 `.d.ts` 类型声明

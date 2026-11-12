@@ -189,6 +189,7 @@ export class FloatingAd {
     this.closeBtn?.removeEventListener('click', this.handleClose)
     this.closeBtn = null
     this.el?.removeEventListener('click', this.handleItemClick)
+    this.el?.removeEventListener('error', this.handleImageError, true)
     this.el?.remove()
     this.el = null
     this.rendered = []
@@ -245,6 +246,8 @@ export class FloatingAd {
     this.closeBtn = root.querySelector<HTMLButtonElement>('.fa-close')
     this.closeBtn?.addEventListener('click', this.handleClose)
     root.addEventListener('click', this.handleItemClick)
+    // 图片加载失败时降级：隐藏空图框，仅保留文字；连文字都没有就整条隐藏
+    root.addEventListener('error', this.handleImageError, true)
 
     this.rendered = ads
     this.container.appendChild(root)
@@ -283,6 +286,16 @@ export class FloatingAd {
 
   private readonly handleClose = (): void => {
     this.close()
+  }
+
+  private readonly handleImageError = (event: Event): void => {
+    const img = event.target as HTMLElement | null
+    if (!img || img.tagName !== 'IMG' || !img.classList.contains('fa-img')) return
+    const media = img.closest('.fa-media')
+    if (!media) return
+    media.classList.add('fa-media--failed')
+    const item = media.closest('.fa-item')
+    if (item && !item.querySelector('.fa-body')) item.classList.add('fa-item--failed')
   }
 
   private readonly handleItemClick = (event: Event): void => {

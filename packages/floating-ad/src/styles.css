@@ -158,6 +158,12 @@ a.fa-item:hover .fa-img {
   transform: scale(1.04);
 }
 
+/* 图片加载失败：隐藏空图框，只留文字；连文字都没有就整条隐藏 */
+.fa-media--failed,
+.fa-item--failed {
+  display: none;
+}
+
 .fa-tag {
   position: absolute;
   top: 6px;
