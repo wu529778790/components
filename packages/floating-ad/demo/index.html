@@ -151,13 +151,6 @@
       </div>
       <div class="field">
         <label style="font-weight:400; font-size:13px;">
-          <input type="checkbox" id="secondAdEnabled" checked />
-          显示第二条广告（多图混排）
-        </label>
-        <div class="hint">多条广告自上而下排列，中间自动加分隔线</div>
-      </div>
-      <div class="field">
-        <label style="font-weight:400; font-size:13px;">
           <input type="checkbox" id="hideOnMobile" checked />
           移动端隐藏 hide-on-mobile
         </label>
@@ -199,8 +192,8 @@
 
       <h3>多条广告：ads-json 属性</h3>
       <pre><code>&lt;floating-ad ads-json='[
-  { "src": "https://.../a.jpg", "title": "云服务器特惠", "href": "https://..." },
-  { "title": "周刊订阅", "desc": "每周一封，只讲有用的工具", "href": "https://..." }
+  { "src": "https://.../a.jpg", "title": "广告位 A", "href": "https://..." },
+  { "src": "https://.../b.jpg", "title": "广告位 B", "href": "https://..." }
 ]'&gt;&lt;/floating-ad&gt;</code></pre>
 
       <h3>全局配置（无标签时自动注入）</h3>
@@ -242,30 +235,13 @@ new FloatingAd({ ads: [{ src: '/ad.jpg', title: '广告位', href: '/' }] })</co
   <script>
     const widget = document.getElementById('demo-ad')
 
-    // 演示素材：一张真实广告图（正方形 1254×1254）+ 一张内联 SVG
+    // 演示素材：真实广告图（正方形 1254×1254，缩到 120×120 展示）
     const IMAGE_AD = {
       src: 'https://cdn.jsdmirror.com/gh/meta-cosmos/img.shenzjd.com@main/img.shenzjd.com-20261112-140015-91gj.png',
       title: '聚合网盘拉新工具',
       desc: '批量操作 · 自动同步 · 免费使用',
       href: 'https://www.panbot.cn/c/PANHUB',
       badge: '免费'
-    }
-
-    const BANNER_2 = 'data:image/svg+xml,' + encodeURIComponent(
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200">' +
-        '<defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">' +
-          '<stop offset="0" stop-color="#0ea5e9"/><stop offset="1" stop-color="#10b981"/>' +
-        '</linearGradient></defs>' +
-        '<rect width="320" height="200" fill="url(#g2)"/>' +
-        '<text x="160" y="100" font-family="sans-serif" font-size="32" fill="#fff" text-anchor="middle">周刊订阅</text>' +
-        '<text x="160" y="134" font-family="sans-serif" font-size="18" fill="rgba(255,255,255,.85)" text-anchor="middle">每周一封 · 只讲干货</text>' +
-      '</svg>'
-    )
-    const SECOND_AD = {
-      src: BANNER_2,
-      title: '周刊订阅',
-      desc: '每周一封，只讲真正好用的工具',
-      href: 'https://blog.shenzjd.com'
     }
 
     function hexToRgba(hex, alpha) {
@@ -291,9 +267,7 @@ new FloatingAd({ ads: [{ src: '/ad.jpg', title: '广告位', href: '/' }] })</co
       const label = document.getElementById('adLabel').value.trim()
       widget.setAttribute('ad-label', label || 'false')
 
-      const ads = [IMAGE_AD]
-      if (document.getElementById('secondAdEnabled').checked) ads.push(SECOND_AD)
-      widget.setAttribute('ads-json', JSON.stringify(ads))
+      widget.setAttribute('ads-json', JSON.stringify([IMAGE_AD]))
 
       const custom = document.getElementById('customTheme').checked
       setOrRemove('theme-bg', custom ? hexToRgba(document.getElementById('themeBg').value, 0.96) : '')
