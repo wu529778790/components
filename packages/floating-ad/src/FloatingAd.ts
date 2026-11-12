@@ -48,13 +48,13 @@ export interface FloatingAdOptions {
   zIndex?: number
   /** 「广告」标识文案（压在首图左上角），默认 false 不显示；传字符串则显示该文案 */
   adLabel?: string | false
-  /** 浮窗宽度（px），缺省：桌面 150 / 移动端 120 */
+  /** 浮窗宽度（px），缺省：桌面 150 / 移动端 140 */
   width?: number
   /** 浮窗距视口边缘距离（px），缺省：桌面 16 / 移动端 12 */
   offset?: number
   /** 图片填充方式，默认 cover */
   imageFit?: 'cover' | 'contain'
-  /** 广告图片边长（px，正方形），缺省：桌面 120 / 移动端 96 */
+  /** 广告图片边长（px，正方形），缺省：桌面 120 / 移动端 112 */
   imageSize?: number
   /** 主题（映射为 CSS 变量，也可直接覆盖 --fa-* 变量） */
   theme?: FloatingAdTheme

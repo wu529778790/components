@@ -190,30 +190,43 @@
     <section class="docs">
       <h2>快速上手（Script 注入 · 改一处全站生效）</h2>
 
-      <h3>方式一：CDN 一行引入 + 声明式标签</h3>
+      <h3>方式一：最小用法（只填图 + 跳转，其余全用默认）</h3>
       <pre><code>&lt;floating-ad
-  ad-src="https://.../ad.jpg"
-  ad-title="云服务器 · 2 核 4G"
-  ad-desc="新用户首年 99 元"
-  ad-href="https://..."
-  ad-badge="限时"&gt;
+  ad-src="https://cdn.jsdmirror.com/gh/meta-cosmos/img.shenzjd.com@main/img.shenzjd.com-20261112-142244-a3a7.png"
+  ad-href="https://www.panbot.cn/c/PANHUB"&gt;
 &lt;/floating-ad&gt;
 &lt;script src="https://unpkg.com/@wu529778790/floating-ad@latest/dist/floating-ad.wc.js"&gt;&lt;/script&gt;</code></pre>
 
+      <h3>方式二：带文案（图下方显示标题 / 副文案）</h3>
+      <pre><code>&lt;floating-ad
+  ad-src="https://cdn.jsdmirror.com/gh/meta-cosmos/img.shenzjd.com@main/img.shenzjd.com-20261112-142244-a3a7.png"
+  ad-title="Panbot 网盘工具"
+  ad-desc="多网盘一站式管理，解决繁琐切换"
+  ad-href="https://www.panbot.cn/c/PANHUB"&gt;
+&lt;/floating-ad&gt;</code></pre>
+
       <h3>多条广告：ads-json 属性</h3>
       <pre><code>&lt;floating-ad ads-json='[
-  { "src": "https://.../a.jpg", "title": "广告位 A", "href": "https://..." },
-  { "src": "https://.../b.jpg", "title": "广告位 B", "href": "https://..." }
+  {
+    "src": "https://cdn.jsdmirror.com/gh/meta-cosmos/img.shenzjd.com@main/img.shenzjd.com-20261112-142244-a3a7.png",
+    "title": "Panbot 网盘工具",
+    "desc": "多网盘一站式管理，解决繁琐切换",
+    "href": "https://www.panbot.cn/c/PANHUB"
+  },
+  { "src": "https://.../b.jpg", "title": "第二条广告", "href": "https://..." }
 ]'&gt;&lt;/floating-ad&gt;</code></pre>
 
       <h3>全局配置（无标签时自动注入）</h3>
       <pre><code>&lt;script&gt;
   window.__FLOATING_AD_OPTIONS__ = {
     ads: [
-      { src: 'https://.../ad.jpg', title: '云服务器特惠', href: 'https://...' }
-    ],
-    position: 'left-center',
-    width: 180
+      {
+        src: 'https://cdn.jsdmirror.com/gh/meta-cosmos/img.shenzjd.com@main/img.shenzjd.com-20261112-142244-a3a7.png',
+        title: 'Panbot 网盘工具',
+        desc: '多网盘一站式管理，解决繁琐切换',
+        href: 'https://www.panbot.cn/c/PANHUB'
+      }
+    ]
   }
 &lt;/script&gt;
 &lt;script src="https://unpkg.com/@wu529778790/floating-ad@latest/dist/floating-ad.wc.js"&gt;&lt;/script&gt;</code></pre>
@@ -222,7 +235,19 @@
       <pre><code>pnpm add @wu529778790/floating-ad
 import FloatingAd from '@wu529778790/floating-ad'
 import '@wu529778790/floating-ad/style.css'
-new FloatingAd({ ads: [{ src: '/ad.jpg', title: '广告位', href: '/' }] })</code></pre>
+new FloatingAd({ ads: [{ src: '/ad.png', title: 'Panbot 网盘工具', href: 'https://www.panbot.cn/c/PANHUB' }] })</code></pre>
+
+      <h3>字段不填会怎样（除 ad-src 外全部可选）</h3>
+      <div class="note" style="margin-top:0">
+        <b>ad-src 是唯一必填项</b>：不填 → 这条广告不渲染。组件<b>没有内置默认素材</b>，所以不会出现空白广告位或占位图。
+        <ul style="margin:8px 0 0; padding-left:18px; line-height:1.9">
+          <li><code>ad-title</code> / <code>ad-desc</code> 不填 → 图下无文字，纯图卡片</li>
+          <li><code>ad-href</code> 不填 → 图片不可点击（渲染成 <code>div</code> 而不是 <code>a</code>）</li>
+          <li><code>ad-badge</code> 不填 → 无角标</li>
+          <li><code>alt</code> 不填 → 用 <code>ad-title</code>，都没有则为空（仅影响读屏）</li>
+          <li><code>position</code> / <code>width</code> / <code>image-size</code> 不填 → 桌面左中 150/120、移动左下 140/112</li>
+        </ul>
+      </div>
 
       <div class="note">
         全部支持属性：<code>position</code> <code>close-persistence</code> <code>hide-on-mobile</code>
@@ -267,7 +292,7 @@ new FloatingAd({ ads: [{ src: '/ad.jpg', title: '广告位', href: '/' }] })</co
       const width = document.getElementById('width').value
       document.getElementById('widthValue').textContent = width
 
-      // 位置 / 尺寸留空即走组件默认值（桌面左中、移动左下，桌面 150 / 移动 120）
+      // 位置 / 尺寸留空即走组件默认值（桌面左中、移动左下；桌面 150/120，移动 140/112）
       setOrRemove('position', document.getElementById('position').value)
       if (document.getElementById('customSize').checked) widget.setAttribute('width', width)
       else widget.removeAttribute('width')
