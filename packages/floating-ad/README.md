@@ -66,6 +66,8 @@ pnpm add @wu529778790/floating-ad
 >
 > 备选 CDN（GitHub 直连，push 即生效、不依赖 npm 发布）：
 > `https://cdn.jsdmirror.com/gh/wu529778790/components@main/cdn/floating-ad.wc.js`
+>
+> 上面的 unpkg 地址依赖 npm 包已发布；若该包在 npm 上尚不存在（unpkg 返回 404），请先用这条 GitHub 直连，发布之后 unpkg 自动可用。
 
 ### 方式四：NPM 双轨（React/Vue 项目照旧）
 
@@ -225,6 +227,32 @@ pnpm preview          # 启动静态服务器 http://localhost:8317
 ## 浏览器兼容
 
 现代浏览器（Chrome / Firefox / Safari / Edge），无 IE 支持计划。
+
+## 发布（维护者）
+
+本包的日常发版由 CI 完成，但**首次发布必须手动**——npm 的 OIDC Trusted Publishing 只能给「已存在且已绑定 Trusted Publisher」的包发布，对从未创建过的包名直接 PUT 会被 registry 拒绝（返回 E404，看起来像权限问题）。
+
+首次发布：
+
+```bash
+cd packages/floating-ad
+pnpm build                # 仓库根目录也可直接 pnpm build 全量构建
+npm login
+npm publish --access public
+```
+
+发布成功后，到 npmjs.com → 该包 → **Settings → Trusted publishing** 添加：
+
+| 字段 | 值 |
+| --- | --- |
+| Provider | GitHub Actions |
+| Organization / user | `wu529778790` |
+| Repository | `components` |
+| Workflow filename | `release.yml` |
+
+绑定后**必须在 2 天内**成功跑通一次 OIDC 发布完成验证，否则配置作废且不可编辑（只能删除重建）。
+
+之后的发版全自动：push 到 `main` → `Release` workflow 检测有变更的包 → `npm version patch` → 回写 commit（`[skip ci]`）→ OIDC 发布。无需配置 `NPM_TOKEN` / `NODE_AUTH_TOKEN`，**配了反而会禁用 OIDC**。
 
 ## License
 

@@ -109,13 +109,21 @@ jobs:
         run: |
           # 幂等：目标版本已在 npm 上（并发 job 已发布）则跳过，避免
           # 「版本已存在」报错把整个流程标红。
+          # 首次发布：OIDC 只能给「已存在且已配 Trusted Publisher」的包发布，
+          # 对未创建过的包名 PUT 会被 registry 拒绝（E404，看着像权限问题），
+          # 所以这里提前识别并给出可执行的提示，而不是抛一个裸 404。
+          FAILED=0
           for item in ${{ steps.bump.outputs.versions }}; do
             pkg="${item%@*}"; ver="${item#*@}"
             name=$(node -p "require('./packages/$pkg/package.json').name")
             echo ">> Publishing $name@$ver"
             if npm view "$name@$ver" version >/dev/null 2>&1; then
               echo "  ✔ $ver 已存在于 npm（并发 job 已发布），跳过"
+            elif ! npm view "$name" version >/dev/null 2>&1; then
+              echo "::error title=首次发布需手动::$name 在 npm 上尚不存在，OIDC 无法创建新包。请先本地执行 (cd packages/$pkg && pnpm build && npm login && npm publish --access public)，再到该包 Settings → Trusted publishing 绑定 GitHub Actions（wu529778790/components/release.yml），2 天内跑通一次 OIDC 发布，之后本 workflow 即可自动发版。"
+              FAILED=1
             else
               (cd "packages/$pkg" && npm publish)
             fi
           done
+          [ "$FAILED" -eq 0 ] || exit 1
