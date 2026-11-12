@@ -125,15 +125,24 @@
       <div class="field">
         <label for="position">位置 position</label>
         <select id="position">
-          <option value="left-center" selected>left-center（左侧垂直居中）</option>
+          <option value="" selected>auto（桌面左中 · 移动左下）</option>
+          <option value="left-center">left-center（左侧垂直居中）</option>
           <option value="left-bottom">left-bottom（左下）</option>
           <option value="left-top">left-top（左上）</option>
           <option value="right-center">right-center（右侧垂直居中）</option>
           <option value="right-bottom">right-bottom（右下）</option>
           <option value="right-top">right-top（右上）</option>
         </select>
+        <div class="hint">不设置时：桌面 left-center、移动端 left-bottom</div>
       </div>
       <div class="field">
+        <label>
+          <input type="checkbox" id="customSize" />
+          自定义尺寸（默认自适应：桌面 150 · 移动 120）
+        </label>
+        <div class="hint">勾选后宽度由滑块决定，移动端也用这个宽度</div>
+      </div>
+      <div class="field" id="widthField" style="display:none">
         <label for="width">宽度 width：<span id="widthValue">150</span>px</label>
         <input type="range" id="width" min="130" max="260" step="10" value="150" />
       </div>
@@ -151,9 +160,10 @@
       </div>
       <div class="field">
         <label style="font-weight:400; font-size:13px;">
-          <input type="checkbox" id="hideOnMobile" checked />
+          <input type="checkbox" id="hideOnMobile" />
           移动端隐藏 hide-on-mobile
         </label>
+        <div class="hint">默认不勾选：移动端显示小一号浮窗</div>
       </div>
       <div class="field">
         <label style="font-weight:400; font-size:13px;">
@@ -231,7 +241,7 @@ new FloatingAd({ ads: [{ src: '/ad.jpg', title: '广告位', href: '/' }] })</co
   <!-- 声明式标签：本页用标签模式，无标签时才走自动注入 -->
   <floating-ad id="demo-ad" position="left-center"></floating-ad>
 
-  <script src="../dist/floating-ad.wc.js?v=20261112"></script>
+  <script src="../dist/floating-ad.wc.js?v=20261112-2"></script>
   <script>
     const widget = document.getElementById('demo-ad')
 
@@ -257,8 +267,10 @@ new FloatingAd({ ads: [{ src: '/ad.jpg', title: '广告位', href: '/' }] })</co
       const width = document.getElementById('width').value
       document.getElementById('widthValue').textContent = width
 
-      widget.setAttribute('position', document.getElementById('position').value)
-      widget.setAttribute('width', width)
+      // 位置 / 尺寸留空即走组件默认值（桌面左中、移动左下，桌面 150 / 移动 120）
+      setOrRemove('position', document.getElementById('position').value)
+      if (document.getElementById('customSize').checked) widget.setAttribute('width', width)
+      else widget.removeAttribute('width')
       widget.setAttribute('image-fit', document.getElementById('imageFit').value)
       widget.toggleAttribute('hide-on-mobile', document.getElementById('hideOnMobile').checked)
       widget.toggleAttribute('close-persistence', document.getElementById('closePersistence').checked)
@@ -282,6 +294,12 @@ new FloatingAd({ ads: [{ src: '/ad.jpg', title: '广告位', href: '/' }] })</co
     customTheme.addEventListener('change', () => {
       document.getElementById('themeBgField').style.display = customTheme.checked ? '' : 'none'
       document.getElementById('themeAccentField').style.display = customTheme.checked ? '' : 'none'
+      apply()
+    })
+
+    const customSize = document.getElementById('customSize')
+    customSize.addEventListener('change', () => {
+      document.getElementById('widthField').style.display = customSize.checked ? '' : 'none'
       apply()
     })
 

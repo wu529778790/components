@@ -144,12 +144,18 @@ wP2.update({ ads: [{ src: 'u1.jpg', title: 'U1' }, { src: 'u2.jpg', title: 'U2' 
 assert(wP2.isMounted(), 'update re-mounts')
 assert(lastAppended.innerHTML.includes('U1') && lastAppended.innerHTML.includes('U2'), 'update applies new ads')
 
-// 10. 移动端隐藏
+// 10. 移动端：默认展示，默认落在左下角
 global.matchMedia = () => ({ matches: true })
-const wMobile = new FA({ ads: [{ src: 'm.jpg', title: 'M' }], hideOnMobile: true })
-assert(wMobile.isMounted() === false, 'hidden on mobile by default')
+const wMobile = new FA({ ads: [{ src: 'm.jpg', title: 'M' }] })
+assert(wMobile.isMounted() === true, 'renders on mobile by default')
+assert(lastAppended.dataset.position === 'left-bottom', 'defaults to left-bottom on mobile')
+const wMobileHidden = new FA({ ads: [{ src: 'm.jpg', title: 'M' }], hideOnMobile: true })
+assert(wMobileHidden.isMounted() === false, 'hideOnMobile:true hides on mobile')
+
+// 11. 桌面端默认落在左侧垂直居中
 global.matchMedia = () => ({ matches: false })
-const wMobile2 = new FA({ ads: [{ src: 'm.jpg', title: 'M' }], hideOnMobile: false })
-assert(wMobile2.isMounted() === true, 'hideOnMobile:false still renders on mobile')
+const wDesktop = new FA({ ads: [{ src: 'm.jpg', title: 'M' }] })
+assert(wDesktop.isMounted() === true, 'renders on desktop')
+assert(lastAppended.dataset.position === 'left-center', 'defaults to left-center on desktop')
 
 console.log(`\nAll ${pass} assertions passed.`)

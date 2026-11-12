@@ -206,11 +206,19 @@ a.fa-item:hover .fa-img {
   background: var(--fa-border);
 }
 
+/* 移动端：整体小一号（卡片 120 / 图片 96 / 距边 12），缺省落在左下角 */
 @media (max-width: 767px) {
   .fa-widget {
-    width: 120px;
-    padding: 9px;
-    --fa-img-size: 100px;
+    --fa-width: 120px;
+    --fa-img-size: 96px;
+    --fa-offset: 12px;
+    padding: 11px;
+  }
+
+  /* 触屏点按区域稍放大 */
+  .fa-close {
+    width: 24px;
+    height: 24px;
   }
 }
 

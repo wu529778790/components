@@ -38,23 +38,23 @@ export interface FloatingAdTheme {
 export interface FloatingAdOptions {
   /** 广告列表（按数组顺序自上而下排列；为空时不渲染浮窗） */
   ads?: FloatingAdItem[]
-  /** 浮窗位置，默认 left-center（左侧垂直居中） */
+  /** 浮窗位置，缺省：桌面 left-center / 移动端（<768px）left-bottom */
   position?: Position
   /** 关闭后是否记住状态（写入 localStorage），默认 false —— false 时刷新页面必然重新出现 */
   closePersistence?: boolean
-  /** 移动端（<768px）默认隐藏，默认 true */
+  /** 移动端（<768px）是否隐藏，默认 false（移动端展示更小一号的浮窗） */
   hideOnMobile?: boolean
   /** 浮窗 z-index，默认 9999 */
   zIndex?: number
   /** 「广告」标识文案（压在首图左上角），默认 false 不显示；传字符串则显示该文案 */
   adLabel?: string | false
-  /** 浮窗宽度（px），默认 150 */
+  /** 浮窗宽度（px），缺省：桌面 150 / 移动端 120 */
   width?: number
-  /** 浮窗距视口边缘距离（px），默认 16 */
+  /** 浮窗距视口边缘距离（px），缺省：桌面 16 / 移动端 12 */
   offset?: number
   /** 图片填充方式，默认 cover */
   imageFit?: 'cover' | 'contain'
-  /** 广告图片边长（px，正方形），默认 120 —— 与右侧公众号浮窗二维码同尺寸 */
+  /** 广告图片边长（px，正方形），缺省：桌面 120 / 移动端 96 */
   imageSize?: number
   /** 主题（映射为 CSS 变量，也可直接覆盖 --fa-* 变量） */
   theme?: FloatingAdTheme
@@ -69,10 +69,13 @@ interface ResolvedOptions {
   hideOnMobile: boolean
   zIndex: number
   adLabel: string | false
-  width: number
-  offset: number
   imageFit: 'cover' | 'contain'
-  imageSize: number
+  /** 用户显式传入的尺寸子集（未配置时不写 inline，交给 CSS 按桌面/移动端默认值走） */
+  sizeOverrides: {
+    width?: number
+    offset?: number
+    imageSize?: number
+  }
   theme: Required<FloatingAdTheme>
   /** 用户显式传入的主题子集（未配置的 key 交给 CSS 默认值，可随系统深浅色变化） */
   themeOverrides: FloatingAdTheme
@@ -121,15 +124,20 @@ function resolveOptions(options: FloatingAdOptions): ResolvedOptions {
   const raw = Array.isArray(options.ads) ? options.ads : []
   return {
     ads: raw.filter(isRenderableAd),
-    position: options.position ?? 'left-center',
+    // 移动端缺省落在左下角（不挡右侧阅读区/返回顶部按钮）
+    position: options.position ?? (isMobile() ? 'left-bottom' : 'left-center'),
     closePersistence: options.closePersistence ?? false,
-    hideOnMobile: options.hideOnMobile ?? true,
+    hideOnMobile: options.hideOnMobile ?? false,
     zIndex: options.zIndex ?? 9999,
     adLabel: options.adLabel === undefined ? false : options.adLabel,
-    width: Number.isFinite(options.width) ? Math.max(80, Number(options.width)) : 150,
-    offset: Number.isFinite(options.offset) ? Math.max(0, Number(options.offset)) : 16,
     imageFit: options.imageFit === 'contain' ? 'contain' : 'cover',
-    imageSize: Number.isFinite(options.imageSize) ? Math.max(40, Number(options.imageSize)) : 120,
+    sizeOverrides: {
+      width: Number.isFinite(options.width) ? Math.max(80, Number(options.width)) : undefined,
+      offset: Number.isFinite(options.offset) ? Math.max(0, Number(options.offset)) : undefined,
+      imageSize: Number.isFinite(options.imageSize)
+        ? Math.max(40, Number(options.imageSize))
+        : undefined
+    },
     theme: { ...DEFAULT_THEME, ...(options.theme ?? {}) },
     themeOverrides: options.theme ?? {},
     onClick: options.onClick
@@ -207,8 +215,7 @@ export class FloatingAd {
   }
 
   private render(): void {
-    const { ads, position, zIndex, themeOverrides, adLabel, width, offset, imageFit, imageSize } =
-      this.opts
+    const { ads, position, zIndex, themeOverrides, adLabel, imageFit, sizeOverrides } = this.opts
 
     if (ads.length === 0) return
 
@@ -216,10 +223,17 @@ export class FloatingAd {
     root.className = 'fa-widget'
     root.dataset.position = position
     root.style.zIndex = String(zIndex)
-    root.style.setProperty('--fa-width', `${width}px`)
-    root.style.setProperty('--fa-offset', `${offset}px`)
     root.style.setProperty('--fa-img-fit', imageFit)
-    root.style.setProperty('--fa-img-size', `${imageSize}px`)
+    // 尺寸只在用户显式配置时写 inline，其余交给 CSS（桌面 / 移动端各一套默认值）
+    if (sizeOverrides.width !== undefined) {
+      root.style.setProperty('--fa-width', `${sizeOverrides.width}px`)
+    }
+    if (sizeOverrides.offset !== undefined) {
+      root.style.setProperty('--fa-offset', `${sizeOverrides.offset}px`)
+    }
+    if (sizeOverrides.imageSize !== undefined) {
+      root.style.setProperty('--fa-img-size', `${sizeOverrides.imageSize}px`)
+    }
 
     // 仅把用户显式设置的主题写为 inline（用户优先）；
     // 未设置的 key 交给 CSS 变量默认值，以便跟随系统深浅色（prefers-color-scheme）

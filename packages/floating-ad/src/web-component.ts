@@ -42,6 +42,14 @@ function numAttr(el: HTMLElement, name: string, fallback: number): number {
   return Number.isFinite(n) ? n : fallback
 }
 
+/** 尺寸类属性：未设置返回 undefined，交给组件/CSS 用桌面或移动端默认值 */
+function sizeAttr(el: HTMLElement, name: string): number | undefined {
+  const v = el.getAttribute(name)
+  if (v === null || v === '') return undefined
+  const n = Number(v)
+  return Number.isFinite(n) ? n : undefined
+}
+
 const THEME_ATTRS: ReadonlyArray<readonly [string, keyof FloatingAdTheme]> = [
   ['theme-bg', 'bg'],
   ['theme-accent', 'accent'],
@@ -173,12 +181,12 @@ export class FloatingAdElement extends HTMLElement {
       ads,
       position: (get('position') as FloatingAdOptions['position']) ?? global.position,
       closePersistence: boolAttr(this, 'close-persistence', global.closePersistence ?? false),
-      hideOnMobile: boolAttr(this, 'hide-on-mobile', global.hideOnMobile ?? true),
+      hideOnMobile: boolAttr(this, 'hide-on-mobile', global.hideOnMobile ?? false),
       zIndex: numAttr(this, 'z-index', global.zIndex ?? 9999),
-      width: numAttr(this, 'width', global.width ?? 150),
-      offset: numAttr(this, 'offset', global.offset ?? 16),
+      width: sizeAttr(this, 'width') ?? global.width,
+      offset: sizeAttr(this, 'offset') ?? global.offset,
       imageFit,
-      imageSize: numAttr(this, 'image-size', global.imageSize ?? 120),
+      imageSize: sizeAttr(this, 'image-size') ?? global.imageSize,
       adLabel: resolveAdLabel(get('ad-label'), global.adLabel ?? false),
       theme: { ...(global.theme ?? {}), ...theme }
     }
