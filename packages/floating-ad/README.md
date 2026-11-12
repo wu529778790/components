@@ -8,10 +8,10 @@
 
 - 🧩 Web Component 封装，一行 `<script>` 注入、改一处全站生效
 - 🎯 声明式标签 `<floating-ad>`，属性改动即时热更新
-- 🖼 图片固定 120×120 方形（与右侧公众号浮窗的二维码同尺寸），`cover` / `contain` 可选，多张混排自动分隔线
+- 🖼 图片正方形、铺满卡片宽度（卡片无内边距，视觉更大），`cover` / `contain` 可选，多张混排自动分隔线
 - 🏷 可选的「广告」标识（默认不显示），开启后压首图左上角、不占排版行高
 - 🎨 CSS 变量主题化（`--fa-*`），一行覆盖背景色 / 强调色 / 圆角 / 边框
-- 📱 移动端小一号展示（卡片 140 / 图片 112），默认落在左下角，可配置隐藏
+- 📱 移动端小一号展示（卡片 140，图片同样铺满），两端都默认落在左侧垂直居中，可配置隐藏
 - 🧹 关闭即消失，默认不记住状态（刷新必重新出现）
 - 🚫 没有广告数据时不渲染任何节点，不会留一张空白卡片
 - 📦 NPM + CDN 双通道引入，TypeScript 类型齐全
@@ -86,7 +86,7 @@ new FloatingAd({
 
 | 属性 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `position` | `string` | 桌面 `left-center`<br>移动 `left-bottom` | `left-center` / `left-bottom` / `left-top` / `right-center` / `right-bottom` / `right-top` |
+| `position` | `string` | `left-center`（桌面/移动一致） | `left-center` / `left-bottom` / `left-top` / `right-center` / `right-bottom` / `right-top` |
 | `width` | `number` | 桌面 150<br>移动 140 | 浮窗宽度（px） |
 | `offset` | `number` | 桌面 16<br>移动 12 | 距视口边缘距离（px） |
 | `close-persistence` | `boolean` | 关 | 打开时关闭写入 localStorage，刷新不再出现 |
@@ -94,7 +94,7 @@ new FloatingAd({
 | `z-index` | `number` | `9999` | 浮窗层级 |
 | `ad-label` | `string` | 不显示 | 标识文案（压在首图左上角，不占行高）；空值 / `true` 显示「广告」，`false` / `none` / `off` / `0` 关闭 |
 | `image-fit` | `string` | `'cover'` | 图片填充方式：`cover` / `contain` |
-| `image-size` | `number` | 桌面 120<br>移动 112 | 广告图片边长（px，正方形） |
+| `image-size` | `number` | 铺满卡片宽度 | 广告图片边长上限（px，正方形）；小于卡片宽度时居中 |
 | `ad-src` | `string` | - | 单条广告图片 URL（必填，缺省不渲染） |
 | `ad-title` | `string` | - | 单条广告标题 |
 | `ad-desc` | `string` | - | 单条广告副文案 |
@@ -118,7 +118,7 @@ new FloatingAd({
 | 字段 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `ads` | `FloatingAdItem[]` | `[]` | 广告列表，见下 |
-| `position` | `Position` | 桌面 `left-center`<br>移动 `left-bottom` | 位置 |
+| `position` | `Position` | `'left-center'`（桌面/移动一致） | 位置 |
 | `closePersistence` | `boolean` | `false` | `true` 时关闭写入 localStorage，刷新不再出现 |
 | `hideOnMobile` | `boolean` | `true` | `<768px` 时不渲染 |
 | `zIndex` | `number` | `9999` | 浮窗层级 |
@@ -126,7 +126,7 @@ new FloatingAd({
 | `width` | `number` | 桌面 150<br>移动 140 | 宽度（px） |
 | `offset` | `number` | 桌面 16<br>移动 12 | 距边缘（px） |
 | `imageFit` | `'cover' \| 'contain'` | `'cover'` | 图片填充 |
-| `imageSize` | `number` | 桌面 120<br>移动 112 | 广告图片边长（px，正方形） |
+| `imageSize` | `number` | 铺满卡片宽度 | 广告图片边长上限（px，正方形）；小于卡片宽度时居中 |
 | `theme.bg` | `string` | 半透明白 | 背景色 |
 | `theme.accent` | `string` | `#333` | 强调色 |
 | `theme.radius` | `string` | `12px` | 圆角 |
@@ -174,12 +174,13 @@ Web Component 元素同样提供 `open()` / `close()`。
 
 | 项 | 桌面（≥768px） | 移动端（<768px） |
 | --- | --- | --- |
-| 位置 | `left-center`（左侧垂直居中） | `left-bottom`（左下角） |
+| 位置 | `left-center`（左侧垂直居中） | `left-center`（同样左侧居中） |
 | 卡片宽度 | 150px | 140px |
-| 图片边长 | 120px | 112px |
+| 图片边长 | 铺满卡片宽度（148px） | 铺满卡片宽度（138px） |
 | 距视口边缘 | 16px | 12px |
 | 关闭按钮 | 悬停出现 | 常显（触屏无 hover） |
 
+- 卡片无内边距，图片直接铺满；想缩小图片传 `image-size`（小于卡片宽度时居中）
 - 显式设置 `position` / `width` / `offset` / `imageSize` 时会覆盖两端默认值（移动端也用同一尺寸）
 - 想彻底不在移动端出现：`hide-on-mobile`
 - 想改移动端尺寸又保留响应式：直接覆盖 CSS 变量（不要传 `width` 等 JS 参数）
@@ -188,7 +189,7 @@ Web Component 元素同样提供 `open()` / `close()`。
 @media (max-width: 767px) {
   .fa-widget {
     --fa-width: 130px;
-    --fa-img-size: 104px;
+    --fa-img-size: 104px;  /* 留空/100% 则铺满卡片 */
     --fa-offset: 10px;
   }
 }
@@ -207,7 +208,7 @@ Web Component 元素同样提供 `open()` / `close()`。
   --fa-offset: 24px;       /* 距视口边缘距离 */
   --fa-width: 180px;       /* 浮窗宽度 */
   --fa-img-fit: cover;     /* 图片填充方式 */
-  --fa-img-size: 120px;   /* 广告图片边长（正方形） */
+  --fa-img-size: 120px;    /* 图片边长上限（默认 100% 铺满卡片） */
 }
 ```
 

@@ -125,7 +125,7 @@
       <div class="field">
         <label for="position">位置 position</label>
         <select id="position">
-          <option value="" selected>auto（桌面左中 · 移动左下）</option>
+          <option value="" selected>auto（左侧垂直居中 · 桌面/移动一致）</option>
           <option value="left-center">left-center（左侧垂直居中）</option>
           <option value="left-bottom">left-bottom（左下）</option>
           <option value="left-top">left-top（左上）</option>
@@ -133,7 +133,7 @@
           <option value="right-bottom">right-bottom（右下）</option>
           <option value="right-top">right-top（右上）</option>
         </select>
-        <div class="hint">不设置时：桌面 left-center、移动端 left-bottom</div>
+        <div class="hint">不设置时：左侧垂直居中（桌面与移动端一致）</div>
       </div>
       <div class="field">
         <label>
@@ -245,7 +245,7 @@ new FloatingAd({ ads: [{ src: '/ad.png', title: 'Panbot 网盘工具', href: 'ht
           <li><code>ad-href</code> 不填 → 图片不可点击（渲染成 <code>div</code> 而不是 <code>a</code>）</li>
           <li><code>ad-badge</code> 不填 → 无角标</li>
           <li><code>alt</code> 不填 → 用 <code>ad-title</code>，都没有则为空（仅影响读屏）</li>
-          <li><code>position</code> / <code>width</code> / <code>image-size</code> 不填 → 桌面左中 150/120、移动左下 140/112</li>
+          <li><code>position</code> / <code>width</code> / <code>image-size</code> 不填 → 两端都左中；卡片桌面 150 / 移动 140，图片铺满卡片（无内边距）</li>
         </ul>
       </div>
 
@@ -266,7 +266,7 @@ new FloatingAd({ ads: [{ src: '/ad.png', title: 'Panbot 网盘工具', href: 'ht
   <!-- 声明式标签：本页用标签模式，无标签时才走自动注入 -->
   <floating-ad id="demo-ad" position="left-center"></floating-ad>
 
-  <script src="../dist/floating-ad.wc.js?v=20261112-3"></script>
+  <script src="../dist/floating-ad.wc.js?v=20261112-4"></script>
   <script>
     const widget = document.getElementById('demo-ad')
 
@@ -292,7 +292,7 @@ new FloatingAd({ ads: [{ src: '/ad.png', title: 'Panbot 网盘工具', href: 'ht
       const width = document.getElementById('width').value
       document.getElementById('widthValue').textContent = width
 
-      // 位置 / 尺寸留空即走组件默认值（桌面左中、移动左下；桌面 150/120，移动 140/112）
+      // 位置 / 尺寸留空即走组件默认值（两端都在左侧垂直居中；卡片桌面 150 / 移动 140，图片铺满）
       setOrRemove('position', document.getElementById('position').value)
       if (document.getElementById('customSize').checked) widget.setAttribute('width', width)
       else widget.removeAttribute('width')

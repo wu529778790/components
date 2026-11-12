@@ -5,14 +5,17 @@
   --fa-border: rgba(0, 0, 0, 0.1);
   --fa-offset: 16px;
   --fa-width: 150px;
-  --fa-img-size: 120px;
+  /* 图片边长上限：默认 100% 让图片铺满卡片（无内边距），
+     显式传 imageSize / --fa-img-size 时才小于卡片宽度并居中 */
+  --fa-img-size: 100%;
   --fa-img-fit: cover;
 
   position: fixed;
   z-index: 9999;
   box-sizing: border-box;
   width: var(--fa-width);
-  padding: 14px;
+  padding: 0;
+  overflow: hidden;
   background: var(--fa-bg);
   border: 1px solid var(--fa-border);
   border-radius: var(--fa-radius);
@@ -64,8 +67,9 @@
 
 .fa-close {
   position: absolute;
-  top: -2px;
-  right: -2px;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -75,14 +79,18 @@
   margin: 0;
   border: none;
   border-radius: 50%;
-  background: transparent;
-  color: rgba(0, 0, 0, 0.35);
+  /* 图片铺满卡片后按钮压在图上，用半透明底保证任何图都能看清 */
+  background: rgba(0, 0, 0, 0.38);
+  color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   cursor: pointer;
-  transition: color 0.15s ease, opacity 0.15s ease;
+  transition: background 0.15s ease, opacity 0.15s ease;
 }
 
 .fa-close:hover {
-  color: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.58);
+  color: #fff;
 }
 
 /* 触屏设备（无 hover）：关闭按钮常显，保证可关闭 */
@@ -134,15 +142,17 @@ a.fa-item {
   cursor: pointer;
 }
 
-/* 图片固定方形（默认 120×120，与右侧公众号浮窗的二维码尺寸一致） */
+/* 图片正方形，默认铺满卡片宽度（卡片无内边距）；
+   显式传 imageSize 时作为边长上限，图片在卡片内居中 */
 .fa-media {
   position: relative;
   display: block;
-  width: var(--fa-img-size, 120px);
-  height: var(--fa-img-size, 120px);
+  width: 100%;
+  max-width: var(--fa-img-size, 100%);
+  aspect-ratio: 1 / 1;
   margin: 0 auto;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 0;
   background: rgba(0, 0, 0, 0.04);
 }
 
@@ -167,7 +177,8 @@ a.fa-item:hover .fa-img {
 .fa-tag {
   position: absolute;
   top: 6px;
-  right: 6px;
+  /* 让开关闭按钮（右上角 6px + 22px） */
+  right: 34px;
   padding: 1px 6px;
   font-size: 10px;
   line-height: 1.5;
@@ -176,14 +187,15 @@ a.fa-item:hover .fa-img {
   color: var(--fa-bg);
 }
 
+/* 卡片已无内边距，文字区自带左右留白 */
 .fa-body {
   display: block;
-  margin-top: 8px;
+  padding: 8px 12px 12px;
   text-align: left;
 }
 
 .fa-item > .fa-body:first-child {
-  margin-top: 0;
+  padding-top: 12px;
 }
 
 .fa-title {
@@ -202,17 +214,15 @@ a.fa-item:hover .fa-img {
 
 .fa-divider {
   height: 1px;
-  margin: 10px 0;
+  margin: 8px 12px;
   background: var(--fa-border);
 }
 
-/* 移动端：比桌面略小一号（卡片 140 / 图片 112 / 距边 12），缺省落在左下角 */
+/* 移动端：比桌面略小一号（卡片 140 / 图片铺满 / 距边 12），缺省同样落在左侧垂直居中 */
 @media (max-width: 767px) {
   .fa-widget {
     --fa-width: 140px;
-    --fa-img-size: 112px;
     --fa-offset: 12px;
-    padding: 13px;
   }
 
   /* 触屏点按区域稍放大 */
@@ -238,14 +248,6 @@ a.fa-item:hover .fa-img {
 
   .fa-media {
     background: rgba(255, 255, 255, 0.06);
-  }
-
-  .fa-close {
-    color: rgba(255, 255, 255, 0.4);
-  }
-
-  .fa-close:hover {
-    color: rgba(255, 255, 255, 0.8);
   }
 
   .fa-desc {

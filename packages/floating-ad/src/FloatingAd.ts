@@ -38,7 +38,7 @@ export interface FloatingAdTheme {
 export interface FloatingAdOptions {
   /** 广告列表（按数组顺序自上而下排列；为空时不渲染浮窗） */
   ads?: FloatingAdItem[]
-  /** 浮窗位置，缺省：桌面 left-center / 移动端（<768px）left-bottom */
+  /** 浮窗位置，缺省：left-center（桌面与移动端一致，左侧垂直居中） */
   position?: Position
   /** 关闭后是否记住状态（写入 localStorage），默认 false —— false 时刷新页面必然重新出现 */
   closePersistence?: boolean
@@ -54,7 +54,7 @@ export interface FloatingAdOptions {
   offset?: number
   /** 图片填充方式，默认 cover */
   imageFit?: 'cover' | 'contain'
-  /** 广告图片边长（px，正方形），缺省：桌面 120 / 移动端 112 */
+  /** 广告图片边长上限（px，正方形）。缺省铺满卡片宽度；设置后小于卡片宽度时居中 */
   imageSize?: number
   /** 主题（映射为 CSS 变量，也可直接覆盖 --fa-* 变量） */
   theme?: FloatingAdTheme
@@ -124,8 +124,8 @@ function resolveOptions(options: FloatingAdOptions): ResolvedOptions {
   const raw = Array.isArray(options.ads) ? options.ads : []
   return {
     ads: raw.filter(isRenderableAd),
-    // 移动端缺省落在左下角（不挡右侧阅读区/返回顶部按钮）
-    position: options.position ?? (isMobile() ? 'left-bottom' : 'left-center'),
+    // 桌面与移动端缺省一致：左侧垂直居中（不挡正文，也不压右下角的返回顶部按钮）
+    position: options.position ?? 'left-center',
     closePersistence: options.closePersistence ?? false,
     hideOnMobile: options.hideOnMobile ?? false,
     zIndex: options.zIndex ?? 9999,
