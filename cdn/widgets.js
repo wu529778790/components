@@ -254,7 +254,7 @@
   z-index: 9999;
   box-sizing: border-box;
   width: var(--fa-width);
-  padding: 15px;
+  padding: 14px;
   background: var(--fa-bg);
   border: 1px solid var(--fa-border);
   border-radius: var(--fa-radius);
@@ -451,7 +451,7 @@ a.fa-item:hover .fa-img {
 @media (max-width: 767px) {
   .fa-widget {
     width: 120px;
-    padding: 10px;
+    padding: 9px;
     --fa-img-size: 100px;
   }
 }
