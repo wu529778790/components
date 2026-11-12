@@ -448,13 +448,13 @@ a.fa-item:hover .fa-img {
   background: var(--fa-border);
 }
 
-/* \u79FB\u52A8\u7AEF\uFF1A\u6574\u4F53\u5C0F\u4E00\u53F7\uFF08\u5361\u7247 120 / \u56FE\u7247 96 / \u8DDD\u8FB9 12\uFF09\uFF0C\u7F3A\u7701\u843D\u5728\u5DE6\u4E0B\u89D2 */
+/* \u79FB\u52A8\u7AEF\uFF1A\u6BD4\u684C\u9762\u7565\u5C0F\u4E00\u53F7\uFF08\u5361\u7247 140 / \u56FE\u7247 112 / \u8DDD\u8FB9 12\uFF09\uFF0C\u7F3A\u7701\u843D\u5728\u5DE6\u4E0B\u89D2 */
 @media (max-width: 767px) {
   .fa-widget {
-    --fa-width: 120px;
-    --fa-img-size: 96px;
+    --fa-width: 140px;
+    --fa-img-size: 112px;
     --fa-offset: 12px;
-    padding: 11px;
+    padding: 13px;
   }
 
   /* \u89E6\u5C4F\u70B9\u6309\u533A\u57DF\u7A0D\u653E\u5927 */
