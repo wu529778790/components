@@ -1,4 +1,4 @@
-/* @wu529778790/floating-ad v0.1.3 */
+/* @wu529778790/floating-ad v0.1.4 */
 "use strict";
 (() => {
   // src/FloatingAd.ts

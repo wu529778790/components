@@ -105,7 +105,7 @@
     // { href: 'https://newshub.shenzjd.com', label: '热点聚合', icon: '📰' },
     { href: "https://tvbox.shenzjd.com/", label: "TVbox \u63A5\u53E3", icon: "\u{1F4FA}" },
     { href: "https://navhub.shenzjd.com", label: "\u5BFC\u822A\u68EE\u6797", icon: "\u{1F9ED}" },
-    { href: "https://freeimg.shenzjd.com/", label: "\u514D\u8D39\u751F\u56FE", icon: "\u{1F193}" },
+    { href: "https://jietingche.shenzjd.com/", label: "\u505C\u8F66\u6708\u5361", icon: "\u{1F17F}\uFE0F" },
     { href: "https://portfolio.shenzjd.com/products", label: "\u66F4\u591A", icon: "\u2728" }
   ];
   var DEFAULT_BRAND = {
